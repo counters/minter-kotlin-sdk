@@ -25,7 +25,7 @@ class Main {
                 "payload":"","gas":"10000","from":"Mx...","service_data":"","gas_coin":"BIP","type":6,"raw_tx":"******","nonce":"1",
                 "hash":"Mt.....","tags":{"tx.type":"06","tx.from":"****"}}])
                 */
-            val estimateCoinSell = minterApi.estimateCoinSell("BIP", 1.0, "BIP")
+            val estimateCoinSell = minterApi.estimateCoinSell("ROBOT", 1.0, "BIP")
             println(estimateCoinSell) // EstimateCoinSell(willGet=21.908222878076707, commission=0.1)
             val estimateCoinBuy = minterApi.estimateCoinBuy("BIP", 1.0, "BTCSECURE")
             println(estimateCoinBuy) // EstimateCoinBuy(willPay=0.04564504450213553, commission=0.1)

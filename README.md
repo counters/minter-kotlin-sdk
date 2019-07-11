@@ -58,7 +58,7 @@ println(block) /* BlockRaw(height=2, time=2019-05-15T18:05:02.395+03:00, num_txs
 #### estimateCoinSell (estimateCoinSell)
 Return estimate of sell coin transaction
 ```kotlin
-val estimateCoinSell = minterApi.estimateCoinSell("BIP", 1.0, "BIP")
+val estimateCoinSell = minterApi.estimateCoinSell("ROBOT", 1.0, "BIP")
 println(estimateCoinSell) // EstimateCoinSell(willGet=21.908222878076707, commission=0.1)
           
 ```
