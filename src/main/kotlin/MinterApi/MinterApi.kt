@@ -1,9 +1,6 @@
 package MinterApi
 
-import Minter.Api
-import Minter.Coin
-import Minter.Minter
-import Minter.MinterMatch
+import Minter.*
 import khttp.get
 import org.json.JSONArray
 import org.json.JSONObject
@@ -63,15 +60,48 @@ class MinterApi(var nodeUrl: String? = null) {
         return null
     }
 
+    fun getBlockRaw(height: Long): MinterRaw.BlockRaw? {
+        var proposer: String = ""
+        val transaction = ArrayList<MinterRaw.TransactionRaw>()
+        val transaction_json = ArrayList<JSONObject>()
+        val parseTransaction = ParseTransaction()
+        val block = getBlock(height, {
+            proposer = it
+            0
+        }, {
+            it.forEach {
+                val obj = it as JSONObject
+                transaction_json.add(obj)
+                parseTransaction.getRaw(obj, height)?.let {
+                    transaction.add(it)
+                }
+            }
+        })
+        if (block != null) {
+            val blockRaw = MinterRaw.BlockRaw(
+                height,
+                block.time,
+                block.num_txs,
+                block.total_txs,
+                block.reward,
+                block.size,
+                proposer,
+                transaction,
+                transaction_json
+            )
+            return blockRaw
+        }
+        return null
+    }
+
     fun getNode(
         pub_key: String,
         height: Long = 0,
         reward_address: ((address: String) -> Long)? = null,
         owner_address: ((address: String) -> Long)? = null
     ): Minter.Node? {
-//        pub_key=_&height
         val jsonObj = this.get(Method.NODE, mapOf("pub_key" to pub_key, "height" to height.toString()))
-//                println("getNode($pub_key, $height)\n"+jsonObj)
+//      println("getNode($pub_key, $height)\n"+jsonObj)
         if (jsonObj != null) {
             var result: JSONObject? = null
             if (!jsonObj.isNull("result")) {
@@ -79,12 +109,38 @@ class MinterApi(var nodeUrl: String? = null) {
             }
             if (result != null) return parseNode.get(result, reward_address, owner_address)
         }
-//        println("Error getBlock($height)")
+//        println("Error getNode($pub_key)")
+        return null
+    }
+
+    fun getNodeRaw(
+        pub_key: String,
+        height: Long = 0
+    ): MinterRaw.NodeRaw? {
+        var reward: String = ""
+        var owner: String = ""
+        val node = getNode(pub_key, height, {
+            reward = it
+            0
+        }, {
+            owner = it
+            0
+        })
+        if (node != null) {
+            val minterRaw = MinterRaw.NodeRaw(
+                reward = reward,
+                owner = owner,
+                pub_key = pub_key,
+                commission = node.commission,
+                crblock = node.crblock
+            )
+            return minterRaw
+        }
+
         return null
     }
 
     fun getCoin(symbol: String, height: Long = 0): Minter.Coin? {
-//        pub_key=_&height  symbol
         val jsonObj = this.get(Method.COIN, mapOf("symbol" to symbol, "height" to height.toString()))
 //                println("getNode($pub_key, $height)\n"+jsonObj)
         if (jsonObj != null) {
@@ -94,12 +150,13 @@ class MinterApi(var nodeUrl: String? = null) {
             }
             if (result != null) return parseCoin.get(result)
         }
-//        println("Error getBlock($height)")
         return null
     }
+/*    fun getCoinRaw(symbol: String, height: Long = 0): Minter.Coin? {
+        return getCoin(symbol, height)
+    }*/
 
     fun getAddress(address: String, height: Long = 0): Minter.Wallet? {
-//        pub_key=_&height
         val jsonObj = this.get(Method.ADDRESS, mapOf("address" to address, "height" to height.toString()))
 //                println("getAddress($address, $height)\n"+jsonObj)
         if (jsonObj != null) {
@@ -107,11 +164,8 @@ class MinterApi(var nodeUrl: String? = null) {
             if (!jsonObj.isNull("result")) {
                 result = jsonObj.getJSONObject("result")
             }
-
             if (result != null) return Minter.Wallet(null, address)
-//                return parseWallet.get(result)
         }
-//        println("Error getBlock($height)")
         return null
     }
 
@@ -124,7 +178,6 @@ class MinterApi(var nodeUrl: String? = null) {
             }
             if (result != null) return parseStatus.get(result)
 //                return parseWallet.get(result)
-
         }
         return null
     }

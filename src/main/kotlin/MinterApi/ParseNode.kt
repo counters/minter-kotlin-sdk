@@ -4,14 +4,7 @@ import Minter.Minter
 import org.json.JSONObject
 
 class ParseNode {
-    /*   data class Node(
-           val id: Int?,
-           val reward: Long,
-           val owner: Long,
-           val pub_key: String,
-           val commission: Int,
-           val crblock: Long
-       )*/
+
     fun get(
         result: JSONObject,
         reward_address: ((address: String) -> Long)? = null,
@@ -32,7 +25,7 @@ class ParseNode {
 //      val proposer = if (result.isNull("proposer")) "0" else result.getString("proposer")
 //        val node: Minter.Node? = null
         val node = Minter.Node(null, reward, owner, pub_key, commission, crblock)
-//        println (block)
+//        println (node)
         return node
 //        return Block.Block(height,)
     }

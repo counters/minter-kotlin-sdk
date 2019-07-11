@@ -1,14 +1,58 @@
 package MinterApi
 
-import Minter.Conf
-import Minter.Minter
-import Minter.MinterMatch
-import Minter.TransactionTypes
+import Minter.*
 import org.json.JSONObject
 
 class ParseTransaction {
     var minterMatch = MinterMatch()
     //    defaultCoin
+    fun getRaw(result: JSONObject, height: Long): MinterRaw.TransactionRaw? {
+        var gascoin: String = ""
+        var coin: String = ""
+        var node: String = ""
+        var from: String = ""
+        var to: String? = null
+
+        val transaction = get(result, height, {
+            gascoin = it // @TODO !!
+            coin = it// @TODO !!
+            0 // Coin
+        }, {
+            from = it// @TODO !!
+            to = it// @TODO !!
+            0L // Wallet
+        }, {
+            node = it
+            0 // Node
+        }, fun(jsonObject: JSONObject, address: String): Int? {
+            return 0 // CreateCoin
+        }, fun(jsonObject: JSONObject, type: Int) {
+            // Other
+        }
+        )
+
+        if (transaction != null) {
+            val transactionRaw = MinterRaw.TransactionRaw(
+                transaction.hash,
+                transaction.height,
+                transaction.type,
+                from,
+                to,
+                node,
+                transaction.stake,
+                coin,
+                transaction.amount,
+                transaction.gas_price,
+                transaction.commission,
+                transaction.payload,
+                transaction.gas,
+                gascoin
+            )
+            return transactionRaw
+        }
+        return null
+    }
+
     fun get(
         result: JSONObject, height: Long,
         getCoin: ((symbol: String) -> Int),
