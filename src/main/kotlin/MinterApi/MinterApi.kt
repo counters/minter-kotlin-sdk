@@ -9,7 +9,7 @@ class MinterApi(var nodeUrl: String? = null) {
 
     private val parseBlock = ParseBlock()
     private val parseNode = ParseNode()
-    //    private val parseWallet = ParseWallet()
+    private val parseWallet = ParseWallet()
 //    private val parseTransaction = ParseTransaction()
     private val parseCoin = ParseCoin()
     private val parseStatus = ParseStatus()
@@ -164,7 +164,9 @@ class MinterApi(var nodeUrl: String? = null) {
             if (!jsonObj.isNull("result")) {
                 result = jsonObj.getJSONObject("result")
             }
-            if (result != null) return Minter.Wallet(null, address)
+            if (result != null)
+                return parseWallet.get(result, address)
+//                return Minter.Wallet(null, address)
         }
         return null
     }

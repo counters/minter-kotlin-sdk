@@ -38,7 +38,10 @@ class Minter {
 
     data class Wallet(
         val id: Long?,
-        val address: String
+        val address: String,
+        val count_txs: Int,
+//        val balance: List<MutableMap<String, Double>>
+        val balance: MutableMap<String, Double>
     )
 
     data class Payload(
