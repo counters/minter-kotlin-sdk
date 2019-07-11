@@ -1,8 +1,4 @@
 import MinterApi.MinterApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-
 
 class Main {
     companion object {
@@ -12,11 +8,11 @@ class Main {
 
             val minterApi = MinterApi("https://minter-node-2.testnet.minter.network:8841")
 
-            /**/
+
             val status = minterApi.getStatus()
-              println(status)
+            println(status) // Status(height=977154, datetime=2019-07-11T21:26:22.119+03:00, network=minter-mainnet-1)
               val node = minterApi.getNodeRaw("Mp01cc99ae5a349ecaeef187dcbb12816bf2b3d8eae80f654034b21213aa445b2c")
-              println(node)
+            println(node) // NodeRaw(reward=Mx0a76...dd711, owner=Mx5ebe...7799, pub_key=Mp01cc...5b2c, commission=10, crblock=4)
             val coin = minterApi.getCoin("ROBOT")
             println(coin) //  Coin(id=null, symbol=ROBOT, length=5, name=Coin for robots, creater=null, crr=80, ...)
             val wallet = minterApi.getAddress("Mxcd633fd8ec1b0a181627dfd72f9ba25e93f0c899")
@@ -54,12 +50,7 @@ class Main {
                 0
             })
 
-
-            GlobalScope.launch {
-                delay(3000)
-                println("Hello from Kotlin Coroutines!")
-
-            }
         }
     }
+
 }
