@@ -4,6 +4,8 @@
 Minter Blockchain Kotlin SDK [Minter.network](https://minter.network) (unofficial).
 Kotlin SDK was originally developed for internal parser of service [Interсhain.Zone](https://minter.interchain.zone) 
 
+![Minter Blockchain Kotlin SDK](static/minter-kotlin-sdk-header.png "Minter Blockchain Kotlin SDK")
+
 #### Simple using
 ```kotlin
 import MinterApi.MinterApi
