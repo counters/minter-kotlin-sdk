@@ -21,7 +21,7 @@ class ParseNode {
         if (reward == null || owner == null) return null
         val pub_key = result.getString("pub_key")
         val commission = result.getInt("commission")
-        val crblock = result.getLong("created_at_block")
+        val crblock = if (result.isNull("crblock")) 1 else result.getLong("crblock")
 //      val proposer = if (result.isNull("proposer")) "0" else result.getString("proposer")
 //        val node: Minter.Node? = null
         val node = Minter.Node(null, reward, owner, pub_key, commission, crblock)
