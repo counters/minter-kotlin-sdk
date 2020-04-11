@@ -20,3 +20,4 @@ class ParseWallet {
         return wallet
     }
 }
+
