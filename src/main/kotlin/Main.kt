@@ -38,7 +38,7 @@ class Main {
                 val owner = minterApi.getAddress(it)
 //                println(owner)
                 if (owner != null) {
-                    owner.balance.forEach { coin, amount ->
+                    owner.balance!!.forEach { coin, amount ->
                         if (coin != "BIP") {
                             val priceInBip = minterApi.estimateCoinSell(coin, amount, "BIP")!!.willGet
                             println("$amount $coin = $priceInBip BIP") // 100.00006004578127 BTCSECURE = 4.564748939706455 BIP
