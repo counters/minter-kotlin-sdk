@@ -6,7 +6,7 @@ class Main {
         fun main(args: Array<String>) {
             println("Hello from Kotlin")
 
-            val minterApi = MinterApi("https://minter-node-2.testnet.minter.network:8841")
+            val minterApi = MinterApi("http://127.0.0.1:8841")
 
 
             val status = minterApi.getStatus()
