@@ -5,12 +5,12 @@ import khttp.get
 import org.json.JSONArray
 import org.json.JSONObject
 
-class MinterApi(var nodeUrl: String? = null) {
+class MinterApi(var nodeUrl: String? = null, val timeout: Double) {
 
     private val parseBlock = ParseBlock()
     private val parseNode = ParseNode()
     private val parseWallet = ParseWallet()
-//    private val parseTransaction = ParseTransaction()
+    //    private val parseTransaction = ParseTransaction()
     private val parseCoin = ParseCoin()
     private val parseStatus = ParseStatus()
     private val parseEstimateCoinBuy = ParseEstimateCoinBuy()
@@ -273,8 +273,10 @@ class MinterApi(var nodeUrl: String? = null) {
         return false
     }
 
+
     /*    /estimate_coin_buy?coin_to_sell=_&coin_to_buy=_&value_to_buy=_&height=_
      /estimate_coin_sell?coin_to_sell=_&coin_to_buy=_&value_to_sell=_&height=_*/
+
 
     private fun get(
         method: Method,
@@ -282,7 +284,7 @@ class MinterApi(var nodeUrl: String? = null) {
         notFound: ((result: JSONObject) -> Unit)? = null
     ): JSONObject? {
 //        println("MinterApi.get($method, $params)\n")
-        val r = get(this.nodeUrl + "/" + method.patch, params = params)
+        val r = get(this.nodeUrl + "/" + method.patch, params = params, timeout=timeout)
         if (r.statusCode == 200) {
             return r.jsonObject
         } else if (r.statusCode == 404) {
