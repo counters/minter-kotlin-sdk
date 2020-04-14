@@ -152,7 +152,11 @@ class ParseTransaction {
 
 
 //            to = getWallet(data.getString("address"))
-                if (coin==null && type != TransactionTypes.TypeCreateCoin&& type != TransactionTypes.TypeEditCandidate  && type != TransactionTypes.TypeSetCandidateOnline  && type != TransactionTypes.TypeSetCandidateOffline && type != TransactionTypes.TypeRedeemCheck  && type != TransactionTypes.TypeCreateMultisig ) coin = this.getCoin(data.getString("coin"), getCoin)
+                if (coin==null && type != TransactionTypes.TypeCreateCoin&& type != TransactionTypes.TypeEditCandidate  && type != TransactionTypes.TypeSetCandidateOnline  && type != TransactionTypes.TypeSetCandidateOffline && type != TransactionTypes.TypeRedeemCheck  && type != TransactionTypes.TypeCreateMultisig )
+                {
+                    if (data.getString("coin") == Conf.defaultCoin) getCoin(data.getString("coin"))
+                    coin = this.getCoin(data.getString("coin"), getCoin)
+                }
 
 
             }
