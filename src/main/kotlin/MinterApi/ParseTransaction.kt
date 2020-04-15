@@ -8,8 +8,8 @@ class ParseTransaction {
     //    defaultCoin
     fun getRaw(result: JSONObject, height: Long): MinterRaw.TransactionRaw? {
         var gascoin: String = ""
-        var coin: String = ""
-        var node: String = ""
+        var coin: String? = null
+        var node: String? = null
         var from: String = ""
         var to: String? = null
 
@@ -164,7 +164,6 @@ class ParseTransaction {
 //        println("type $type gas_price $gas_price gas $gas gas_coin $gas_coin from $from        ")
             transaction = Minter.Transaction(
                 null,
-//            null,
                 hash,
                 height,
                 type,

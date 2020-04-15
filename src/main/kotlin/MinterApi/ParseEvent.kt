@@ -8,11 +8,15 @@ import org.json.JSONObject
 class ParseEvent {
     var minterMatch = MinterMatch()
 
-    //    defaultCoin
+    /**
+     * get raw events
+     */
     fun getRaw(result: JSONObject, height: Long): List<MinterRaw.EventRaw>? {
-        var coin: String = ""
+        var coin: String? = null
         var wallet: String = ""
         var node: String = ""
+
+        val array = ArrayList<MinterRaw.EventRaw>()
 
 
         val eventList = get(result, height, {
@@ -24,18 +28,31 @@ class ParseEvent {
         }, {
             node = it
             0 // getNode
+        }, null, {
+            var role: String? = null
+            if (it.role != null) {
+                role = EventRole.get(it.role!!).name
+            }
+            val eventRaw = MinterRaw.EventRaw(
+                height = height,
+                node = node,
+                wallet = wallet,
+                coin = coin,
+                type = EventType.get(it.type).name,
+                amount = it.amount,
+                role = role
+            )
+            array.add(eventRaw)
         }
         )
 
-        if (eventList != null) {
+/*        if (eventList != null) {
             val array = ArrayList<MinterRaw.EventRaw>()
             eventList.forEach {
-//                val roleObj = EventRole.get(it.role)
                 var role: String? = null
                 if (it.role!=null){
                     role = EventRole.get(it.role!!).name
                 }
-
                 val eventRaw = MinterRaw.EventRaw(
                     height = height,
                     node = node,
@@ -46,12 +63,12 @@ class ParseEvent {
                     role = role
                 )
                 array.add(eventRaw)
-
             }
-
             return array
-        }
-        return null
+        }*/
+        if (eventList == null)
+            return null
+        else return array
     }
 
     fun get(
@@ -61,7 +78,8 @@ class ParseEvent {
         getWallet: ((address: String) -> Long),
         getNode: ((address: String) -> Int),
 //        getType: ((address: String) -> Int),
-        getOther: ((jsonObject: JSONObject) -> Unit)? = null
+        getOther: ((jsonObject: JSONObject) -> Unit)? = null,
+        success: ((event: Minter.Event) -> Unit)? = null
     ): List<Minter.Event>? {
 //        println(result)
 //        var event: Minter.Event? = null
@@ -97,6 +115,7 @@ class ParseEvent {
                 )
                 array.add(event)
                 getOther?.invoke(eventJsonObject)
+                success?.invoke(event)
             }
 
 //            println(array)
