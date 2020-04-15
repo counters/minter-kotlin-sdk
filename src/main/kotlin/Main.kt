@@ -7,7 +7,11 @@ class Main {
             println("Hello from Kotlin")
 
             val minterApi = MinterApi("http://127.0.0.1:8841")
+//            val minterApi = MinterApi("http://192.168.2.222:8841")
 
+            val events = minterApi.getEventsRaw(14)
+//            val events = minterApi.getEventsRaw(120)
+            println(events)
 
             val status = minterApi.getStatus()
             println(status) // Status(height=977154, datetime=2019-07-11T21:26:22.119+03:00, network=minter-mainnet-1)

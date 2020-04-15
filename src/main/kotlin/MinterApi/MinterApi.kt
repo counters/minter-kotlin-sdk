@@ -5,7 +5,7 @@ import khttp.get
 import org.json.JSONArray
 import org.json.JSONObject
 
-class MinterApi(var nodeUrl: String? = null, val timeout: Double) {
+class MinterApi(var nodeUrl: String? = null, val timeout: Double=30.0) {
 
     private val parseBlock = ParseBlock()
     private val parseNode = ParseNode()
@@ -15,6 +15,7 @@ class MinterApi(var nodeUrl: String? = null, val timeout: Double) {
     private val parseStatus = ParseStatus()
     private val parseEstimateCoinBuy = ParseEstimateCoinBuy()
     private val parseEstimateCoinSell = ParseEstimateCoinSell()
+    private val parseEvents = ParseEvent()
 
     private val minterMatch = MinterMatch()
 
@@ -31,9 +32,43 @@ class MinterApi(var nodeUrl: String? = null, val timeout: Double) {
         STATUS("status"),
         ESTIMATE_COIN_BUY("estimate_coin_buy"),
         ESTIMATE_COIN_SELL("estimate_coin_sell"),
+        EVENTS("events"),
     }
 
-    //    Transaction
+    //    get Events
+    fun getEvents(height: Long,
+                  getCoin: ((symbol: String) -> Int),
+                  getWallet: ((address: String) -> Long),
+                  getNode: ((address: String) -> Int),
+                  getOther: ((jsonObject: JSONObject) -> Unit)? = null
+    ): List<Minter.Event>? {
+
+        val jsonObj = this.get(Method.EVENTS, mapOf("height" to height.toString()))
+        if (jsonObj != null) {
+            var result: JSONObject? = null
+            if (!jsonObj.isNull("result")) {
+                result = jsonObj.getJSONObject("result")
+            }
+            if (result != null) return parseEvents.get(result, height, getCoin,getWallet,getNode,getOther)
+        }
+//        println("Error getBlock($height)")
+        return null
+    }    //    Transaction
+
+    fun getEventsRaw(height: Long): List<MinterRaw.EventRaw>? {
+
+        val jsonObj = this.get(Method.EVENTS, mapOf("height" to height.toString()))
+        if (jsonObj != null) {
+            var result: JSONObject? = null
+            if (!jsonObj.isNull("result")) {
+                result = jsonObj.getJSONObject("result")
+            }
+            if (result != null) return parseEvents.getRaw(result, height)
+        }
+//        println("Error getBlock($height)")
+        return null
+    }    //    Transaction
+
     fun getBlock(
         height: Long,
         proposer_call: ((pub_key: String) -> Int?)? = null,

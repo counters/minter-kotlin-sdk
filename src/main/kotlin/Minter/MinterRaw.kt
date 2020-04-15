@@ -56,5 +56,14 @@ class MinterRaw {
         var transaction: List<TransactionRaw>,
         var transaction_json: List<JSONObject>?
     )
+    data class EventRaw(
+        val height: Long?,
+        val node: String,
+        val wallet: String,
+        val coin: String?,
+        val type: String,
+        val amount: Double,
+        var role: String?
+    )
 
 }

@@ -107,4 +107,14 @@ class Minter {
         val datetime: DateTime,
         val network: String
     )
+
+    data class Event(
+        val height: Long?,
+        val node: Int,
+        val wallet: Long,
+        val coin: Int?,
+        val type: Int,
+        val amount: Double,
+        var role: Int?
+    )
 }
