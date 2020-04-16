@@ -14,6 +14,8 @@ class Minter {
         var reward: Double,
         var size: Long,
         var proposer: Int?
+//        var transaction: List<Transaction>?,
+//        var validators: List<SignedValidators>?
     )
 
     data class SignedValidators(val id: Int, val signed: Boolean)

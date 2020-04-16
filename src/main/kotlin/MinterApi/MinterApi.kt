@@ -69,27 +69,31 @@ class MinterApi(var nodeUrl: String? = null, val timeout: Double=30.0) {
         return null
     }    //    Transaction
 
+//    val validators = ArrayList<MinterRaw.SignedValidatorsRaw>()
     fun getBlock(
         height: Long,
         proposer_call: ((pub_key: String) -> Int?)? = null,
-        transactions: ((transactions: JSONArray) -> Unit)? = null/*,
-                 getOther: ((address: String) -> Int)? = null*/
+        transactions: ((transactions: JSONArray) -> Unit)? = null,
+        validators_call: ((validators: JSONArray) -> Unit)? = null
     ): Minter.Block? {
-
         val jsonObj = this.get(Method.BLOCK, mapOf("height" to height.toString()))
-//                println("getBlock($height)\n "+jsonObj)
         if (jsonObj != null) {
             var result: JSONObject? = null
             if (!jsonObj.isNull("result")) {
                 result = jsonObj.getJSONObject("result")
             }
-            if (result != null) return parseBlock.get(result, {
-                proposer_call?.invoke(it)
-            }, {
-                if (transactions != null) {
-                    transactions(it)
-                }
-            }) //proposer_call
+            if (result != null) {
+                return parseBlock.get(result, {
+                    proposer_call?.invoke(it)
+                }, {
+                    if (transactions != null) {
+                        transactions(it)
+                    }
+                }, {
+                            validators_call?.invoke(it)
+
+                }) //proposer_call
+            }
         }
 //        println("Error getBlock($height)")
         return null
@@ -98,7 +102,10 @@ class MinterApi(var nodeUrl: String? = null, val timeout: Double=30.0) {
     fun getBlockRaw(height: Long): MinterRaw.BlockRaw? {
         var proposer: String = ""
         val transaction = ArrayList<MinterRaw.TransactionRaw>()
+//        val validators = ArrayList<MinterRaw.SignedValidatorsRaw>()
         val transaction_json = ArrayList<JSONObject>()
+        val signedValidators = ArrayList<MinterRaw.SignedValidatorsRaw>()
+
         val parseTransaction = ParseTransaction()
         val block = getBlock(height, {
             proposer = it
@@ -111,6 +118,15 @@ class MinterApi(var nodeUrl: String? = null, val timeout: Double=30.0) {
                     transaction.add(it)
                 }
             }
+        }, {
+            it.forEach { node_sign ->
+                val obj = node_sign as JSONObject
+                val pub_key = obj.getString("pub_key")
+                val signed = obj.getBoolean("signed")
+//                       val nodeId = getNode?.invoke(pub_key)
+                val signedValidator = MinterRaw.SignedValidatorsRaw(pub_key, signed)
+                signedValidators.add(signedValidator)
+            }
         })
         if (block != null) {
             val blockRaw = MinterRaw.BlockRaw(
@@ -122,7 +138,9 @@ class MinterApi(var nodeUrl: String? = null, val timeout: Double=30.0) {
                 block.size,
                 proposer,
                 transaction,
-                transaction_json
+                signedValidators,
+                null
+//                transaction_json
             )
             return blockRaw
         }
@@ -286,7 +304,6 @@ class MinterApi(var nodeUrl: String? = null, val timeout: Double=30.0) {
                 }
             }
         )
-//                println("estimateCoinSell($coinToSell, $valueToSell, $coinToBuy, $height)\n"+jsonObj)
         if (jsonObj != null) {
             var result: JSONObject? = null
             if (!jsonObj.isNull("result")) {

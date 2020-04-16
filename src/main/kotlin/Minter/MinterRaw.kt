@@ -45,6 +45,9 @@ class MinterRaw {
         val gascoin: String
     )
 
+    data class SignedValidatorsRaw(val node: String, val signed: Boolean)
+
+
     data class BlockRaw(
         val height: Long?,
         val time: DateTime,
@@ -54,8 +57,11 @@ class MinterRaw {
         var size: Long,
         var proposer: String,
         var transaction: List<TransactionRaw>,
+        var validators: List<SignedValidatorsRaw>,
         var transaction_json: List<JSONObject>?
     )
+
+
     data class EventRaw(
         val height: Long?,
         val node: String,

@@ -7,10 +7,10 @@ class Main {
             println("Hello from Kotlin")
 
             val minterApi = MinterApi("http://127.0.0.1:8841")
-//            val minterApi = MinterApi("http://192.168.2.222:8841")
+//            val minterApi = MinterApi("http://192.168.2.222:8841", 90.0)
 
+//            val events = minterApi.getEventsRaw(14)
             val events = minterApi.getEventsRaw(14)
-//            val events = minterApi.getEventsRaw(120)
             println(events)
 
             val status = minterApi.getStatus()
@@ -21,7 +21,7 @@ class Main {
             println(coin) //  Coin(id=null, symbol=ROBOT, length=5, name=Coin for robots, creater=null, crr=80, ...)
             val wallet = minterApi.getAddress("Mxcd633fd8ec1b0a181627dfd72f9ba25e93f0c899")
             println(wallet) // Wallet(id=null, address=Mxcd633fd8ec1b0a181627dfd72f9ba25e93f0c899, count_txs=17, balance={BTCSECURE=5.3534213964374E-5, BIP=4245.51470327139, SATOSHI=888.8888})
-            val block = minterApi.getBlockRaw(2)
+            val block = minterApi.getBlockRaw(2043)
             println(block) /*
             BlockRaw(height=2, time=2019-05-15T18:05:02.395+03:00, num_txs=3, total_txs=3, reward=333.0, size=4310, proposer=Mp...,
                 transaction=[TransactionRaw(hash=Mt..., height=2, type=5, from=Mx..., to=null, node=, stake=15000000000000000000000000,
