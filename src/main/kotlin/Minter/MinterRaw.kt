@@ -37,6 +37,7 @@ class MinterRaw {
         val node: String?,
         val stake: String?,
         val coin: String?,
+        val coin2: String?,
         val amount: Double?,
         val gas_price: Int,
         val commission: Int?,

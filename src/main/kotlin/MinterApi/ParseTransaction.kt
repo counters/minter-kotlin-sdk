@@ -9,12 +9,16 @@ class ParseTransaction {
     fun getRaw(result: JSONObject, height: Long): MinterRaw.TransactionRaw? {
         var gascoin: String = ""
         var coin: String? = null
+        var coin2: String? = null
         var node: String? = null
         var from: String = ""
         var to: String? = null
 
         val transaction = get(result, height, {
             coin = it
+            0 // Coin
+        }, {
+            coin2 = it
             0 // Coin
         }, {
             gascoin = it
@@ -46,6 +50,7 @@ class ParseTransaction {
                 node,
                 transaction.stake,
                 coin,
+                coin2,
                 transaction.amount,
                 transaction.gas_price,
                 transaction.commission,
@@ -61,6 +66,7 @@ class ParseTransaction {
     fun get(
         result: JSONObject, height: Long,
         getCoin: ((symbol: String) -> Int),
+        getCoin2: ((symbol: String) -> Int),
         getGasCoin: ((symbol: String) -> Int),
         getFromWallet: ((address: String) -> Long),
         getToWallet: ((address: String) -> Long),
@@ -94,6 +100,7 @@ class ParseTransaction {
             var to: Long? = null
             var stake: String? = null
             var coin: Int? = null
+            var coin2: Int? = null
             var node: Int? = null
             var amount: Double? = null
 
@@ -132,24 +139,28 @@ class ParseTransaction {
 
                 } else if (type == TransactionTypes.TypeSellAllCoin) {
                     coin = this.getCoin(data.getString("coin_to_sell"), getCoin)
+                    coin2 = this.getCoin(data.getString("coin_to_buy"), getCoin2)
                     stake = result.getJSONObject("tags").getString("tx.sell_amount")
                     amount = minterMatch.getAmount(stake)
                     /*tags	tx.sell_amount*/
                 } else if (type == TransactionTypes.TypeBuyCoin) {
-                    coin = this.getCoin(data.getString("coin_to_sell"), getCoin)
-                    stake = result.getJSONObject("tags").getString("tx.return")
+                    coin = this.getCoin(data.getString("coin_to_buy"), getCoin)
+                    coin2 = this.getCoin(data.getString("coin_to_sell"), getCoin2)
+//                    stake = result.getJSONObject("tags").getString("tx.return")
+                    stake = data.getString("value_to_buy")
                     amount = minterMatch.getAmount(stake)
                     /*tags	tx.sell_amount*/
                 } else if (type == TransactionTypes.TypeSellCoin) {
                     coin = this.getCoin(data.getString("coin_to_sell"), getCoin)
-                    stake = result.getJSONObject("tags").getString("tx.return")
+                    coin2 = this.getCoin(data.getString("coin_to_buy"), getCoin2)
+//                    stake = result.getJSONObject("tags").getString("tx.return")
+                    stake = data.getString("value_to_sell")
                     amount = minterMatch.getAmount(stake)
                     /*tags	tx.sell_amount*/
                 } else if (type == TransactionTypes.TypeEditCandidate) {
                     node = getNode(data.getString("pub_key"))
                     to = getToWallet(data.getString("reward_address"))
                 }
-
 
 //            to = getWallet(data.getString("address"))
                 if (coin==null && type != TransactionTypes.TypeCreateCoin&& type != TransactionTypes.TypeEditCandidate  && type != TransactionTypes.TypeSetCandidateOnline  && type != TransactionTypes.TypeSetCandidateOffline && type != TransactionTypes.TypeRedeemCheck  && type != TransactionTypes.TypeCreateMultisig )
@@ -184,8 +195,8 @@ class ParseTransaction {
     }
 
     fun getCoin(symbol: String, getCoin: ((symbol: String) -> Int)): Int {
-        if (symbol != Conf.defaultCoin)
+//        if (symbol != Conf.defaultCoin)
             return getCoin(symbol)
-        return Conf.defaultCoinUid
+//        return Conf.defaultCoinUid
     }
 }
