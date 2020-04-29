@@ -5,7 +5,11 @@ import khttp.get
 import org.json.JSONArray
 import org.json.JSONObject
 
-class MinterApi(var nodeUrl: String? = null, val timeout: Double=30.0) {
+class MinterApi(
+    var nodeUrl: String? = null,
+    val timeout: Double = 30.0,
+    val headers: Map<String, String>? = null
+) {
 
     private val parseBlock = ParseBlock()
     private val parseNode = ParseNode()
@@ -335,8 +339,12 @@ class MinterApi(var nodeUrl: String? = null, val timeout: Double=30.0) {
         params: Map<String, String>,
         notFound: ((result: JSONObject) -> Unit)? = null
     ): JSONObject? {
+        val url = this.nodeUrl + "/" + method.patch
 //        println("MinterApi.get($method, $params)\n")
-        val r = get(this.nodeUrl + "/" + method.patch, params = params, timeout=timeout)
+        val r = if (headers != null)
+            get(url, params = params, timeout = timeout, headers = headers)
+        else
+            get(url, params = params, timeout = timeout)
         if (r.statusCode == 200) {
             return r.jsonObject
         } else if (r.statusCode == 404) {
