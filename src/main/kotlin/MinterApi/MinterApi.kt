@@ -257,7 +257,6 @@ class MinterApi(
         height: Long = 0,
         notFoundCoin: ((symbol: String) -> Unit)? = null
     ): Coin.EstimateCoinBuy? {
-//        pub_key=_&height
         val jsonObj = this.get(Method.ESTIMATE_COIN_BUY,
             mapOf(
                 "coin_to_sell" to coinToSell, "value_to_buy" to valueToBuy,
@@ -273,7 +272,6 @@ class MinterApi(
             }
 
             if (result != null) return parseEstimateCoinBuy.get(result)
-//                return parseWallet.get(result)
         }
 //        println("Error getBlock($height)")
         return null
@@ -328,12 +326,6 @@ class MinterApi(
 //        println("this.notFoundCoin() false")
         return false
     }
-
-
-    /*    /estimate_coin_buy?coin_to_sell=_&coin_to_buy=_&value_to_buy=_&height=_
-     /estimate_coin_sell?coin_to_sell=_&coin_to_buy=_&value_to_sell=_&height=_*/
-
-
     private fun get(
         method: Method,
         params: Map<String, String>,
