@@ -20,6 +20,7 @@ class MinterApi(
     private val parseEstimateCoinBuy = ParseEstimateCoinBuy()
     private val parseEstimateCoinSell = ParseEstimateCoinSell()
     private val parseEvents = ParseEvent()
+    private val parseTransaction = ParseTransaction()
 
     private val minterMatch = MinterMatch()
 
@@ -37,6 +38,7 @@ class MinterApi(
         ESTIMATE_COIN_BUY("estimate_coin_buy"),
         ESTIMATE_COIN_SELL("estimate_coin_sell"),
         EVENTS("events"),
+        TRANSACTION("transaction"),
     }
 
     //    get Events
@@ -73,6 +75,20 @@ class MinterApi(
         return null
     }    //    Transaction
 
+    fun getTransactionRaw(hash: String): MinterRaw.TransactionRaw? {
+        val jsonObj = this.get(Method.TRANSACTION, mapOf("hash" to hash))
+        if (jsonObj != null) {
+            var result: JSONObject? = null
+            var height: Long = 0
+            if (!jsonObj.isNull("result")) {
+                result = jsonObj.getJSONObject("result")
+                height = result.getLong("height");
+            }
+            if (result != null) return parseTransaction.getRaw(result, height)
+        }
+//        println("Error getBlock($height)")
+        return null
+    }
 //    val validators = ArrayList<MinterRaw.SignedValidatorsRaw>()
     fun getBlock(
         height: Long,
@@ -346,4 +362,6 @@ class MinterApi(
 //        println(r)
         return null
     }
+
+
 }
