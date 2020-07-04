@@ -56,12 +56,20 @@ println(block) /* BlockRaw(height=2, time=2019-05-15T18:05:02.395+03:00, num_txs
                 */          
 ```
 
-#### transaction (getTransactionRaw)
+#### Transaction (getTransactionRaw)
 Returns transaction.
 ```kotlin
 val transaction = minterApi.getTransactionRaw("Mt0e8fa325a4541c628448cdb53dd02455cfe80e01e848920ba5836bb67105ee21")
             println(transaction) /* TransactionRaw(hash=0E..21, height=1733080, type=1, from=Mx0903..af1b, to=Mxabcd..0321, node=null, 
             stake=40960000000000000000, coin=UPLOAD, coin2=null, amount=40.96, gas_price=1, commission=null, payload=true, gas=134, gascoin=BIP)
+            */          
+```
+
+#### Events (getEventsRaw)
+Returns event.
+```kotlin
+val events = minterApi.getEventsRaw(37920)
+println(events) /*  [EventRaw(height=37920, node=Mp8888..8888, wallet=Mxd4b4..a80d, coin=null, type=Reward, amount=5.4633626394576E-4, role=Delegator),...]
             */          
 ```
 
