@@ -95,7 +95,13 @@ class ParseTransaction {
             }
 
             val fromStr = result.getString("from")
-            val from = getFromWallet(fromStr)
+//            val from: Long
+            val from = if (type == TransactionTypes.TypeRedeemCheck) {
+                val fromStrRedeemCheck ="Mx"+result.getJSONObject("tags").getString("tx.from")
+                getFromWallet(fromStrRedeemCheck)
+            } else {
+                getFromWallet(fromStr)
+            }
 
             var to: Long? = null
             var stake: String? = null
@@ -116,6 +122,8 @@ class ParseTransaction {
 
                 if (type == TransactionTypes.TypeSend) {
                     to = getToWallet(data.getString("to"))
+                    stake = data.getString("value")
+                    amount = minterMatch.getAmount(stake)
                 } else if (type == TransactionTypes.TypeDelegate || type == TransactionTypes.TypeUnbond) {
                     stake = data.getString("value")
                     amount = minterMatch.getAmount(stake)
@@ -160,6 +168,9 @@ class ParseTransaction {
                 } else if (type == TransactionTypes.TypeEditCandidate) {
                     node = getNode(data.getString("pub_key"))
                     to = getToWallet(data.getString("reward_address"))
+                } else if (type == TransactionTypes.TypeRedeemCheck) {
+                    to = getToWallet("Mx"+result.getJSONObject("tags").getString("tx.to"))
+                    coin = this.getCoin(result.getJSONObject("tags").getString("tx.coin"), getCoin)
                 }
 
 //            to = getWallet(data.getString("address"))
