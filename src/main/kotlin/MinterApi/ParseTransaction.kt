@@ -113,8 +113,30 @@ class ParseTransaction {
             var commission: Int? = null
 
             if (type == TransactionTypes.TypeMultiSend) {
-//                val data_list = result.getJSONObject("data").getJSONArray("list")
-//            println("TransactionTypes.TypeMultiSend $data_list")
+                val data_list = result.getJSONObject("data").getJSONArray("list")
+//                println("TransactionTypes.TypeMultiSend $data_list")
+                var globalAmountInMultisend: Double? = 0.0;
+                var globalCoinInMultisend: String? = null
+                var return_data_list = false // @TODO remove patch
+                data_list.forEach data_list@{
+                    if (return_data_list) return@data_list
+                    val innerJsonObject = it as JSONObject
+                    val coinInMultisend = innerJsonObject.getString("coin")
+                    if (globalCoinInMultisend == null || globalCoinInMultisend == coinInMultisend) {
+                        globalCoinInMultisend=coinInMultisend
+                        globalAmountInMultisend = globalAmountInMultisend!!.plus(minterMatch.getAmount(innerJsonObject.getString("value")))
+                    } else {
+                        globalAmountInMultisend = null
+                        globalCoinInMultisend = null
+                        return_data_list = true
+                        return@data_list
+//                        return@forEach
+                    }
+                }
+                if (globalCoinInMultisend!=null) {
+                    coin = this.getCoin(globalCoinInMultisend!!, getCoin)
+                    amount= globalAmountInMultisend
+                }
             } else {
 
                 val data = result.getJSONObject("data")
