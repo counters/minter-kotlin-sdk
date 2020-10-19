@@ -172,16 +172,17 @@ class MinterApi(
         pub_key: String,
         height: Long = 0,
         reward_address: ((address: String) -> Long)? = null,
-        owner_address: ((address: String) -> Long)? = null
+        owner_address: ((address: String) -> Long)? = null,
+        control_address: ((address: String) -> Long)? = null
     ): Minter.Node? {
         val jsonObj = this.get(Method.NODE.patch+"/"+pub_key, mapOf("height" to height.toString()))
 //      println("getNode($pub_key, $height)\n"+jsonObj)
         if (jsonObj != null) {
             var result: JSONObject? = null
-            if (!jsonObj.isNull("result")) {
-                result = jsonObj.getJSONObject("result")
+            if (jsonObj.isNull("error")) {
+                result = jsonObj
             }
-            if (result != null) return parseNode.get(result, reward_address, owner_address)
+            if (result != null) return parseNode.get(result, reward_address, owner_address, control_address)
         }
 //        println("Error getNode($pub_key)")
         return null
@@ -193,20 +194,28 @@ class MinterApi(
     ): MinterRaw.NodeRaw? {
         var reward: String = ""
         var owner: String = ""
+        var control: String = ""
         val node = getNode(pub_key, height, {
             reward = it
             0
         }, {
             owner = it
             0
+        }, {
+            control = it
+            0
         })
         if (node != null) {
             val minterRaw = MinterRaw.NodeRaw(
                 reward = reward,
                 owner = owner,
+                control = control,
                 pub_key = pub_key,
                 commission = node.commission,
-                crblock = node.crblock
+                crblock = node.crblock,
+                slots = node.slots,
+            users = node.users,
+           min_stake = node.min_stake
             )
             return minterRaw
         }
@@ -219,8 +228,8 @@ class MinterApi(
 //                println("getNode($pub_key, $height)\n"+jsonObj)
         if (jsonObj != null) {
             var result: JSONObject? = null
-            if (!jsonObj.isNull("result")) {
-                result = jsonObj.getJSONObject("result")
+            if (jsonObj.isNull("error")) {
+                result = jsonObj
             }
             if (result != null) return parseCoin.get(result)
         }

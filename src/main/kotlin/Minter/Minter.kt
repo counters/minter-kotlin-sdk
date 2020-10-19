@@ -57,8 +57,12 @@ class Minter {
         val id: Int?,
         val reward: Long,
         val owner: Long,
+        val control: Long,
         val pub_key: String,
         val commission: Int,
+        val slots: Int,
+        val users: Int,
+        val min_stake: Double,
         val crblock: Long
     )
 

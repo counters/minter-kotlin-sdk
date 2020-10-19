@@ -9,8 +9,12 @@ class MinterRaw {
     data class NodeRaw(
         val reward: String,
         val owner: String,
+        val control: String,
         val pub_key: String,
         val commission: Int,
+        val slots: Int,
+        val users: Int,
+        val min_stake: Double,
         val crblock: Long
     )
 
