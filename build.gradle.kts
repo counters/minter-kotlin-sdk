@@ -19,7 +19,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     testCompile("junit", "junit", "4.12")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1")
+//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1")
 
 //    implementation(group = "com.github.kittinunf.fuel", name = "fuel", version = "-SNAPSHOT")
 //    implementation(group = "com.github.kittinunf.fuel", name = "fuel-coroutines", version = "-SNAPSHOT")

@@ -37,7 +37,8 @@ class ParseBlock {
 
         transactions?.invoke(result.getJSONArray("transactions"))
 
-        val num_txs = result.getInt("num_txs")
+        val num_txs = if (result.isNull("transaction_count")) 0 else result.getInt("transaction_count")
+
         val total_txs = if (result.isNull("total_txs")) 0 else result.getInt("total_txs")
         val size = result.getLong("size")
         val block_reward = result.getString("block_reward")

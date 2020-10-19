@@ -2,9 +2,9 @@ package Minter
 
 
 import org.joda.time.DateTime
+import Minter.CoinObjClass.CoinObj
 
 class Minter {
-
 
     data class Block(
         val height: Long?,
@@ -29,13 +29,14 @@ class Minter {
         val to: Long?,
         val node: Int?,
         val stake: String?,
-        val coin: Int?,
+        val coin: CoinObj?,
+        val coin2: CoinObj?,
         val amount: Double?,
         val gas_price: Int,
         val commission: Int?,
         val payload: Boolean,
         val gas: Int,
-        val gascoin: Int
+        val gascoin: CoinObj
     )
 
     data class Wallet(

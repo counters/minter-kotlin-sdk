@@ -49,7 +49,7 @@ class MinterApi(
                   getOther: ((jsonObject: JSONObject) -> Unit)? = null
     ): List<Minter.Event>? {
 
-        val jsonObj = this.get(Method.EVENTS, mapOf("height" to height.toString()))
+        val jsonObj = this.get(Method.EVENTS.patch, mapOf("height" to height.toString()))
         if (jsonObj != null) {
             var result: JSONObject? = null
             if (!jsonObj.isNull("result")) {
@@ -63,7 +63,7 @@ class MinterApi(
 
     fun getEventsRaw(height: Long): List<MinterRaw.EventRaw>? {
 
-        val jsonObj = this.get(Method.EVENTS, mapOf("height" to height.toString()))
+        val jsonObj = this.get(Method.EVENTS.patch, mapOf("height" to height.toString()))
         if (jsonObj != null) {
             var result: JSONObject? = null
             if (!jsonObj.isNull("result")) {
@@ -76,7 +76,7 @@ class MinterApi(
     }    //    Transaction
 
     fun getTransactionRaw(hash: String): MinterRaw.TransactionRaw? {
-        val jsonObj = this.get(Method.TRANSACTION, mapOf("hash" to hash))
+        val jsonObj = this.get(Method.TRANSACTION.patch, mapOf("hash" to hash))
         if (jsonObj != null) {
             var result: JSONObject? = null
             var height: Long = 0
@@ -96,11 +96,12 @@ class MinterApi(
         transactions: ((transactions: JSONArray) -> Unit)? = null,
         validators_call: ((validators: JSONArray) -> Unit)? = null
     ): Minter.Block? {
-        val jsonObj = this.get(Method.BLOCK, mapOf("height" to height.toString()))
+//        val jsonObj = this.get(Method.BLOCK.patch, mapOf("height" to height.toString()))
+        val jsonObj = this.get(Method.BLOCK.patch+"/"+height.toString())
         if (jsonObj != null) {
             var result: JSONObject? = null
-            if (!jsonObj.isNull("result")) {
-                result = jsonObj.getJSONObject("result")
+            if (jsonObj.isNull("error")) {
+                result = jsonObj
             }
             if (result != null) {
                 return parseBlock.get(result, {
@@ -115,7 +116,7 @@ class MinterApi(
                 }) //proposer_call
             }
         }
-//        println("Error getBlock($height)")
+//        println("Error getBlock($height) $jsonObj")
         return null
     }
 
@@ -141,7 +142,7 @@ class MinterApi(
         }, {
             it.forEach { node_sign ->
                 val obj = node_sign as JSONObject
-                val pub_key = obj.getString("pub_key")
+                val pub_key = obj.getString("public_key")
                 val signed = obj.getBoolean("signed")
 //                       val nodeId = getNode?.invoke(pub_key)
                 val signedValidator = MinterRaw.SignedValidatorsRaw(pub_key, signed)
@@ -173,7 +174,7 @@ class MinterApi(
         reward_address: ((address: String) -> Long)? = null,
         owner_address: ((address: String) -> Long)? = null
     ): Minter.Node? {
-        val jsonObj = this.get(Method.NODE, mapOf("pub_key" to pub_key, "height" to height.toString()))
+        val jsonObj = this.get(Method.NODE.patch+"/"+pub_key, mapOf("height" to height.toString()))
 //      println("getNode($pub_key, $height)\n"+jsonObj)
         if (jsonObj != null) {
             var result: JSONObject? = null
@@ -214,7 +215,7 @@ class MinterApi(
     }
 
     fun getCoin(symbol: String, height: Long = 0): Minter.Coin? {
-        val jsonObj = this.get(Method.COIN, mapOf("symbol" to symbol, "height" to height.toString()))
+        val jsonObj = this.get(Method.COIN.patch, mapOf("symbol" to symbol, "height" to height.toString()))
 //                println("getNode($pub_key, $height)\n"+jsonObj)
         if (jsonObj != null) {
             var result: JSONObject? = null
@@ -226,7 +227,7 @@ class MinterApi(
         return null
     }
     fun getCoinRaw(symbol: String, height: Long = 0): MinterRaw.CoinRaw? {
-        val jsonObj = this.get(Method.COIN, mapOf("symbol" to symbol, "height" to height.toString()))
+        val jsonObj = this.get(Method.COIN.patch, mapOf("symbol" to symbol, "height" to height.toString()))
 //                println("getNode($pub_key, $height)\n"+jsonObj)
         if (jsonObj != null) {
             var result: JSONObject? = null
@@ -242,7 +243,7 @@ class MinterApi(
     }*/
 
     fun getAddress(address: String, height: Long = 0): Minter.Wallet? {
-        val jsonObj = this.get(Method.ADDRESS, mapOf("address" to address, "height" to height.toString()))
+        val jsonObj = this.get(Method.ADDRESS.patch, mapOf("address" to address, "height" to height.toString()))
 //                println("getAddress($address, $height)\n"+jsonObj)
         if (jsonObj != null) {
             var result: JSONObject? = null
@@ -258,14 +259,16 @@ class MinterApi(
 
     fun getStatus(): Minter.Status? {
         var result: JSONObject? = null
-        val jsonObj = this.get(Method.STATUS, mapOf())
+        val jsonObj = this.get(Method.STATUS.patch, mapOf())
         if (jsonObj != null) {
-            if (!jsonObj.isNull("result")) {
-                result = jsonObj.getJSONObject("result")
+            if (!jsonObj.isNull("latest_block_height") &&jsonObj.isNull("error")) {
+//                result = jsonObj.getJSONObject("result")
+                result = jsonObj
             }
             if (result != null) return parseStatus.get(result)
 //                return parseWallet.get(result)
         }
+        println("getStatus()\n"+jsonObj)
         return null
     }
 
@@ -285,7 +288,7 @@ class MinterApi(
         height: Long = 0,
         notFoundCoin: ((symbol: String) -> Unit)? = null
     ): Coin.EstimateCoinBuy? {
-        val jsonObj = this.get(Method.ESTIMATE_COIN_BUY,
+        val jsonObj = this.get(Method.ESTIMATE_COIN_BUY.patch,
             mapOf(
                 "coin_to_sell" to coinToSell, "value_to_buy" to valueToBuy,
                 "coin_to_buy" to coinToBuy, "height" to height.toString()
@@ -321,7 +324,7 @@ class MinterApi(
         height: Long = 0,
         notFoundCoin: ((symbol: String) -> Unit)? = null
     ): Coin.EstimateCoinSell? {
-        val jsonObj = this.get(Method.ESTIMATE_COIN_SELL,
+        val jsonObj = this.get(Method.ESTIMATE_COIN_SELL.patch,
             mapOf(
                 "coin_to_sell" to coinToSell, "value_to_sell" to valueToSell,
                 "coin_to_buy" to coinToBuy, "height" to height.toString()
@@ -355,16 +358,25 @@ class MinterApi(
         return false
     }
     private fun get(
-        method: Method,
-        params: Map<String, String>,
+//        method: Method,
+        patch: String,
+        params: Map<String, String>? = null,
         notFound: ((result: JSONObject) -> Unit)? = null
     ): JSONObject? {
-        val url = this.nodeUrl + "/" + method.patch
-//        println("MinterApi.get($method, $params)\n")
-        val r = if (headers != null)
-            get(url, params = params, timeout = timeout, headers = headers)
+//        val url = this.nodeUrl + "/" + method.patch+"/2"
+        val url = this.nodeUrl + "/" + patch
+//        val url = this.nodeUrl + "/" + method.patch+"/" +params.getValue('height')
+        println("MinterApi.get($url, $params)\n")
+
+        val _params = if (params == null)
+            mapOf()
         else
-            get(url, params = params, timeout = timeout)
+            params
+
+        val r = if (headers != null)
+            get(url, params = _params, timeout = timeout, headers = headers)
+        else
+            get(url, params = _params, timeout = timeout)
         if (r.statusCode == 200) {
             return r.jsonObject
         } else if (r.statusCode == 404) {

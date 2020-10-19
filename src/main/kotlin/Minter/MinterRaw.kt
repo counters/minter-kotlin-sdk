@@ -2,6 +2,7 @@ package Minter
 
 import org.joda.time.DateTime
 import org.json.JSONObject
+import Minter.CoinObjClass.CoinObj
 
 class MinterRaw {
 
@@ -31,14 +32,14 @@ class MinterRaw {
         val to: String?,
         val node: String?,
         val stake: String?,
-        val coin: String?,
-        val coin2: String?,
+        val coin: CoinObj?,
+        val coin2: CoinObj?,
         val amount: Double?,
         val gas_price: Int,
         val commission: Int?,
         val payload: Boolean,
         val gas: Int,
-        val gascoin: String
+        val gascoin: CoinObj
     )
 
     data class SignedValidatorsRaw(val node: String, val signed: Boolean)
