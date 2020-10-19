@@ -3,11 +3,11 @@ package Minter.Utils
 object EventRole {
     data class Data(val name: String, val uid: Int, val raw: String? = null)
 
-    private val DAO = Data("DAO", 1)
-    private val Developers = Data("Developers", 2)
-    private val Validator = Data("Validator", 3)
-    private val Delegator = Data("Delegator", 4)
-    private val NoName = Data("NoName", 0)
+    val DAO = Data("DAO", 1)
+    val Developers = Data("Developers", 2)
+    val Validator = Data("Validator", 3)
+    val Delegator = Data("Delegator", 4)
+    val NoName = Data("NoName", 0)
 
     fun get(raw: String):Data {
         return when (raw) {

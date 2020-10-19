@@ -17,15 +17,10 @@ class MinterRaw {
         val symbol: String,
         val length: Int,
         val name: String,
-        val creater: String,
         val crr: Int,
-        val initrpip: String?,
-        val initreserv: Double?,
-        val initapip: String?,
-        val initamount: Double?,
-        val crblock: Long?,
-        val enabled: Boolean,
-        val numcr: Int
+        val volume: Double,
+        val reserve_balance: Double,
+        val max_supply: Double
     )
 
     data class TransactionRaw(

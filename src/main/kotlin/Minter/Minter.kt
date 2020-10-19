@@ -76,6 +76,14 @@ class Minter {
         val enabled: Boolean,
         val numcr: Int
     )
+    
+    data class CoinCurr(
+        val coin: Int?,
+        val volume: Double,
+        val reserve: Double,
+        val sell: Double,
+        val height: Long?
+    )
 
     data class CoinChange(
         val height: Long,

@@ -2,6 +2,7 @@ package MinterApi
 
 import Minter.Minter
 import Minter.MinterMatch
+import Minter.MinterRaw
 import org.joda.time.DateTime
 import org.json.JSONArray
 import org.json.JSONObject
@@ -42,7 +43,9 @@ class ParseBlock {
         val block_reward = result.getString("block_reward")
         val reward = minterMatch.getAmount(block_reward)
 
-        val block = Minter.Block(height, time, num_txs, total_txs, reward, size, proposer)
+//        val transaction = ArrayList<Minter.Transaction>()
+//        val signedValidators = ArrayList<Minter.SignedValidators>()
+        val block = Minter.Block(height, time, num_txs, total_txs, reward, size, proposer/*, transaction, validators*/)
 //        println (block)
         return block
     }

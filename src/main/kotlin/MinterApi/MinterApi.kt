@@ -225,6 +225,18 @@ class MinterApi(
         }
         return null
     }
+    fun getCoinRaw(symbol: String, height: Long = 0): MinterRaw.CoinRaw? {
+        val jsonObj = this.get(Method.COIN, mapOf("symbol" to symbol, "height" to height.toString()))
+//                println("getNode($pub_key, $height)\n"+jsonObj)
+        if (jsonObj != null) {
+            var result: JSONObject? = null
+            if (!jsonObj.isNull("result")) {
+                result = jsonObj.getJSONObject("result")
+            }
+            if (result != null) return parseCoin.getRaw(result)
+        }
+        return null
+    }
 /*    fun getCoinRaw(symbol: String, height: Long = 0): Minter.Coin? {
         return getCoin(symbol, height)
     }*/
