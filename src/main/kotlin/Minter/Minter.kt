@@ -43,10 +43,17 @@ class Minter {
         val id: Long?,
         val address: String,
         val count_txs: Int?,
-//        val balance: List<MutableMap<String, Double>>
-        val balance: MutableMap<String, Double>?
+        val balance: List<Balance>,
+        val delegated: List<Balance>?,
+        val total: List<Balance>?,
+        val bip_value: Double
     )
 
+    data class Balance(
+        val coin: CoinObj,
+        val value: Double,
+        val bipValue: Double
+    )
     data class Payload(
         val transaction: Long?,
         val text: String,
@@ -67,19 +74,22 @@ class Minter {
     )
 
     data class Coin(
-        val id: Int?,
+        val id: Int,
         val symbol: String,
         val length: Int,
         val name: String,
         val creater: Long?,
+        val owner: Long?,
         val crr: Int,
+        val volume: Double,
+        val reserve: Double,
+        val max_supply: Double,
         val initrpip: String?,
         val initreserv: Double?,
         val initapip: String?,
         val initamount: Double?,
         val crblock: Long?,
-        val enabled: Boolean,
-        val numcr: Int
+        val enabled: Boolean
     )
     
     data class CoinCurr(
@@ -127,7 +137,7 @@ class Minter {
         val height: Long?,
         val node: Int,
         val wallet: Long,
-        val coin: Int?,
+        val coin: CoinObj?,
         val type: Int,
         val amount: Double,
         var role: Int?

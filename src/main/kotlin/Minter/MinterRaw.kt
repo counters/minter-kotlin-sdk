@@ -19,12 +19,13 @@ class MinterRaw {
     )
 
     data class CoinRaw(
+        val id: Int?,
         val symbol: String,
-        val length: Int,
         val name: String,
+        val owner: String?,
         val crr: Int,
         val volume: Double,
-        val reserve_balance: Double,
+        val reserve: Double,
         val max_supply: Double
     )
 
@@ -67,7 +68,7 @@ class MinterRaw {
         val height: Long?,
         val node: String,
         val wallet: String,
-        val coin: String?,
+        val coin: CoinObj?,
         val type: String,
         val amount: Double,
         var role: String?

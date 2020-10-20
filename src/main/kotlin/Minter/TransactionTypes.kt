@@ -16,5 +16,11 @@ object TransactionTypes {
     const val TypeCreateMultisig = 12
     const val TypeMultiSend = 13 // 2
     const val TypeEditCandidate = 14
+    const val TypeSetHaltBlock = 15
+    const val TypeRecreateCoin = 16
+    const val TypeEditCoinOwner = 17
+    const val TypeEditMultisig = 18
+    const val TypePriceVote = 19
+    const val TypeEditCandidatePublicKey = 20
 
 }

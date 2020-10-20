@@ -6,32 +6,43 @@ import org.json.JSONObject
 
 object ParseCreateCoin {
     private val minterMatch = MinterMatch()
-    fun get(result: JSONObject, creater: Long?, crblock: Long?): Coin? {
+    fun get(data: JSONObject, tags: JSONObject, creater: Long?, crblock: Long?): Coin? {
+//        val data = result.getJSONObject("data")
 //        var coin: Coin? = null
-        val name = result.getString("name")
-        val symbol = result.getString("symbol")
+        val name = data.getString("name")
+//        val coinObj = CoinObjClass.fromJson(result.getJSONObject("name"))
+        val symbol = data.getString("symbol")
         val length = symbol.length
-        val constant_reserve_ratio = result.getInt("constant_reserve_ratio")
-        val initrpip = result.getString("initial_reserve")
+        val constant_reserve_ratio = data.getInt("constant_reserve_ratio")
+        val initrpip = data.getString("initial_reserve")
         val initreserv = minterMatch.getAmount(initrpip)
-        val initial_amount = result.getString("initial_amount")
+        val initial_amount = data.getString("initial_amount")
         val initamount = minterMatch.getAmount(initial_amount)
         val enabled = true
+//        val owner_address ="Mx"+tags.getString("tx.from")
+        val owner_address =creater
+
+        val volume= initamount
+        val reserve_balance= initreserv
+        val max_supply = minterMatch.getAmount(data.getString("max_supply") )
+
+        val coinId = tags.getInt("tx.coin_id")
 //        val crr = 0
         val coin = Coin(
-            null,
+            coinId,
             symbol,
             length,
             name,
             creater,
+            owner_address,
             constant_reserve_ratio,
+            volume, reserve_balance, max_supply,
             initrpip,
             initreserv,
             initial_amount,
             initamount,
             crblock,
-            enabled,
-            1
+            enabled
         )
         return coin
     }

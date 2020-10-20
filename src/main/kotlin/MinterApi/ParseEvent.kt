@@ -12,17 +12,17 @@ class ParseEvent {
      * get raw events
      */
     fun getRaw(result: JSONObject, height: Long): List<MinterRaw.EventRaw>? {
-        var coin: String? = null
+//        var coin: String? = null
         var wallet: String = ""
         var node: String = ""
 
         val array = ArrayList<MinterRaw.EventRaw>()
 
 
-        val eventList = get(result, height, {
+        val eventList = get(result, height,/* {
             coin = it
             0 // Coin
-        }, {
+        }, */{
             wallet = it
             0L //getWallet
         }, {
@@ -37,7 +37,7 @@ class ParseEvent {
                 height = height,
                 node = node,
                 wallet = wallet,
-                coin = coin,
+                coin = it.coin,
                 type = EventType.get(it.type).name,
                 amount = it.amount,
                 role = role
@@ -74,10 +74,9 @@ class ParseEvent {
     fun get(
         result: JSONObject,
         height: Long,
-        getCoin: ((symbol: String) -> Int),
+//        getCoin: ((symbol: String) -> Int),
         getWallet: ((address: String) -> Long),
         getNode: ((address: String) -> Int),
-//        getType: ((address: String) -> Int),
         getOther: ((jsonObject: JSONObject) -> Unit)? = null,
         success: ((event: Minter.Event) -> Unit)? = null
     ): List<Minter.Event>? {
@@ -100,9 +99,11 @@ class ParseEvent {
                     val role_type = value.getString("role")
                     role = EventRole.get(role_type).uid
                 }
-                var coin: Int? = null
+                var coin: CoinObjClass.CoinObj? = null
                 if (!value.isNull("coin")) {
-                    coin = getCoin(value.getString("coin"))
+                    val coinId = value.getLong("coin")
+//                    getCoin(coinId)
+                    coin = CoinObjClass.CoinObj(coinId,null)
                 }
                 val event = Minter.Event(
                     height = height,

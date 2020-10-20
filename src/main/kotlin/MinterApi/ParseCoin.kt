@@ -15,30 +15,24 @@ class ParseCoin {
         val symbol = result.getString("symbol")
         val length = symbol.length
         val crr = result.getInt("crr")
-
+        val id = result.getInt("id")
+//        val owner_address = if (result.isNull("owner_address")) null else result.getString("owner_address")
+        val owner_address =null
 //        creater?.invoke("Mx0f9u8u8i")
-
-        val max_supply = minterMatch.getAmount(result.getString("max_supply") )// TODO New parametr
-        val volume = minterMatch.getAmount(result.getString("volume")) // TODO New parametr
-        val reserve_balance = minterMatch.getAmount(result.getString("reserve_balance")) // TODO New parametr
-
-
-        val coin = Coin(null, symbol, length, name, null, crr, null, null, null, null, null, true, 1)
-        return coin
-    }
-    fun getRaw(result: JSONObject): CoinRaw? {
-        val name = result.getString("name")
-        val symbol = result.getString("symbol")
-        val length = symbol.length
-        val crr = result.getInt("crr")
 
         val max_supply = minterMatch.getAmount(result.getString("max_supply") )
         val volume = minterMatch.getAmount(result.getString("volume"))
         val reserve_balance = minterMatch.getAmount(result.getString("reserve_balance"))
 
-
-        val coin = CoinRaw(symbol, length, name, crr, volume, reserve_balance, max_supply)
+        val coin = Coin(id, symbol, length, name, null, owner_address, crr, volume, reserve_balance, max_supply, null, null, null, null, null, true)
         return coin
+    }
+
+    fun getRaw(result: JSONObject): CoinRaw? {
+        var coin: CoinRaw? = null
+        val owner_address = if (result.isNull("owner_address")) null else result.getString("owner_address")
+        get(result)?.let{ coin = CoinRaw(it.id, it.symbol, it.name, owner_address, it.crr, it.volume, it.reserve, it.max_supply )  }
+       return coin
     }
 }
 
