@@ -479,7 +479,7 @@ class MinterApi(
 //        val url = this.nodeUrl + "/" + method.patch+"/2"
         val url = this.nodeUrl + "/" + patch
 //        val url = this.nodeUrl + "/" + method.patch+"/" +params.getValue('height')
-        println("MinterApi.get($url, $params)\n")
+//        println("MinterApi.get($url, $params)\n")
 
         val _params = if (params == null)
             mapOf()
