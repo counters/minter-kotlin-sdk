@@ -13,13 +13,13 @@ class ParseEvent {
     private fun getCoinByIdFromCache(coinId: Long, getCoinByIdRaw: ((id: Long) -> MinterRaw.CoinRaw?)): CoinObjClass.CoinObj {
         if (coinId == Conf.defaultCoinUid) return CoinObjClass.CoinObj(Conf.defaultCoinUid, Conf.defaultCoin)
         if (mapCache.contains(coinId)) {
-            println("FromCache({mapCache[coinId]})")
+//            println("FromCache({mapCache[coinId]})")
             return mapCache[coinId]!!
         } else {
             getCoinByIdRaw(coinId)?.let {
                 val coinObj = CoinObjClass.CoinObj(it.id, it.symbol)
                 mapCache[coinId] = coinObj
-                println("getCoinByIdRaw($coinId)")
+//                println("getCoinByIdRaw($coinId)")
                 return coinObj
             }
         }
