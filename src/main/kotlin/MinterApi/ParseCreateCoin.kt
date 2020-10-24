@@ -3,10 +3,11 @@ package MinterApi
 import Minter.Minter.Coin
 import Minter.MinterMatch
 import org.json.JSONObject
+import kotlin.math.roundToLong
 
 object ParseCreateCoin {
     private val minterMatch = MinterMatch()
-    fun get(data: JSONObject, tags: JSONObject, creater: Long?, crblock: Long?): Coin? {
+    fun get(data: JSONObject, tags: JSONObject, getWalletId: ((address: String) -> Long?), crblock: Long?): Coin? {
 //        val data = result.getJSONObject("data")
 //        var coin: Coin? = null
         val name = data.getString("name")
@@ -20,11 +21,12 @@ object ParseCreateCoin {
         val initamount = minterMatch.getAmount(initial_amount)
         val enabled = true
 //        val owner_address ="Mx"+tags.getString("tx.from")
-        val owner_address =creater
+        val creater = getWalletId("Mx"+tags.getString("tx.from"))
+        val owner_address= creater
 
         val volume= initamount
         val reserve_balance= initreserv
-        val max_supply = minterMatch.getAmount(data.getString("max_supply") )
+        val max_supply = minterMatch.getAmount(data.getString("max_supply") ).roundToLong()
 
         val coinId = tags.getInt("tx.coin_id")
 //        val crr = 0

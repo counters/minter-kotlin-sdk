@@ -19,14 +19,14 @@ class MinterRaw {
     )
 
     data class CoinRaw(
-        val id: Int?,
+        val id: Long,
         val symbol: String,
         val name: String,
         val owner: String?,
         val crr: Int,
         val volume: Double,
         val reserve: Double,
-        val max_supply: Double
+        val max_supply: Long?
     )
 
     data class TransactionRaw(
@@ -44,7 +44,9 @@ class MinterRaw {
         val commission: Int?,
         val payload: Boolean,
         val gas: Int,
-        val gascoin: CoinObj
+        val gascoin: CoinObj,
+        val optDouble: Double?,
+        val optString: String?
     )
 
     data class SignedValidatorsRaw(val node: String, val signed: Boolean)
