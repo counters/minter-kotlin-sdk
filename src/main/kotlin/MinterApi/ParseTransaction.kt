@@ -14,10 +14,13 @@ class ParseTransaction {
         var node: String? = null
         var from: String = ""
         var to: String? = null
+        var optDouble: Double?=null
+        var optString: String?=null
 
         val transaction = get(result, height,
             { idCoin, symbolCoin ->
-            coin =  CoinObj(idCoin, symbolCoin)
+                val coinId = if (idCoin==null) -1L else idCoin
+            coin =  CoinObj(coinId, symbolCoin)
             coin!! // Coin
         }, { idCoin, symbolCoin ->
             coin2  = CoinObj(idCoin, symbolCoin)
@@ -59,7 +62,9 @@ class ParseTransaction {
                 transaction.commission,
                 transaction.payload,
                 transaction.gas,
-                gascoin
+                gascoin,
+                transaction.optDouble,
+                transaction.optString
             )
             return transactionRaw
         }
@@ -68,7 +73,7 @@ class ParseTransaction {
 
     fun get(
         result: JSONObject, height: Long,
-        getCoin: ((gas_coin_id: Long, symbol: String?) -> CoinObj),
+        getCoin: ((gas_coin_id: Long?, symbol: String?) -> CoinObj),
         getCoin2: ((gas_coin_id: Long, symbol: String?) -> CoinObj),
         getGasCoin: ((gas_coin_id: Long, symbol: String?) -> CoinObj),
         getFromWallet: ((address: String) -> Long),
@@ -110,6 +115,11 @@ class ParseTransaction {
                 var amount: Double? = null
 
                 var commission: Int? = null
+
+                var optDouble: Double?=null
+                var optString: String?=null
+
+                val tags = if (result.isNull("tags")) null else result.getJSONObject("tags")
 
                 if (type == TransactionTypes.TypeMultiSend) {
                     val data_list = result.getJSONObject("data").getJSONArray("list")
@@ -167,19 +177,23 @@ class ParseTransaction {
                         amount = minterMatch.getAmount(stake)
                         commission = data.getInt("commission")
                     } else if (type == TransactionTypes.TypeCreateCoin) {
-//                node = getNode(data.getString("pub_key"))
+                        getCreateCoin?.invoke(data, tags!!, fromStr)
                         stake = data.getString("initial_amount")
                         amount = minterMatch.getAmount(stake)
-//                commission=data.getInt("commission")
-
-//                coin = this.getCoin(data.getString("symbol"), getCoin)
                         val coinSymbol_tmp = data.getString("symbol")
-                        val tags =result.getJSONObject("tags")
-                        val coinId_tmp = tags.getString("tx.coin_id").toLong()
+                        val coinId_tmp = tags!!.getString("tx.coin_id").toLong()
                         getCoin(coinId_tmp, coinSymbol_tmp)
                         coin = CoinObj(coinId_tmp, coinSymbol_tmp)
-                        getCreateCoin?.invoke(data, tags, fromStr)
+                    }  else if (type == TransactionTypes.TypeRecreateCoin) {
+//                        val tags =result.getJSONObject("tags")
+                        getCreateCoin?.invoke(data, tags!!, fromStr)
+                        stake = data.getString("initial_amount")
+                        amount = minterMatch.getAmount(stake)
 
+                        val coinSymbol_tmp = data.getString("symbol")
+                        val coinId_tmp = tags!!.getString("tx.coin_id").toLong()
+                        getCoin(coinId_tmp, coinSymbol_tmp)
+                        coin = CoinObj(coinId_tmp, coinSymbol_tmp)
                     } else if (type == TransactionTypes.TypeSellAllCoin) {
                         val coin_to_sell = data.getJSONObject("coin_to_sell")
                         val coin_to_buy = data.getJSONObject("coin_to_buy")
@@ -214,9 +228,37 @@ class ParseTransaction {
                     } else if (type == TransactionTypes.TypeRedeemCheck) {
                         to = getToWallet("Mx" + result.getJSONObject("tags").getString("tx.to"))
 //                        coin = this.getCoin(result.getJSONObject("tags").getString("tx.coin"), getCoin) // TODO Найти транзакцию с чеком
+                    } else if (type == TransactionTypes.TypeSetHaltBlock) {
+                        node = getNode(data.getString("pub_key"))
+                    } else if (type == TransactionTypes.TypeEditCoinOwner) { // @TODO Error В TypeEditCoinOwner вообще нет инфы о CoinId, только Symbol
+                        to = getToWallet(data.getString("new_owner"))
+                        val coinSymbol_tmp = data.getString("symbol")
+//                        val tags =result.getJSONObject("tags")
+//                        val coinId_tmp = tags.getString("tx.coin_id").toLong()
+                        coin = getCoin(null, coinSymbol_tmp)
+//                        coin = CoinObj(null, coinSymbol_tmp)
+                    } else if (type == TransactionTypes.TypeEditMultisig) {
+                        to = getToWallet(data.getString("new_owner"))
+                    } else if (type == TransactionTypes.TypePriceVote) {
+                        val price = data.getString("price")
+                        optString=price
+                        optDouble = (price.toDouble()/1000.0)
+                    } else if (type == TransactionTypes.TypeEditCandidatePublicKey) {
+                        node = getNode(data.getString("pub_key"))
+                        optString = data.getString("new_pub_key")
                     }
 
-                    if (coin == null && type != TransactionTypes.TypeCreateCoin && type != TransactionTypes.TypeEditCandidate && type != TransactionTypes.TypeSetCandidateOnline && type != TransactionTypes.TypeSetCandidateOffline && type != TransactionTypes.TypeRedeemCheck && type != TransactionTypes.TypeCreateMultisig) {
+                    if (
+                        coin == null
+                        && type != TransactionTypes.TypeCreateCoin
+                        && type != TransactionTypes.TypeEditCandidate
+                        && type != TransactionTypes.TypeSetCandidateOnline
+                        && type != TransactionTypes.TypeSetCandidateOffline
+                        && type != TransactionTypes.TypeRedeemCheck
+                        && type != TransactionTypes.TypeCreateMultisig
+                        && type < TransactionTypes.TypeEditCandidate
+                    ) {
+//                        println("height $height hash $hash result $result data $data")
                         val _coin = data.getJSONObject("coin")
                         coin = CoinObj(_coin.getString("id").toLong(), _coin.getString("symbol"))
                         if (coin.symbol == Conf.defaultCoin) {
@@ -244,8 +286,9 @@ class ParseTransaction {
                     commission,
                     payload,
                     gas,
-//                    CoinObj(gas_coin_id, gas_coin_str)
-                    gas_coin
+                    gas_coin,
+                    optDouble,
+                    optString
                 )
             }
         }

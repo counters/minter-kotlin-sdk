@@ -36,7 +36,9 @@ class Minter {
         val commission: Int?,
         val payload: Boolean,
         val gas: Int,
-        val gascoin: CoinObj
+        val gascoin: CoinObj,
+        val optDouble: Double?,
+        val optString: String?
     )
 
     data class Wallet(
@@ -83,7 +85,7 @@ class Minter {
         val crr: Int,
         val volume: Double,
         val reserve: Double,
-        val max_supply: Double,
+        val max_supply: Long?,
         val initrpip: String?,
         val initreserv: Double?,
         val initapip: String?,
