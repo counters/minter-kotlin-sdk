@@ -61,7 +61,7 @@ class MinterApi(
         return null
     }    //    Transaction
 
-    fun getEventsRaw(height: Long, search: List<String>?=null): List<MinterRaw.EventRaw>?  {
+    fun getEventsRaw(height: Long, search: List<String>?=null, addSymbol: Boolean= false): List<MinterRaw.EventRaw>?  {
 
         val jsonObj = this.get(Method.EVENTS.patch+"/"+height) // mapOf("height" to height.toString())
         if (jsonObj != null) {
@@ -69,7 +69,10 @@ class MinterApi(
             if (jsonObj.isNull("error")) {
                 result = jsonObj
             }
-            if (result != null) return parseEvents.getRaw(result, height)
+            val callback = if (addSymbol) fun(coinId: Long): MinterRaw.CoinRaw? {
+                return getCoinByIdRaw(coinId)
+            } else null
+            if (result != null) return parseEvents.getRaw(result, height, callback)
         }
 //        println("Error getBlock($height)")
         return null

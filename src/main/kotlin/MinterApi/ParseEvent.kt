@@ -8,10 +8,30 @@ import org.json.JSONObject
 class ParseEvent {
     var minterMatch = MinterMatch()
 
+    private val mapCache: MutableMap<Long, CoinObjClass.CoinObj> = HashMap()
+
+    private fun getCoinByIdFromCache(coinId: Long, getCoinByIdRaw: ((id: Long) -> MinterRaw.CoinRaw?)): CoinObjClass.CoinObj {
+        if (coinId == Conf.defaultCoinUid) return CoinObjClass.CoinObj(Conf.defaultCoinUid, Conf.defaultCoin)
+        if (mapCache.contains(coinId)) {
+            println("FromCache({mapCache[coinId]})")
+            return mapCache[coinId]!!
+        } else {
+            getCoinByIdRaw(coinId)?.let {
+                val coinObj = CoinObjClass.CoinObj(it.id, it.symbol)
+                mapCache[coinId] = coinObj
+                println("getCoinByIdRaw($coinId)")
+                return coinObj
+            }
+        }
+        return CoinObjClass.CoinObj(coinId, null)
+    }
     /**
      * get raw events
      */
-    fun getRaw(result: JSONObject, height: Long): List<MinterRaw.EventRaw>? {
+    fun getRaw(result: JSONObject,
+               height: Long,
+               getCoinByIdRaw: ((id: Long) -> MinterRaw.CoinRaw?)? = null
+    ): List<MinterRaw.EventRaw>? {
 //        var coin: String? = null
         var wallet: String = ""
         var node: String = ""
@@ -43,8 +63,7 @@ class ParseEvent {
                 role = role
             )
             array.add(eventRaw)
-        }
-        )
+        }, getCoinByIdRaw )
 
 /*        if (eventList != null) {
             val array = ArrayList<MinterRaw.EventRaw>()
@@ -66,9 +85,10 @@ class ParseEvent {
             }
             return array
         }*/
-        if (eventList == null)
-            return null
-        else return array
+
+        return if (eventList == null)
+            null
+        else array
     }
 
     fun get(
@@ -78,7 +98,8 @@ class ParseEvent {
         getWallet: ((address: String) -> Long),
         getNode: ((address: String) -> Int),
         getOther: ((jsonObject: JSONObject) -> Unit)? = null,
-        success: ((event: Minter.Event) -> Unit)? = null
+        success: ((event: Minter.Event) -> Unit)? = null,
+        getCoinByIdRaw: ((id: Long) -> MinterRaw.CoinRaw?)? = null
     ): List<Minter.Event>? {
 //        println(result)
 //        var event: Minter.Event? = null
@@ -103,7 +124,12 @@ class ParseEvent {
                 if (!value.isNull("coin")) {
                     val coinId = value.getLong("coin")
 //                    getCoin(coinId)
-                    coin = CoinObjClass.CoinObj(coinId,null)
+                    if (getCoinByIdRaw==null) {
+                        coin = CoinObjClass.CoinObj(coinId, null)
+                    } else {
+//                        val rawCoin = getCoinByIdRaw(coinId)
+                        getCoinByIdFromCache(coinId, getCoinByIdRaw).let { coin = it }
+                    }
                 }
                 val event = Minter.Event(
                     height = height,
@@ -120,14 +146,16 @@ class ParseEvent {
             }
 
 //            println(array)
+            mapCache.clear()
             return array
         }
+        mapCache.clear()
         return null
     }
 
-    fun getCoin(symbol: String, getCoin: ((symbol: String) -> Int)): Int {
+/*    fun getCoin(symbol: String, getCoin: ((symbol: String) -> Int)): Long {
         if (symbol != Conf.defaultCoin)
             return getCoin(symbol)
         return Conf.defaultCoinUid
-    }
+    }*/
 }
