@@ -6,48 +6,29 @@ class Main {
         fun main(args: Array<String>) {
             println("Hello from Kotlin")
 
-            val minterApi = MinterApi("http://127.0.0.1:8841", 30.0)
+            val minterApi = MinterApi("http://127.0.0.1:8843/v2", 30.0)
 
-            val events = minterApi.getEventsRaw(37920)
-            println(events)
+            minterApi.getStatus()?.let { println(it) }
 
-            val status = minterApi.getStatus()
-            println(status) // Status(height=977154, datetime=2019-07-11T21:26:22.119+03:00, network=minter-mainnet-1)
-              val node = minterApi.getNodeRaw("Mp3b6e2632cd0c91ef96ea4f4a16f554ff1b4dd41324fd421a0161947c50603b9b")
-            println(node) // NodeRaw(reward=Mx0a76...dd711, owner=Mx5ebe...7799, pub_key=Mp01cc...5b2c, commission=10, crblock=4)
-            val coin = minterApi.getCoin("ROBOT")
-            println(coin) //  Coin(id=null, symbol=ROBOT, length=5, name=Coin for robots, creater=null, crr=80, ...)
-            val wallet = minterApi.getAddress("Mxabcd4613b06bc5a78412cb55a09bdf3f94790321")
-            println(wallet) // Wallet(id=null, address=Mxabcd4613b06bc5a78412cb55a09bdf3f94790321, count_txs=17, balance={UPLOAD=5.3534213964374E-5, BIP=4245.51470327139, SATOSHI=888.8888})
-            val block = minterApi.getBlockRaw(1532991)
-            println(block)
-            val transaction = minterApi.getTransactionRaw("Mt083bdf87f22ccfe62d55951eaa6b7a8d7618f83f214df6b0e516858bc3a837ef")
-            println(transaction)
+            minterApi.getNodeRaw("Mpaaaaa16ebd6af229b4cfc02c3ab40bd25c1051c3aa2120f07d08c1bd01777777")?.let { println(it) }
 
-            val estimateCoinSell = minterApi.estimateCoinSell("ROBOT", 1.0, "BIP")
-            println(estimateCoinSell) // EstimateCoinSell(willGet=21.908222878076707, commission=0.1)
-            val estimateCoinBuy = minterApi.estimateCoinBuy("BIP", 1.0, "UPLOAD")
-            println(estimateCoinBuy) // EstimateCoinBuy(willPay=0.04564504450213553, commission=0.1)
+            minterApi.getAddress("Mxeee37fedf95e5ee65ce6e3ad1cbcfa9055932311", 0, true)?.let { println(it) }
 
-            val newNode = minterApi.getNode("Mp3b6e2632cd0c91ef96ea4f4a16f554ff1b4dd41324fd421a0161947c50603b9b", 0, {
-                val reward = minterApi.getAddress(it)
-//                println(reward)
-                0
-            }, {
-                val owner = minterApi.getAddress(it)
-//                println(owner)
-                if (owner != null) {
-                    owner.balance!!.forEach { coin, amount ->
-                        if (coin != "BIP") {
-                            val priceInBip = minterApi.estimateCoinSell(coin, amount, "BIP")!!.willGet
-                            println("$amount $coin = $priceInBip BIP") // 100.00006004578127 UPLOAD = 4.564748939706455 BIP
-                        } else {
-                            println("$amount $coin")
-                        }
-                    }
-                }
-                0
-            })
+            minterApi.getBlockRaw(4000)?.let { println(it) }
+
+//            minterApi.getEventsRaw(567, null, true).let{ println(it) }  // 120
+
+            minterApi.getTransactionRaw("Mt6a4825073e2df8ccecf0c0ec524b8b9bc528d8a9fcca75d63d7949061d338954")?.let { println(it) }
+
+            minterApi.getCoinRaw("ROBOT")?.let { println(it) } // 65
+            minterApi.getCoinRaw(65)?.let { println(it) } // 65
+
+            minterApi.estimateCoinSell("ROBOT", 1.0, "BIP")?.let { println(it) }
+            minterApi.estimateCoinSell(65, 1.0, 0)?.let { println(it) }
+
+            minterApi.estimateCoinBuy("BIP", 1.0, "UPLOAD")?.let { println(it) }
+            minterApi.estimateCoinBuy(0, 1.0, 272)?.let { println(it) }
+
 
         }
     }
