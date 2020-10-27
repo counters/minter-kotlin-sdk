@@ -238,7 +238,7 @@ class ParseTransaction {
                         coin = getCoin(null, coinSymbol_tmp)
 //                        coin = CoinObj(null, coinSymbol_tmp)
                     } else if (type == TransactionTypes.TypeEditMultisig) {
-                        to = getToWallet(data.getString("new_owner"))
+//                        to = getToWallet(data.getString("new_owner"))
                     } else if (type == TransactionTypes.TypePriceVote) {
                         val price = data.getString("price")
                         optString=price
