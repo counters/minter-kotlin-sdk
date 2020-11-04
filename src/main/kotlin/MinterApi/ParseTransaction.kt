@@ -16,6 +16,8 @@ class ParseTransaction {
         var to: String? = null
         var optDouble: Double?=null
         var optString: String?=null
+        var optList: ArrayList<Any>?=null
+
 
         val transaction = get(result, height,
             { idCoin, symbolCoin ->
@@ -41,7 +43,13 @@ class ParseTransaction {
         }, fun(_: JSONObject,_: JSONObject, address: String): CoinObj? {
 //            coin = address
             return CoinObj(0, "") // CreateCoin
-        }, fun(jsonObject: JSONObject, type: Int) {
+        }, {
+                if(optList==null) optList = arrayListOf()
+                val multisendItem=MinterRaw.MultisendItemRaw(it.address, it.value, it.coin)
+                optList!!.add(multisendItem)
+                multisendItem // Node
+            },
+            fun(jsonObject: JSONObject, type: Int) {
             // Other
         }
         )
@@ -64,7 +72,8 @@ class ParseTransaction {
                 transaction.gas,
                 gascoin,
                 transaction.optDouble,
-                transaction.optString
+                transaction.optString,
+                optList
             )
             return transactionRaw
         }
@@ -80,6 +89,7 @@ class ParseTransaction {
         getToWallet: ((address: String) -> Long),
         getNode: ((address: String) -> Int),
         getCreateCoin: ((jsonObject: JSONObject, tagsObject: JSONObject, address: String) -> CoinObj?)? = null,
+        getMultisendItem: ((multisendItemRaw: MinterRaw.MultisendItemRaw) -> MinterRaw.MultisendItemRaw)? = null,
         getOther: ((jsonObject: JSONObject, type: Int) -> Unit)
     ): Minter.Transaction? {
         var transaction: Minter.Transaction? = null
@@ -119,6 +129,7 @@ class ParseTransaction {
                 var optDouble: Double?=null
                 var optString: String?=null
 
+
                 val tags = if (result.isNull("tags")) null else result.getJSONObject("tags")
 
                 if (type == TransactionTypes.TypeMultiSend) {
@@ -128,22 +139,36 @@ class ParseTransaction {
                     var globalCoinInMultisend: Long? = null
                     var globalCoinInMultisendSymbol: String? = null
                     var return_data_list = false // @TODO remove patch
+//                    optList= arrayListOf(mapOf())
+
                     data_list.forEach data_list@{
-                        if (return_data_list) return@data_list
+//                        if (return_data_list) return@data_list
                         val innerJsonObject = it as JSONObject
                         val coinInMultisendStr = innerJsonObject.getJSONObject("coin")
                         val coinInMultisend = coinInMultisendStr.getString("id").toLong()
                         val coinInMultisendSymbol = coinInMultisendStr.getString("symbol")
+                        val valueInMultisend = innerJsonObject.getString("value")
+                        val currValue = minterMatch.getAmount(valueInMultisend)
+
+
+                        getMultisendItem?.invoke(
+                            MinterRaw.MultisendItemRaw(
+                                innerJsonObject.getString("to"),
+                                currValue,
+                                CoinObj(coinInMultisend, coinInMultisendSymbol)
+                            )
+                        )
+
                         if (globalCoinInMultisend == null || globalCoinInMultisend == coinInMultisend) {
                             globalCoinInMultisend = coinInMultisend
                             globalCoinInMultisendSymbol = coinInMultisendSymbol
                             globalAmountInMultisend =
-                                globalAmountInMultisend!!.plus(minterMatch.getAmount(innerJsonObject.getString("value")))
+                                globalAmountInMultisend!!.plus(currValue)
                         } else {
                             globalAmountInMultisend = null
                             globalCoinInMultisend = null
-                            return_data_list = true
-                            return@data_list
+//                            return_data_list = true
+//                            return@data_list
 //                        return@forEach
                         }
                     }
@@ -201,8 +226,9 @@ class ParseTransaction {
                         coin2 = CoinObj(coin_to_buy.getString("id").toLong(), coin_to_buy.getString("symbol"))
                         this.getCoin(coin.id, coin.symbol, getCoin)
                         this.getCoin(coin2.id, coin2.symbol, getCoin2)
-                        stake = result.getJSONObject("tags").getString("tx.sell_amount")
+                        stake = tags!!.getString("tx.sell_amount")
                         amount = minterMatch.getAmount(stake)
+                        optDouble = minterMatch.getAmount(tags.getString("tx.return"))
                         /*tags	tx.sell_amount*/
                     } else if (type == TransactionTypes.TypeBuyCoin) {
                         val coin_to_sell = data.getJSONObject("coin_to_sell")
@@ -213,6 +239,7 @@ class ParseTransaction {
                         coin2 = this.getCoin(coin2.id, coin2.symbol, getCoin2)
                         stake = data.getString("value_to_buy")
                         amount = minterMatch.getAmount(stake)
+                        optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
                     } else if (type == TransactionTypes.TypeSellCoin) {
                         val coin_to_sell = data.getJSONObject("coin_to_sell")
                         val coin_to_buy = data.getJSONObject("coin_to_buy")
@@ -222,6 +249,7 @@ class ParseTransaction {
                         this.getCoin(coin2.id, coin2.symbol, getCoin2)
                         stake = data.getString("value_to_sell")
                         amount = minterMatch.getAmount(stake)
+                        optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
                     } else if (type == TransactionTypes.TypeEditCandidate) {
                         node = getNode(data.getString("pub_key"))
                         to = getToWallet(data.getString("reward_address"))

@@ -41,6 +41,12 @@ class Minter {
         val optString: String?
     )
 
+    data class MultisendItem(
+        val address: String,
+        val coin: CoinObj,
+        val value: Double
+    )
+
     data class Wallet(
         val id: Long?,
         val address: String,

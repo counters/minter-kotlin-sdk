@@ -46,7 +46,14 @@ class MinterRaw {
         val gas: Int,
         val gascoin: CoinObj,
         val optDouble: Double?,
-        val optString: String?
+        val optString: String?,
+        val optList: List<Any>?
+    )
+
+    data class MultisendItemRaw(
+        val address: String,
+        val value: Double,
+        val coin: CoinObj
     )
 
     data class SignedValidatorsRaw(val node: String, val signed: Boolean)
