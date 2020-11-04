@@ -47,7 +47,8 @@ class MinterRaw {
         val gascoin: CoinObj,
         val optDouble: Double?,
         val optString: String?,
-        val optList: List<Any>?
+        val optList: List<Any>?,
+        val base64Payload: String?
     )
 
     data class MultisendItemRaw(

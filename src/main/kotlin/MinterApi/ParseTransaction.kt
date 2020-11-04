@@ -17,41 +17,42 @@ class ParseTransaction {
         var optDouble: Double?=null
         var optString: String?=null
         var optList: ArrayList<Any>?=null
+        var payloadByte: String?=null
 
 
         val transaction = get(result, height,
             { idCoin, symbolCoin ->
-                val coinId = if (idCoin==null) -1L else idCoin
-            coin =  CoinObj(coinId, symbolCoin)
-            coin!! // Coin
-        }, { idCoin, symbolCoin ->
-            coin2  = CoinObj(idCoin, symbolCoin)
-            coin2!! // Coin
-        }, { idCoin, symbolCoin ->
+                val coinId = if (idCoin == null) -1L else idCoin
+                coin = CoinObj(coinId, symbolCoin)
+                coin!! // Coin
+            }, { idCoin, symbolCoin ->
+                coin2 = CoinObj(idCoin, symbolCoin)
+                coin2!! // Coin
+            }, { idCoin, symbolCoin ->
 //            gascoin = it
-            gascoin = CoinObj(idCoin, symbolCoin)
-            gascoin //getGasCoin
-        }, {
-            from = it
-            0L // getFromWallet
-        }, {
-            to = it
-            0 //getToWallet
-        }, {
-            node = it
-            0 // Node
-        }, fun(_: JSONObject,_: JSONObject, address: String): CoinObj? {
+                gascoin = CoinObj(idCoin, symbolCoin)
+                gascoin //getGasCoin
+            }, {
+                from = it
+                0L // getFromWallet
+            }, {
+                to = it
+                0 //getToWallet
+            }, {
+                node = it
+                0 // Node
+            }, fun(_: JSONObject, _: JSONObject, address: String): CoinObj? {
 //            coin = address
-            return CoinObj(0, "") // CreateCoin
-        }, {
-                if(optList==null) optList = arrayListOf()
-                val multisendItem=MinterRaw.MultisendItemRaw(it.address, it.value, it.coin)
+                return CoinObj(0, "") // CreateCoin
+            }, {
+                if (optList == null) optList = arrayListOf()
+                val multisendItem = MinterRaw.MultisendItemRaw(it.address, it.value, it.coin)
                 optList!!.add(multisendItem)
                 multisendItem // Node
             },
             fun(jsonObject: JSONObject, type: Int) {
-            // Other
-        }
+                if ( !jsonObject.isNull("payload") ) payloadByte = jsonObject.getString("payload")
+            }
         )
 
         if (transaction != null) {
@@ -73,7 +74,8 @@ class ParseTransaction {
                 gascoin,
                 transaction.optDouble,
                 transaction.optString,
-                optList
+                optList,
+                payloadByte
             )
             return transactionRaw
         }
