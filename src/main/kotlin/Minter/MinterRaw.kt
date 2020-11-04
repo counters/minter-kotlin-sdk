@@ -32,7 +32,7 @@ class MinterRaw {
     data class TransactionRaw(
         val hash: String,
         val height: Long,
-        val type: Int?,
+        val type: Int,
         val from: String,
         val to: String?,
         val node: String?,

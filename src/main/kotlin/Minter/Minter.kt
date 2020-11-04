@@ -24,7 +24,7 @@ class Minter {
         val id: Long?,
         val hash: String,
         val height: Long,
-        val type: Int?,
+        val type: Int,
         val from: Long,
         val to: Long?,
         val node: Int?,
