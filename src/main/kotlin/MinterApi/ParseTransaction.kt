@@ -19,7 +19,6 @@ class ParseTransaction {
         var optList: ArrayList<Any>?=null
         var payloadByte: String?=null
 
-
         val transaction = get(result, height,
             { idCoin, symbolCoin ->
                 val coinId = if (idCoin == null) -1L else idCoin
@@ -164,8 +163,7 @@ class ParseTransaction {
                         if (globalCoinInMultisend == null || globalCoinInMultisend == coinInMultisend) {
                             globalCoinInMultisend = coinInMultisend
                             globalCoinInMultisendSymbol = coinInMultisendSymbol
-                            globalAmountInMultisend =
-                                globalAmountInMultisend!!.plus(currValue)
+                            if (globalAmountInMultisend != null) globalAmountInMultisend = globalAmountInMultisend!!.plus(currValue)
                         } else {
                             globalAmountInMultisend = null
                             globalCoinInMultisend = null
@@ -211,6 +209,8 @@ class ParseTransaction {
                         val coinId_tmp = tags!!.getString("tx.coin_id").toLong()
                         getCoin(coinId_tmp, coinSymbol_tmp)
                         coin = CoinObj(coinId_tmp, coinSymbol_tmp)
+                        optDouble = minterMatch.getAmount(data.getString("initial_reserve"))
+
                     }  else if (type == TransactionTypes.TypeRecreateCoin) {
 //                        val tags =result.getJSONObject("tags")
                         getCreateCoin?.invoke(data, tags!!, fromStr)
@@ -221,6 +221,9 @@ class ParseTransaction {
                         val coinId_tmp = tags!!.getString("tx.coin_id").toLong()
                         getCoin(coinId_tmp, coinSymbol_tmp)
                         coin = CoinObj(coinId_tmp, coinSymbol_tmp)
+
+                        optDouble = minterMatch.getAmount(data.getString("initial_reserve"))
+
                     } else if (type == TransactionTypes.TypeSellAllCoin) {
                         val coin_to_sell = data.getJSONObject("coin_to_sell")
                         val coin_to_buy = data.getJSONObject("coin_to_buy")
