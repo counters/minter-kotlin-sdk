@@ -11,7 +11,7 @@ class ParseWallet {
     fun get(result: JSONObject, address: String): Minter.Wallet? {
 //        val balance = mutableMapOf<String, Double>()
         val balance = mutableMapOf<CoinObjClass.CoinObj, Double>()
-        val transaction_count = result.getInt("transaction_count")
+        val transaction_count = result.getLong("transaction_count")
         val bip_value = result.getString("bip_value")
 
         val arrayBalance = if (result.isNull("balance")) null else getListBalance(result.getJSONArray("balance"))

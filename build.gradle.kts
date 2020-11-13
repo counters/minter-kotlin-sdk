@@ -10,8 +10,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     jcenter()
-    maven(url = "https://jitpack.io") {
-    }
+    maven(url = "https://jitpack.io") {}
 }
 
 dependencies {
@@ -20,7 +19,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed:0.13.7")
     implementation("io.github.microutils:kotlin-logging:1.6.24")
     implementation("khttp:khttp:1.0.0")
-    implementation("com.google.code.gson:gson:2.8.2")
+//    implementation("com.google.code.gson:gson:2.8.2")
+    implementation( group="org.json", name="json", version= "20200518")
     implementation("com.github.uchuhimo:konf:master-SNAPSHOT")
     testCompile("org.slf4j", "slf4j-simple", "1.7.26")
 }

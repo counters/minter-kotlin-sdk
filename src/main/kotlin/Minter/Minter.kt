@@ -50,7 +50,7 @@ class Minter {
     data class Wallet(
         val id: Long?,
         val address: String,
-        val count_txs: Int?,
+        val count_txs: Long,
         val balance: List<Balance>,
         val delegated: List<Balance>?,
         val total: List<Balance>?,
