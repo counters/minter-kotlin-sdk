@@ -29,6 +29,8 @@ class Main {
             minterApi.estimateCoinBuy("BIP", 1.0, "UPLOAD")?.let { println(it) }
             minterApi.estimateCoinBuy(0, 1.0, 272)?.let { println(it) }
 
+            minterApi.getMinGasPrice()?.let { println(it) }
+            minterApi.getMaxGasPrice()?.let { println(it) }
 
         }
     }

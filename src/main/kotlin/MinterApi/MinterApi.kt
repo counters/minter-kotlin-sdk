@@ -511,8 +511,10 @@ class MinterApi(
         }
         return null
     }
-    fun getMaxGasPrice(): Int? {
-        this.get("max_gas_price")?.let {
+
+    fun getMaxGasPrice(height: Long? = null): Int? {
+        val params = if (height!=null) mapOf("height" to height.toString()) else null
+        this.get("max_gas_price", params)?.let {
             if (it.isNull("error")) {
                  if (!it.isNull("max_gas_price")) return it.getInt("max_gas_price")
             }
