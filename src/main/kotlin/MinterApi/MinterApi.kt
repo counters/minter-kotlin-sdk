@@ -490,9 +490,9 @@ class MinterApi(
             params
 
         val r = if (headers != null)
-            get(url, params = _params, timeout = timeout, headers = headers)
+            khttp.get(url, params = _params, timeout = timeout, headers = headers)
         else
-            get(url, params = _params, timeout = timeout)
+            khttp.get(url, params = _params, timeout = timeout)
         if (r.statusCode == 200) {
             return r.jsonObject
         } else if (r.statusCode == 404) {
@@ -500,6 +500,31 @@ class MinterApi(
         }
 //        println("Error:" +this.nodeUrl + "/" + method.patch+", params $params respond $r r.statusCode ${r.statusCode} \n${r.jsonObject}")
 //        println(r)
+        return null
+    }
+    private fun post(
+        patch: String,
+        params: Map<String, String>? = null,
+        notFound: ((result: JSONObject) -> Unit)? = null
+    ): JSONObject? {
+        val url = this.nodeUrl + "/" + patch
+        val _params = if (params == null) mapOf() else params
+
+        val _headers =  mutableMapOf<String, String>()
+        if (headers != null) _headers.putAll(headers)
+        _headers.put("Content-Type", "application/json; charset=UTF-8")
+
+        val r = if (headers != null)
+            khttp.post(url, params = _params, timeout = timeout, headers = headers, json = _params)
+        else
+            khttp.post(url, params = _params, timeout = timeout, json = _params)
+        if (r.statusCode == 200) {
+            return r.jsonObject
+        } else if (r.statusCode == 404) {
+            notFound?.invoke(r.jsonObject)
+        }
+//        println("Error:" +this.nodeUrl + "/" + method.patch+", params $params respond $r r.statusCode ${r.statusCode} \n${r.jsonObject}")
+//        println(r.jsonObject)
         return null
     }
 
@@ -517,6 +542,20 @@ class MinterApi(
         this.get("max_gas_price", params)?.let {
             if (it.isNull("error")) {
                  if (!it.isNull("max_gas_price")) return it.getInt("max_gas_price")
+            }
+        }
+        return null
+    }
+
+    fun sendTransaction(tx: String): String? {
+        this.post("send_transaction", mapOf("tx" to tx) )?.let {
+//            println(it)
+            if (it!!.isNull("error")) {
+                if(!it.isNull("code")){
+                    if(it.getInt("code")==0 && !it.isNull("hash")){
+                        return it.getString("hash")
+                    }
+                }
             }
         }
         return null
