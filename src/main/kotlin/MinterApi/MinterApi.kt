@@ -503,5 +503,22 @@ class MinterApi(
         return null
     }
 
+    fun getMinGasPrice(): Int? {
+        this.get("min_gas_price")?.let {
+            if (it.isNull("error")) {
+                 if (!it.isNull("min_gas_price")) return it.getInt("min_gas_price")
+            }
+        }
+        return null
+    }
+    fun getMaxGasPrice(): Int? {
+        this.get("max_gas_price")?.let {
+            if (it.isNull("error")) {
+                 if (!it.isNull("max_gas_price")) return it.getInt("max_gas_price")
+            }
+        }
+        return null
+    }
+
 
 }
