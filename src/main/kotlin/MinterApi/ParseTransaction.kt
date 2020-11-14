@@ -106,7 +106,11 @@ class ParseTransaction {
 
                 val gas_coin = getGasCoin(gas_coin_id, gas_coin_str)
 
-                val payload = !result.isNull("payload")
+                val payload = if ( !result.isNull("payload") ) {
+                    if (result.getString("payload")=="") false else true
+                } else {
+                    false
+                }
                 val hash = result.getString("hash")
 
                 val fromStr = result.getString("from")

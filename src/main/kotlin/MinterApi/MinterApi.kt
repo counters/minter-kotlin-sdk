@@ -549,7 +549,6 @@ class MinterApi(
 
     fun sendTransaction(tx: String): String? {
         this.post("send_transaction", mapOf("tx" to tx) )?.let {
-//            println(it)
             if (it.isNull("error")) {
                 if(!it.isNull("code")){
                     if(it.getInt("code")==0 && !it.isNull("hash")){
