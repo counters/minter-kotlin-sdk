@@ -51,6 +51,7 @@ class ParseTransaction {
             },
             fun(jsonObject: JSONObject, type: Int) {
                 if ( !jsonObject.isNull("payload") ) payloadByte = jsonObject.getString("payload")
+                if (payloadByte=="") payloadByte =null
             }
         )
 
