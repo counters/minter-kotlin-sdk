@@ -26,7 +26,15 @@ class MinterRaw {
         val crr: Int,
         val volume: Double,
         val reserve: Double,
-        val max_supply: Long?
+        val max_supply: Long?,
+        val mintable: Boolean,
+        val burnable: Boolean,
+    )
+
+    data class SwapPoolRaw(
+        val amount0: Double,
+        val amount1: Double,
+        val liquidity: Double,
     )
 
     data class TransactionRaw(

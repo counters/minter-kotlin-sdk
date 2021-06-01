@@ -21,6 +21,7 @@ class MinterApi(
     private val parseEstimateCoinSell = ParseEstimateCoinSell()
     private val parseEvents = ParseEvent()
     private val parseTransaction = ParseTransaction()
+    private val parseSwapPoolRaw = ParseSwapPoolRaw()
 
     private val minterMatch = MinterMatch()
 
@@ -563,6 +564,28 @@ class MinterApi(
     fun getNonce(address: String): Long? {
         getAddress(address)?.let {
             return it.count_txs.plus(1)
+        }
+        return null
+    }
+
+    fun getSwapPool(coin0: Long, coin1: Long, height: Long?=0): MinterRaw.SwapPoolRaw? {
+        val params = if (height!=null) mapOf("height" to height.toString()) else null
+        this.get("swap_pool/$coin0/$coin1", params)?.let {
+            if (it.isNull("error")) {
+                return parseSwapPoolRaw.get(it)
+            }
+        }
+        return null
+    }
+
+
+
+    fun getSwapPoolRaw(coin0: Long, coin1: Long, address: String, height: Long?=0): MinterRaw.SwapPoolRaw? {
+        val params = if (height!=null) mapOf("height" to height.toString()) else null
+        this.get("swap_pool/$coin0/$coin1/$address", params)?.let {
+            if (it.isNull("error")) {
+                return parseSwapPoolRaw.get(it)
+            }
         }
         return null
     }

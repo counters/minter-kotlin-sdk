@@ -25,15 +25,17 @@ class ParseCoin {
         val max_supply = minterMatch.getAmount(result.getString("max_supply") ).roundToLong()
         val volume = minterMatch.getAmount(result.getString("volume"))
         val reserve_balance = minterMatch.getAmount(result.getString("reserve_balance"))
+        val mintable = result.getBoolean("mintable")
+        val burnable = result.getBoolean("burnable")
 
-        val coin = Coin(id, symbol, length, name, null, owner_address, crr, volume, reserve_balance, max_supply, null, null, null, null, null, true)
+        val coin = Coin(id, symbol, length, name, null, owner_address, crr, volume, reserve_balance, max_supply, mintable, burnable,null, null, null, null, null, true)
         return coin
     }
 
     fun getRaw(result: JSONObject): CoinRaw? {
         var coin: CoinRaw? = null
         val owner_address = if (result.isNull("owner_address")) null else result.getString("owner_address")
-        get(result)?.let{ coin = CoinRaw(it.id.toLong(), it.symbol, it.name, owner_address, it.crr, it.volume, it.reserve, it.max_supply )  }
+        get(result)?.let{ coin = CoinRaw(it.id.toLong(), it.symbol, it.name, owner_address, it.crr, it.volume, it.reserve, it.max_supply, it.mintable, it.burnable )  }
        return coin
     }
 }

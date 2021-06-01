@@ -8,6 +8,7 @@ import kotlin.math.roundToLong
 object ParseCreateCoin {
     private val minterMatch = MinterMatch()
     fun get(data: JSONObject, tags: JSONObject, getWalletId: ((address: String) -> Long?), crblock: Long?): Coin? {
+//        println(data)
 //        val data = result.getJSONObject("data")
 //        var coin: Coin? = null
         val name = data.getString("name")
@@ -28,6 +29,10 @@ object ParseCreateCoin {
         val reserve_balance= initreserv
         val max_supply = minterMatch.getAmount(data.getString("max_supply") ).roundToLong()
 
+
+        val mintable = data.getBoolean("mintable")
+        val burnable = data.getBoolean("burnable")
+
         val coinId = tags.getInt("tx.coin_id")
 //        val crr = 0
         val coin = Coin(
@@ -39,6 +44,8 @@ object ParseCreateCoin {
             owner_address,
             constant_reserve_ratio,
             volume, reserve_balance, max_supply,
+            mintable,
+            burnable,
             initrpip,
             initreserv,
             initial_amount,

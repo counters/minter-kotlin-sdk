@@ -92,6 +92,8 @@ class Minter {
         val volume: Double,
         val reserve: Double,
         val max_supply: Long?,
+        val mintable: Boolean,
+        val burnable: Boolean,
         val initrpip: String?,
         val initreserv: Double?,
         val initapip: String?,
