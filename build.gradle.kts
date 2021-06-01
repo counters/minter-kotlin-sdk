@@ -1,7 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.5.0"
+    application
 }
 
 group = "MinterKotlinSDK"
@@ -14,8 +15,10 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    testCompile("junit", "junit", "4.12")
+    testImplementation(kotlin("test-junit5"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
+
     implementation("org.jetbrains.exposed:exposed:0.13.7")
     implementation("io.github.microutils:kotlin-logging:1.6.24")
     implementation("khttp:khttp:1.0.0")
@@ -25,6 +28,14 @@ dependencies {
     testCompile("org.slf4j", "slf4j-simple", "1.7.26")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+tasks.test {
+    useJUnitPlatform()
+}
+
+tasks.withType<KotlinCompile>() {
+    kotlinOptions.jvmTarget = "11"
+}
+
+application {
+    mainClassName = "MainKt"
 }
