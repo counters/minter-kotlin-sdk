@@ -1,11 +1,13 @@
-package Minter
+package counter.minter_sdk.Minter
 
+import counter.minter_sdk.Minter.Enum.SwapFromTypes
 import org.joda.time.DateTime
 
 class Coin {
     data class EstimateCoinSell(
         val willGet: Double,
-        val commission: Double
+        val commission: Double,
+        val swap_from: SwapFromTypes
     )
 
     data class EstimateCoinBuy(

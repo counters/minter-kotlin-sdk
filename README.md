@@ -1,20 +1,20 @@
-## Minter Blockchain Kotlin SDK (unofficial)
+## counter.minter_sdk.Minter Blockchain Kotlin SDK (unofficial)
 
 ### About
-Minter Blockchain Kotlin SDK [Minter.network](https://minter.network) (unofficial).
+counter.minter_sdk.Minter Blockchain Kotlin SDK [counter.minter_sdk.Minter.network](https://minter.network) (unofficial).
 
-![Minter Blockchain Kotlin SDK](static/minter-kotlin-sdk-header.png "Minter Blockchain Kotlin SDK")
+![counter.minter_sdk.Minter Blockchain Kotlin SDK](static/minter-kotlin-sdk-header.png "counter.minter_sdk.Minter Blockchain Kotlin SDK")
 
 #### Simple using
 ```kotlin
-import MinterApi.MinterApi
+import counter.minter_sdk.MinterApi.counter.minter_sdk.MinterApi
 
 class Main {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
 println("Hello from Kotlin")
-            val minterApi = MinterApi("https://minter-node-2.testnet.minter.network:8841")
+            val minterApi = counter.minter_sdk.MinterApi("https://minter-node-2.testnet.minter.network:8841")
             val status = minterApi.getStatus()
             println(status) // Status(height=977154, datetime=2019-07-11T21:26:22.119+03:00, network=minter-mainnet-1)
         }

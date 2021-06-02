@@ -1,4 +1,4 @@
-package Minter.Enum
+package counter.minter_sdk.Minter.Enum
 
 enum class TransactionTypes (val int: Int) {
     TypeSend(1),
@@ -20,5 +20,19 @@ enum class TransactionTypes (val int: Int) {
     TypeEditCoinOwner(17),
     TypeEditMultisig(18),
     TypePriceVote(19),
-    TypeEditCandidatePublicKey(20)
+    TypeEditCandidatePublicKey(20),
+    ADD_LIQUIDITY(21),
+    REMOVE_LIQUIDITY(22),
+    SELL_SWAP_POOL(23),
+    BUY_SWAP_POOL(24),
+    SELL_ALL_SWAP_POOL(25),
+    EDIT_CANDIDATE_COMMISSION(26),
+    MOVE_STAKE(27),
+    MINT_TOKEN(28),
+    BURN_TOKEN(29),
+    CREATE_TOKEN(30),
+    RECREATE_TOKEN(31),
+    VOTE_COMMISSION(32),
+    VOTE_UPDATE(33),
+    CREATE_SWAP_POOL(34),
 }

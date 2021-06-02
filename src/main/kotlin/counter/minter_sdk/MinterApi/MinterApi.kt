@@ -1,7 +1,7 @@
-package MinterApi
+package counter.minter_sdk.MinterApi
 
-import Minter.*
-import khttp.get
+import counter.minter_sdk.Minter.*
+import counter.minter_sdk.Minter.Enum.SwapFromTypes
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -284,7 +284,7 @@ class MinterApi(
         }
         return null
     }
-/*    fun getCoinRaw(symbol: String, height: Long = 0): Minter.Coin? {
+/*    fun getCoinRaw(symbol: String, height: Long = 0): counter.minter_sdk.Minter.Coin? {
         return getCoin(symbol, height)
     }*/
 
@@ -299,7 +299,7 @@ class MinterApi(
             }
             if (result != null)
                 return parseWallet.get(result, address)
-//                return Minter.Wallet(null, address)
+//                return counter.minter_sdk.Minter.Wallet(null, address)
         }
         return null
     }
@@ -338,6 +338,7 @@ class MinterApi(
         return this.estimateCoinIdBuy(coinToSell.toString(), minterMatch.getPip(valueToBuy), coinToBuy.toString(), height)
     }
 
+    @Deprecated(level = DeprecationLevel.WARNING, message = "not support for tokens")
     fun estimateCoinBuy(
         coinToSell: String,
         valueToBuy: String,
@@ -401,24 +402,38 @@ class MinterApi(
         coinToSell: Long,
         valueToSell: Double,
         coinToBuy: Long = 0,
-        height: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: Any? = null,
         notFoundCoin: ((notFount: Boolean) -> Unit)? = null
     ): Coin.EstimateCoinSell? {
-        return this.estimateCoinIdSell(coinToSell.toString(), minterMatch.getPip(valueToSell), coinToBuy.toString(), height, notFoundCoin)
+//        val swap_from_str =  SwapFromTypes.values().filter { it=swa }
+        return this.estimateCoinIdSell(coinToSell.toString(), minterMatch.getPip(valueToSell), coinToBuy.toString(), height,coin_id_commission,
+            swap_from?.value, route, notFoundCoin)
     }
 
     fun estimateCoinIdSell(
-        coinToSell: String,
+        coinToSell: String?,
         valueToSell: String,
         coinToBuy: String,
-        height: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: String? = null,
+        route: Any? = null,
         notFoundCoin: ((notFount: Boolean) -> Unit)? = null
     ): Coin.EstimateCoinSell? {
-        val jsonObj = this.get(Method.ESTIMATE_COIN_SELL.patch,
-            mapOf(
-                "coin_id_to_sell" to coinToSell, "value_to_sell" to valueToSell,
-                "coin_id_to_buy" to coinToBuy, "height" to height.toString()
-            ), {
+        val params = mutableMapOf<String, String>("value_to_sell" to valueToSell)
+        if (coinToSell!=null) params["coin_id_to_sell"] = coinToSell
+        if (coinToBuy!=null) params["coin_id_to_buy"] = coinToBuy
+        if (height!=null) params["height"] = height.toString()
+
+        if (coin_id_commission!=null) params["coin_id_commission"] = coin_id_commission.toString()
+        if (swap_from!=null) params["swap_from"] = swap_from
+        if (route!=null) {  } // TODO(Add route)
+
+
+        val jsonObj = this.get(Method.ESTIMATE_COIN_SELL.patch, params, {
                 if (this.notFoundCoin(it)) {
                     notFoundCoin?.invoke(true)
                 }
@@ -434,6 +449,8 @@ class MinterApi(
         }
         return null
     }
+
+    @Deprecated(level = DeprecationLevel.WARNING, message = "not support for tokens")
     fun estimateCoinSell(
         coinToSell: String,
         valueToSell: String,
@@ -483,7 +500,7 @@ class MinterApi(
 //        val url = this.nodeUrl + "/" + method.patch+"/2"
         val url = this.nodeUrl + "/" + patch
 //        val url = this.nodeUrl + "/" + method.patch+"/" +params.getValue('height')
-//        println("MinterApi.get($url, $params)\n")
+//        println("counter.minter_sdk.MinterApi.get($url, $params)\n")
 
         val _params = if (params == null)
             mapOf()

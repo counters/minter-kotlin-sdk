@@ -1,8 +1,8 @@
-package MinterApi
+package counter.minter_sdk.MinterApi
 
-import Minter.CoinObjClass
-import Minter.Minter
-import Minter.MinterMatch
+import counter.minter_sdk.Minter.CoinObjClass
+import counter.minter_sdk.Minter.Minter
+import counter.minter_sdk.Minter.MinterMatch
 import org.json.JSONArray
 import org.json.JSONObject
 

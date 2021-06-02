@@ -1,4 +1,4 @@
-package Minter
+package counter.minter_sdk.Minter
 
 import org.json.JSONObject
 

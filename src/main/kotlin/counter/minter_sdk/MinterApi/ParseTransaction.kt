@@ -1,8 +1,8 @@
-package MinterApi
+package counter.minter_sdk.MinterApi
 
-import Minter.*
+import counter.minter_sdk.Minter.*
 import org.json.JSONObject
-import Minter.CoinObjClass.CoinObj
+import counter.minter_sdk.Minter.CoinObjClass.CoinObj
 
 class ParseTransaction {
     var minterMatch = MinterMatch()

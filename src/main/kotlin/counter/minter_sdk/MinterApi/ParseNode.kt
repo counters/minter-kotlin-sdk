@@ -1,7 +1,7 @@
-package MinterApi
+package counter.minter_sdk.MinterApi
 
-import Minter.Minter
-import Minter.MinterMatch
+import counter.minter_sdk.Minter.Minter
+import counter.minter_sdk.Minter.MinterMatch
 import org.json.JSONObject
 
 class ParseNode {
@@ -34,7 +34,7 @@ class ParseNode {
 
         val crblock = if (result.isNull("crblock")) 1 else result.getLong("crblock")
 //      val proposer = if (result.isNull("proposer")) "0" else result.getString("proposer")
-//        val node: Minter.Node? = null
+//        val node: counter.minter_sdk.Minter.Node? = null
         val node = Minter.Node(null, reward, owner, control, pub_key, commission, used_slots, uniq_users, min_stake, crblock)
 //        println (node)
         return node

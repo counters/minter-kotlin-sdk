@@ -1,7 +1,7 @@
-package MinterApi
+package counter.minter_sdk.MinterApi
 
-import Minter.MinterMatch
-import Minter.MinterRaw
+import counter.minter_sdk.Minter.MinterMatch
+import counter.minter_sdk.Minter.MinterRaw
 import org.json.JSONObject
 
 class ParseSwapPoolRaw {

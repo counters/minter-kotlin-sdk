@@ -1,8 +1,8 @@
-package MinterApi
+package counter.minter_sdk.MinterApi
 
-import Minter.*
-import Minter.Utils.EventRole
-import Minter.Utils.EventType
+import counter.minter_sdk.Minter.*
+import counter.minter_sdk.Minter.Utils.EventRole
+import counter.minter_sdk.Minter.Utils.EventType
 import org.json.JSONObject
 
 class ParseEvent {
@@ -102,7 +102,7 @@ class ParseEvent {
         getCoinByIdRaw: ((id: Long) -> MinterRaw.CoinRaw?)? = null
     ): List<Minter.Event>? {
 //        println(result)
-//        var event: Minter.Event? = null
+//        var event: counter.minter_sdk.Minter.Event? = null
 
         if (result.isNull("code")) {
 

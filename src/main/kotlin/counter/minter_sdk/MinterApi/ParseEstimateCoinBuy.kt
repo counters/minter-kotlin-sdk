@@ -1,7 +1,7 @@
-package MinterApi
+package counter.minter_sdk.MinterApi
 
-import Minter.Coin
-import Minter.MinterMatch
+import counter.minter_sdk.Minter.Coin
+import counter.minter_sdk.Minter.MinterMatch
 import org.json.JSONObject
 
 class ParseEstimateCoinBuy {

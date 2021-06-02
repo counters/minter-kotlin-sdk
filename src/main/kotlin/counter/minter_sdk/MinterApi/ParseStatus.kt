@@ -1,6 +1,6 @@
-package MinterApi
+package counter.minter_sdk.MinterApi
 
-import Minter.Minter
+import counter.minter_sdk.Minter.Minter
 import org.joda.time.DateTime
 import org.json.JSONObject
 

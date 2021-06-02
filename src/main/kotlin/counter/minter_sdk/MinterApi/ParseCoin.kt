@@ -1,8 +1,8 @@
-package MinterApi
+package counter.minter_sdk.MinterApi
 
-import Minter.Minter.Coin
-import Minter.MinterMatch
-import Minter.MinterRaw.CoinRaw
+import counter.minter_sdk.Minter.Minter.Coin
+import counter.minter_sdk.Minter.MinterMatch
+import counter.minter_sdk.Minter.MinterRaw.CoinRaw
 import org.json.JSONObject
 import kotlin.math.roundToLong
 
@@ -12,7 +12,7 @@ class ParseCoin {
     fun get(result: JSONObject/*, creater: ((address: String) -> Unit)? = null*/): Coin? {
 //        println(result)
 //        {"volume":"225023620988028216904195498","symbol":"BTCSECURE","crr":"70","name":"BTC.Secure Coin","reserve_balance":"7182683977280929958465178"}
-//        var coin: Minter.Coin? = null
+//        var coin: counter.minter_sdk.Minter.Coin? = null
         val name = result.getString("name")
         val symbol = result.getString("symbol")
         val length = symbol.length

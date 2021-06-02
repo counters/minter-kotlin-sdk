@@ -1,8 +1,8 @@
-package Minter
+package counter.minter_sdk.Minter
 
 
 import org.joda.time.DateTime
-import Minter.CoinObjClass.CoinObj
+import counter.minter_sdk.Minter.CoinObjClass.CoinObj
 
 class Minter {
 

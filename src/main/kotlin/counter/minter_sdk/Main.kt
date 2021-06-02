@@ -1,4 +1,6 @@
-import MinterApi.MinterApi
+package counter.minter_sdk
+
+import counter.minter_sdk.MinterApi.MinterApi
 
 class Main {
     companion object {

@@ -1,4 +1,4 @@
-package Minter.Utils
+package counter.minter_sdk.Minter.Utils
 
 object EventRole {
     data class Data(val name: String, val uid: Int, val raw: String? = null)

@@ -1,8 +1,8 @@
-package MinterApi
+package counter.minter_sdk.MinterApi
 
-import Minter.Minter
-import Minter.MinterMatch
-import Minter.TransactionTypes
+import counter.minter_sdk.Minter.Minter
+import counter.minter_sdk.Minter.MinterMatch
+import counter.minter_sdk.Minter.TransactionTypes
 import org.json.JSONObject
 
 class ParseCoinChange {
@@ -12,7 +12,7 @@ class ParseCoinChange {
     private val minterMatch = MinterMatch()
 
     fun get(result: JSONObject, height: Long, wallet: Long, coin_to_sell: Int, coin_to_buy: Int): Minter.CoinChange? {
-//        var coinChange: Minter.CoinChange? = null
+//        var coinChange: counter.minter_sdk.Minter.CoinChange? = null
 
         val type = result.getInt("type")
         val tx_return = minterMatch.getAmount(result.getJSONObject("tags").getString("tx.return"))
