@@ -20,13 +20,15 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
 //    testCompile ("org.junit.jupiter:junit-jupiter:5.6.0")
 
-    implementation("org.jetbrains.exposed:exposed:0.13.7")
+//    implementation("org.jetbrains.exposed:exposed:0.13.7")
     implementation("io.github.microutils:kotlin-logging:1.6.24")
     implementation("khttp:khttp:1.0.0")
 //    implementation("com.google.code.gson:gson:2.8.2")
     implementation( group="org.json", name="json", version= "20200518")
     implementation("com.github.uchuhimo:konf:master-SNAPSHOT")
     testCompile("org.slf4j", "slf4j-simple", "1.7.26")
+    implementation ("joda-time:joda-time:2.10.10")
+
 }
 
 tasks.test {
