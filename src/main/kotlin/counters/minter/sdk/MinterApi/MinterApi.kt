@@ -460,7 +460,7 @@ class MinterApi(
         height: Long? = null,
         coin_id_commission: Long? = null,
         swap_from: SwapFromTypes? = null,
-        route: Any? = null,
+        route: List<Long>? = null,
         notFoundCoin: ((notFount: Boolean) -> Unit)? = null
     ): Coin.EstimateCoinSell? {
 //        val swap_from_str =  SwapFromTypes.values().filter { it=swa }
@@ -475,7 +475,7 @@ class MinterApi(
         height: Long? = null,
         coin_id_commission: Long? = null,
         swap_from: String? = null,
-        route: Any? = null,
+        route: List<Long>? = null,
         notFoundCoin: ((notFount: Boolean) -> Unit)? = null
     ): Coin.EstimateCoinSell? {
         val params = mutableMapOf<String, String>("value_to_sell" to valueToSell)
@@ -485,10 +485,24 @@ class MinterApi(
 
         if (coin_id_commission!=null) params["coin_id_commission"] = coin_id_commission.toString()
         if (swap_from!=null) params["swap_from"] = swap_from
-        if (route!=null) {  } // TODO(Add route)
+        var addPathForURL=""
+
+        if (route!=null ) {
+//            val newRoute= listOf<Long>(2024,1994,1678,1087,0,2024)
+            val array= arrayListOf<String>()
+            route.forEach { array.add("route=$it") }
 
 
-        val jsonObj = this.get(Method.ESTIMATE_COIN_SELL.patch, params, {
+            params.forEach { k, v ->
+                array.add("$k=$v")
+            }
+
+            addPathForURL = "?"+array.joinToString("&")
+            params.clear()
+        }
+
+
+        val jsonObj = this.get(Method.ESTIMATE_COIN_SELL.patch+addPathForURL, params, {
                 if (this.notFoundCoin(it)) {
                     notFoundCoin?.invoke(true)
                 }
@@ -652,7 +666,7 @@ class MinterApi(
 
 
 
-    fun getSwapPoolRaw(coin0: Long, coin1: Long, address: String, height: Long?=0): MinterRaw.SwapPoolRaw? {
+    fun getSwapPool(coin0: Long, coin1: Long, address: String, height: Long?=0): MinterRaw.SwapPoolRaw? {
         val params = if (height!=null) mapOf("height" to height.toString()) else null
         this.get("swap_pool/$coin0/$coin1/$address", params)?.let {
             if (it.isNull("error")) {
