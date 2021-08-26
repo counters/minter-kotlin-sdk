@@ -4,6 +4,16 @@ import counters.minter.sdk.Minter.Enum.SwapFromTypes
 import org.joda.time.DateTime
 
 class Coin {
+
+
+    data class EstimateCoin(
+        val willGet: Double,
+        val commission: Double?,
+        val swap_from: SwapFromTypes
+    )
+    @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated? use EstimateCoin",
+        replaceWith = ReplaceWith("EstimateCoin")
+    )
     data class EstimateCoinSell(
         val willGet: Double,
         val commission: Double,

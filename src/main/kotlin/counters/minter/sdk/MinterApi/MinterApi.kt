@@ -444,14 +444,30 @@ class MinterApi(
         return null
     }
 
+    @Deprecated(level = DeprecationLevel.WARNING, message = "not support for tokens")
     fun estimateCoinSell(
         coinToSell: String,
         valueToSell: Double,
         coinToBuy: String,
         height: Long = 0,
         notFoundCoin: ((notFount: Boolean) -> Unit)? = null
-    ): Coin.EstimateCoinSell? {
+    ): Coin.EstimateCoin? {
         return this.estimateCoinSell(coinToSell, minterMatch.getPip(valueToSell), coinToBuy, height, notFoundCoin)
+    }
+
+    fun estimateCoinIdSellAll(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        notFoundCoin: ((notFount: Boolean) -> Unit)? = null
+    ): Coin.EstimateCoin? {
+//        val swap_from_str =  SwapFromTypes.values().filter { it=swa }
+        return this.estimateCoinIdSellAll(coinToSell.toString(), minterMatch.getPip(valueToSell), coinToBuy.toString(), height,coin_id_commission,
+            swap_from?.value, route, notFoundCoin)
     }
     fun estimateCoinSell(
         coinToSell: Long,
@@ -462,7 +478,7 @@ class MinterApi(
         swap_from: SwapFromTypes? = null,
         route: List<Long>? = null,
         notFoundCoin: ((notFount: Boolean) -> Unit)? = null
-    ): Coin.EstimateCoinSell? {
+    ): Coin.EstimateCoin? {
 //        val swap_from_str =  SwapFromTypes.values().filter { it=swa }
         return this.estimateCoinIdSell(coinToSell.toString(), minterMatch.getPip(valueToSell), coinToBuy.toString(), height,coin_id_commission,
             swap_from?.value, route, notFoundCoin)
@@ -477,7 +493,7 @@ class MinterApi(
         swap_from: String? = null,
         route: List<Long>? = null,
         notFoundCoin: ((notFount: Boolean) -> Unit)? = null
-    ): Coin.EstimateCoinSell? {
+    ): Coin.EstimateCoin? {
         val params = mutableMapOf<String, String>("value_to_sell" to valueToSell)
         if (coinToSell!=null) params["coin_id_to_sell"] = coinToSell
         if (coinToBuy!=null) params["coin_id_to_buy"] = coinToBuy
@@ -518,6 +534,47 @@ class MinterApi(
         }
         return null
     }
+    fun estimateCoinIdSellAll(
+        coinToSell: String?,
+        valueToSell: String,
+        coinToBuy: String,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: String? = null,
+        route: List<Long>? = null,
+        notFoundCoin: ((notFount: Boolean) -> Unit)? = null
+    ): Coin.EstimateCoin? {
+        val params = mutableMapOf<String, String>("value_to_sell" to valueToSell)
+        if (coinToSell!=null) params["coin_id_to_sell"] = coinToSell
+        if (coinToBuy!=null) params["coin_id_to_buy"] = coinToBuy
+        if (height!=null) params["height"] = height.toString()
+
+        if (coin_id_commission!=null) params["coin_id_commission"] = coin_id_commission.toString()
+        if (swap_from!=null) params["swap_from"] = swap_from
+        var addPathForURL=""
+
+        if (route!=null ) {
+            val array= arrayListOf<String>()
+            route.forEach { array.add("route=$it") }
+            params.forEach { k, v ->
+                array.add("$k=$v")
+            }
+            addPathForURL = "?"+array.joinToString("&")
+            params.clear()
+        }
+
+        this.get("estimate_coin_sell_all"+addPathForURL, params, {
+                if (this.notFoundCoin(it)) {
+                    notFoundCoin?.invoke(true)
+                }
+            }
+        )?.let {
+            if (it.isNull("error")) {
+                return parseEstimateCoinSell.get(it)
+            }
+        }
+        return null
+    }
 
     @Deprecated(level = DeprecationLevel.WARNING, message = "not support for tokens")
     fun estimateCoinSell(
@@ -526,7 +583,7 @@ class MinterApi(
         coinToBuy: String,
         height: Long = 0,
         notFoundCoin: ((notFount: Boolean) -> Unit)? = null
-    ): Coin.EstimateCoinSell? {
+    ): Coin.EstimateCoin? {
         val jsonObj = this.get(Method.ESTIMATE_COIN_SELL.patch,
             mapOf(
                 "coin_to_sell" to coinToSell, "value_to_sell" to valueToSell,
