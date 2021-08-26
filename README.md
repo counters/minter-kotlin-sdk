@@ -88,6 +88,16 @@ val estimateCoinBuy = minterApi.estimateCoinBuy("BIP", 1.0, "UPLOAD")
 println(estimateCoinBuy) // EstimateCoinBuy(willPay=0.04564504450213553, commission=0.1)    
 ```
 
+#### transactions?query Example
+```kotlin
+val queryMap = mutableMapOf(
+    QueryTags.TagsTxTo to "72b9ccf56eb6e1a0d00b50dd92314109649033be",
+    QueryTags.TagsTxType to TransactionTypes.TypeSend.toHex(),
+)
+minterApi.getTransactionsRaw(queryMap, 1, 100)?.let { println(it) }
+```
+
+
 #### Advanced Use Example
 ```kotlin
 val newNode = minterApi.getNode("Mp01cc99ae5a349ecaeef187dcbb12816bf2b3d8eae80f654034b21213aa445b2c", 0, {
