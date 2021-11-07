@@ -9,6 +9,7 @@ group = "MinterKotlinSDK"
 version = "1.0-SNAPSHOT"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     jcenter()
     maven(url = "https://jitpack.io") {}
@@ -29,6 +30,13 @@ dependencies {
     testCompile("org.slf4j", "slf4j-simple", "1.7.26")
     implementation ("joda-time:joda-time:2.10.10")
 
+    implementation(fileTree("libs"))
+//    implementation("com.google.protobuf:protobuf-java:3.19.1")
+//    implementation("com.google.protobuf:protobuf-kotlin:3.19.1")
+
+    implementation ("io.grpc:grpc-netty-shaded:1.41.0")
+    implementation ("io.grpc:grpc-protobuf:1.41.0")
+    implementation ("io.grpc:grpc-stub:1.41.0")
 }
 
 tasks.test {
