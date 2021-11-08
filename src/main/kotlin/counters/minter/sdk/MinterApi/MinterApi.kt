@@ -3,6 +3,7 @@ package counters.minter.sdk.MinterApi
 import counters.minter.sdk.Minter.*
 import counters.minter.sdk.Minter.Enum.QueryTags
 import counters.minter.sdk.Minter.Enum.SwapFromTypes
+import counters.minter.sdk.MinterApi.parse.*
 import org.json.JSONArray
 import org.json.JSONObject
 

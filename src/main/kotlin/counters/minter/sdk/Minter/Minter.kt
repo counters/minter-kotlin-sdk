@@ -141,7 +141,8 @@ class Minter {
     data class Status(
         val height: Long,
         val datetime: DateTime,
-        val network: String
+        val network: String,
+        val initial_height: Long,
     )
 
     data class Event(
