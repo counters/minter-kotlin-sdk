@@ -1,4 +1,4 @@
 package counters.minter.sdk.MinterApi.convert
 
-class Convert: ConvertStatus {
+class Convert: ConvertStatus, ConvertTransaction {
 }
