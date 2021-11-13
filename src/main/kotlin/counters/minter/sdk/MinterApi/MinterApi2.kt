@@ -105,10 +105,26 @@ class MinterApi2(grpcOptions: GrpcOptions? = null, httpOptions: HttpOptions? = n
             })
     }
 
-    fun asyncBlockGrpc(height: Long, deadline: Long?= null): Minter.Block? {
+    @Deprecated(level = DeprecationLevel.ERROR, message = "TODO Convert")
+    fun block(height: Long, deadline: Long?= null): Minter.Block? {
         if (grpcOptions!=null) {
             blockingClient.withDeadlineAfter((deadline?: grpcOptions!!.deadline), TimeUnit.MILLISECONDS).block(null)?.let {
 //                return  it //@TODO Convert
+            } ?: run{
+                return null
+            }
+        }
+        return null
+    }
+
+    fun blockGrpc(height: Long, deadline: Long?= null): BlockResponse? {
+        val request = BlockRequest.newBuilder().setHeight(height).build()
+        return blockGrpc(request, deadline)
+    }
+    fun blockGrpc(request: BlockRequest, deadline: Long?= null): BlockResponse? {
+        if (grpcOptions!=null) {
+            blockingClient.withDeadlineAfter((deadline?: grpcOptions!!.deadline), TimeUnit.MILLISECONDS).block(request)?.let {
+                return  it
             } ?: run{
                 return null
             }
@@ -179,6 +195,10 @@ class MinterApi2(grpcOptions: GrpcOptions? = null, httpOptions: HttpOptions? = n
                 result(it)
                 success=true
             })
+    }
+
+    fun newTestFun(){
+
     }
 
 

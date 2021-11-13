@@ -1,6 +1,7 @@
 package counters.minter.sdk.MinterApi
 
 import counters.minter.grpc.client.BlockResponse
+import counters.minter.grpc.client.StatusResponse
 import counters.minter.grpc.client.TransactionResponse
 import counters.minter.sdk.Minter.Minter
 import counters.minter.sdk.MinterApi.grpc.GrpcOptions
@@ -11,8 +12,8 @@ import org.junit.jupiter.api.Assertions.*
 import java.util.concurrent.Semaphore
 
 internal class MinterApi2Test {
-    private val hostname = "xeon24.local"
-    //            val hostname = "localhost"
+//    private val hostname = "xeon24.local"
+                val hostname = "localhost"
 
     private val grpcOptions = GrpcOptions(hostname = hostname, deadline = 1000)
 
@@ -51,6 +52,17 @@ internal class MinterApi2Test {
 
     @Test
     fun asyncStatusGrpc() {
+
+        val minterApi2 = MinterApi2(grpcOptions)
+        var statusResponse: StatusResponse? = null
+        val semaphore = Semaphore(0)
+        minterApi2.asyncStatusGrpc {
+            statusResponse = it
+            assertNotEquals(null, statusResponse)
+            semaphore.release()
+        }
+        semaphore.acquire()
+        assertNotEquals(null, statusResponse)
     }
 
     @Test
@@ -69,26 +81,16 @@ internal class MinterApi2Test {
     }
 
     @Test
-    fun testAsyncBlockGrpc() {
-    }
-
-    @Test
-    fun testAsyncBlockGrpc1() {
+    fun blockGrpc() {
+        val minterApi2 = MinterApi2(grpcOptions)
+        assertEquals(value4test.block!!, minterApi2.blockGrpc(value4test.block!!)?.height)
     }
 
     @Test
     fun transaction() {
         val minterApi2 = MinterApi2(grpcOptions)
-        logger.info { minterApi2.transaction(value4test.hash!!) }
-        assertEquals(value4test.hash!!, minterApi2.transaction(value4test.hash!!))
-    }
-
-    @Test
-    fun testTransaction() {
-    }
-
-    @Test
-    fun testTransaction1() {
+//        logger.info { "!!!!!!${minterApi2.transaction(value4test.hash!!)}" }
+        assertEquals(value4test.hash!!, minterApi2.transaction(value4test.hash!!)?.hash)
     }
 
     @Test
@@ -103,10 +105,8 @@ internal class MinterApi2Test {
             assertEquals(value4test.hash, transactionResponse?.hash)
         }
         semaphore.acquire()
-        assertNotEquals(null, transactionResponse?.height)
+        logger.info { "transactionResponse $transactionResponse" }
+        assertNotEquals(null, transactionResponse)
     }
 
-    @Test
-    fun testTransactionGrpc() {
-    }
 }
