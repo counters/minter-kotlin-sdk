@@ -68,6 +68,7 @@ class MinterApi2(grpcOptions: GrpcOptions? = null, httpOptions: HttpOptions? = n
         return null
     }
 
+    @Deprecated(level = DeprecationLevel.ERROR, message = "old method")
     fun asyncStatusGrpc_Old(deadline: Long?= null, result: ((result: StatusResponse?) -> Unit)) {
         val request = null
 //        val exitSemaphore = Semaphore(0)
@@ -92,6 +93,13 @@ class MinterApi2(grpcOptions: GrpcOptions? = null, httpOptions: HttpOptions? = n
             }
         })
     }
+
+    fun asyncStatus(deadline: Long? = null, result: ((result: Minter.Status?) -> Unit)) {
+        return asyncStatusGrpc(deadline) {
+            if (it != null) result(convert.getStatus(it)) else result(null)
+        }
+    }
+
     fun asyncStatusGrpc(deadline: Long?= null, result: ((result: StatusResponse?) -> Unit)) {
         val request = null
 //        val exitSemaphore = Semaphore(0)

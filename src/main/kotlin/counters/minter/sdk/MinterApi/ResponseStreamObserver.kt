@@ -19,13 +19,12 @@ class ResponseStreamObserver <R, T>(
     }
     override fun onError(e: Throwable) {
 //            ${e.printStackTrace()}
-        logger.info { "Async client. Cannot get for $request :  ${e.message}" }
+        logger.debug { "Async client. Cannot get for $request :  ${e.message}" }
         result(null)
         completed?.let { it(false) }
     }
     override fun onCompleted() {
-        logger.info { "Async client. Stream completed." }
+        logger.debug { "Async client. Stream completed." }
         completed?.let { it(true) }
-//                exitSemaphore.release()
     }
 }
