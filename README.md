@@ -1,26 +1,45 @@
-## counter.minter_sdk.Minter Blockchain Kotlin SDK (unofficial)
+## Minter Blockchain Kotlin SDK (unofficial)
 
 ### About
-counter.minter_sdk.Minter Blockchain Kotlin SDK [counter.minter_sdk.Minter.network](https://minter.network) (unofficial).
+Minter Blockchain Kotlin SDK [Minter.network](https://minter.network).
 
-![counter.minter_sdk.Minter Blockchain Kotlin SDK](static/minter-kotlin-sdk-header.png "counter.minter_sdk.Minter Blockchain Kotlin SDK")
+![Minter Blockchain Kotlin SDK](static/minter-kotlin-sdk-header.png "counter.minter_sdk.Minter Blockchain Kotlin SDK")
 
-#### Simple using
+#### Initializing the HTTP Api
 ```kotlin
-import counter.minter_sdk.MinterApi.counter.minter_sdk.MinterApi
-
-class Main {
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-println("Hello from Kotlin")
-            val minterApi = counter.minter_sdk.MinterApi("https://minter-node-2.testnet.minter.network:8841")
-            val status = minterApi.getStatus()
-            println(status) // Status(height=977154, datetime=2019-07-11T21:26:22.119+03:00, network=minter-mainnet-1)
-        }
-    }
-}
+val minterApi = MinterApi("https://minter-node-2.testnet.minter.network:8843")
 ```
+#### Initializing gRPC transport
+```kotlin
+val minterApi2 = MinterApi2(GrpcOptions(hostname = "localhost", deadline = 1000))
+```
+
+#### Request with HTTP
+```kotlin
+minterApi.getStatus().let { println(it) } // Status(height=977154, datetime=2019-07-11T21:26:22.119+03:00, network=minter-mainnet-1)
+```
+
+#### Request with gRPC
+```kotlin
+minterApi2.getStatus().let { println(it) } // Status(height=7345972, datetime=2021-11-13T16:15:49.410+03:00, network=minter-mainnet-4)
+```
+
+#### Request with gRPC and return gRPC object
+```kotlin
+minterApi2.getStatusGrpc().let { println(it) } // latest_block_hash: "2201A179A3A69............
+```
+
+#### Asynchronous request with gRPC
+```kotlin
+minterApi2.asyncStatus { println(it) } // Status(height=7345972, datetime=2021-11-13T16:15:49.410+03:00, network=minter-mainnet-4)
+```
+
+#### Asynchronous request with gRPC and return gRPC object
+```kotlin
+minterApi2.asyncStatusGrpc { println(it) } // latest_block_hash: "2201A179A3A69............
+```
+
+### Details on HTTP methods
 
 #### Node (getCandidate)
 Returns candidate’s info by provided public_key.
@@ -28,7 +47,6 @@ Returns candidate’s info by provided public_key.
 val node = minterApi.getNodeRaw("Mp3b6e2632cd0c91ef96ea4f4a16f554ff1b4dd41324fd421a0161947c50603b9b")
 println(node) // NodeRaw(reward=Mx0a76...dd711, owner=Mx5ebe...7799, pub_key=Mp01cc...5b2c, commission=10, crblock=4)
 ```
-
 
 #### Coin (getCoinInfo)
 Returns information about coin.
