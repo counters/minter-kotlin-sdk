@@ -9,7 +9,7 @@ class ConvertBlock {
 
     private var minterMatch = MinterMatch()
     private val convertTransaction = ConvertTransaction()
-    
+
     fun get(response: BlockResponse): MinterRaw.BlockRaw {
 
         val transaction = arrayListOf<MinterRaw.TransactionRaw>()

@@ -4,7 +4,8 @@ import counters.minter.grpc.client.StatusResponse
 import counters.minter.sdk.Minter.Minter
 import org.joda.time.DateTime
 
-object ConvertStatusObj {
+@Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
+interface ConvertStatusOld {
 
     fun getStatus(status: StatusResponse): Minter.Status {
         val datetime = DateTime(status.latestBlockTime)

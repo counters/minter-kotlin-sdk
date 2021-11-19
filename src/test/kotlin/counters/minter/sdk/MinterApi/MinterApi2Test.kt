@@ -99,13 +99,13 @@ internal class MinterApi2Test {
         val semaphore = Semaphore(0)
         val minterApi2 = MinterApi2(grpcOptions)
         minterApi2.transactionGrpc(value4test.hash!!) {
-            logger.info { it }
+//            logger.info { it }
             transactionResponse = it
             semaphore.release()
             assertEquals(value4test.hash, transactionResponse?.hash)
         }
         semaphore.acquire()
-        logger.info { "transactionResponse $transactionResponse" }
+//        logger.info { "transactionResponse $transactionResponse" }
         assertNotEquals(null, transactionResponse)
     }
 

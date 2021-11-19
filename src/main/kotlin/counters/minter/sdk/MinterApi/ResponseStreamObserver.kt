@@ -19,7 +19,7 @@ class ResponseStreamObserver <R, T>(
     }
     override fun onError(e: Throwable) {
 //            ${e.printStackTrace()}
-        logger.debug { "Async client. Cannot get for $request :  ${e.message}" }
+        logger.error { "Async client. Cannot get for $request :  ${e.message}" }
         result(null)
         completed?.let { it(false) }
     }

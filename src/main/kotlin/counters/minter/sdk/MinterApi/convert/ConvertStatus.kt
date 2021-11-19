@@ -4,9 +4,9 @@ import counters.minter.grpc.client.StatusResponse
 import counters.minter.sdk.Minter.Minter
 import org.joda.time.DateTime
 
-interface ConvertStatus {
+object ConvertStatus {
 
-    fun getStatus(status: StatusResponse): Minter.Status {
+    fun get(status: StatusResponse): Minter.Status {
         val datetime = DateTime(status.latestBlockTime)
         return Minter.Status(
             height = status.latestBlockHeight,
@@ -16,7 +16,7 @@ interface ConvertStatus {
         )
     }
 
-    fun getStatus(status: Minter.Status): StatusResponse {
+    fun get(status: Minter.Status): StatusResponse {
 //        val blockTime = status.datetime.toString(DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZ"))
         val blockTime = status.datetime.toString()
         val statusResponse = StatusResponse.newBuilder()
