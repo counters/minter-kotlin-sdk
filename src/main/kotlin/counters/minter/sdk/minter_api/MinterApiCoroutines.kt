@@ -6,7 +6,6 @@ import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter_api.convert.Convert
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
-import io.grpc.Deadline
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.StatusException
@@ -67,7 +66,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) {
             }
     }
 
-    suspend fun transactionGrpc(request: TransactionRequest, deadline: Long? = null): TransactionResponse? {
+    suspend fun getTransactionGrpc(request: TransactionRequest, deadline: Long? = null): TransactionResponse? {
         val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
         return try {
             stub.transaction(request)
@@ -77,13 +76,13 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) {
         }
     }
 
-    suspend fun transactionGrpc(hash: String, deadline: Long? = null): TransactionResponse? {
+    suspend fun getTransactionGrpc(hash: String, deadline: Long? = null): TransactionResponse? {
         val request = TransactionRequest.newBuilder().setHash(hash).build()
-        return transactionGrpc(request, deadline)
+        return getTransactionGrpc(request, deadline)
     }
 
-    suspend fun transaction(hash: String, deadline: Long? = null): MinterRaw.TransactionRaw? {
-        transactionGrpc(hash, deadline)?.let {
+    suspend fun getTransaction(hash: String, deadline: Long? = null): MinterRaw.TransactionRaw? {
+        getTransactionGrpc(hash, deadline)?.let {
             return convert.transaction.get(it)
         } ?: run {
             return null
