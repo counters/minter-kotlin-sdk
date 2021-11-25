@@ -40,7 +40,7 @@ dependencies {
     implementation(fileTree("libs"))
 //    implementation("com.google.protobuf:protobuf-java:3.19.1")
 //    implementation("com.google.protobuf:protobuf-kotlin:3.19.1")
-//    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.2")
     implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
 
 
