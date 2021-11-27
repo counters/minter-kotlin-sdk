@@ -2,14 +2,18 @@ package counters.minter.sdk.minter_api
 
 import counters.minter.sdk.minter.Minter.*
 import counters.minter.sdk.minter.MinterRaw.*
-import counters.minter.sdk.minter_api.http.AsyncHttpApi
+import counters.minter.sdk.minter_api.http.OkHttpApi
 import counters.minter.sdk.minter_api.http.HttpOptions
+import counters.minter.sdk.minter_api.http.KHttpApi
 import counters.minter.sdk.minter_api.parse.*
 import mu.KotlinLogging
 import org.json.JSONException
 import org.json.JSONObject
 
-class MinterAsyncHttpApi(httpOptions: HttpOptions): AsyncHttpApi(httpOptions) {
+class MinterAsyncHttpApi(httpOptions: HttpOptions):
+//OkHttpApi(httpOptions)
+    KHttpApi(httpOptions)
+{
 
 //    private var headers: Map<String, String>?
     private val parseBlock = ParseBlock()
@@ -27,7 +31,7 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions): AsyncHttpApi(httpOptions) {
     private val logger = KotlinLogging.logger {}
 
     fun getStatusJson(timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
-        this.httpGet(HttpMethod.STATUS.patch, null, timeout){
+        this.asyncGet(HttpMethod.STATUS.patch, null, timeout){
             it?.let { result( getJSONObject(it)) }
         }
     }
@@ -42,7 +46,7 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions): AsyncHttpApi(httpOptions) {
     }
 
     fun getBlockJson(height: Long, timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
-        this.httpGet(HttpMethod.BLOCK.patch+"/"+height, null, timeout) {
+        this.asyncGet(HttpMethod.BLOCK.patch+"/"+height, null, timeout) {
 //            logger.info { "this.httpGet(*): ${it}" }
             getJSONObject(it)?.let {
 //                logger.info { "this.httpGet(*): JSON ${it}" }
@@ -52,6 +56,30 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions): AsyncHttpApi(httpOptions) {
                     result(null)
                 }
             } ?: run { result(null) }
+        }
+    }
+
+    fun test_getBlockJson(height: Long, timeout: Long? = null): JSONObject? {
+        this.syncGet(HttpMethod.BLOCK.patch+"/"+height, null, timeout).let {
+//            logger.info { "this.httpGet(*): ${it}" }
+            getJSONObject(it)?.let {
+//                logger.info { "this.httpGet(*): JSON ${it}" }
+                if (it.isNull("error")) {
+                    return it
+                } else {
+                    return null
+                }
+            } ?: run { return null }
+        }
+    }
+
+    fun test_getBlock(height: Long, timeout: Long? = null): BlockRaw? {
+        test_getBlockJson(height, timeout).let {
+//            logger.info { "getBlockJson($height, $timeout) : $it" }
+            if (it != null) {
+//                logger.info { "getBlockJson($height, $timeout) : ${parseBlock.getRaw(it)}" }
+                return parseBlock.getRaw(it)
+            } else { return null }
         }
     }
 
@@ -65,7 +93,7 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions): AsyncHttpApi(httpOptions) {
         }
     }
 
-    fun getJSONObject(strJson: String?): JSONObject? {
+    private fun getJSONObject(strJson: String?): JSONObject? {
         if (strJson==null) return null
         return try {
             JSONObject(strJson)
@@ -76,7 +104,7 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions): AsyncHttpApi(httpOptions) {
     }
 
     fun getTransactionJson(hash: String, timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
-        this.httpGet(HttpMethod.TRANSACTION.patch+"/"+hash, null, timeout) {
+        this.asyncGet(HttpMethod.TRANSACTION.patch+"/"+hash, null, timeout) {
 //            logger.info { "this.httpGet(*): ${it}" }
             getJSONObject(it)?.let {
 //                logger.info { "this.httpGet(*): JSON ${it}" }

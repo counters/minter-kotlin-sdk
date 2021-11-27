@@ -31,7 +31,7 @@ class MinterApi(
             minterGrpcApiCoroutines = MinterApiCoroutines(grpcOptions)
             minterGrpcApi = MinterGrpcApi(grpcOptions)
         } else if (httpOptions != null) {
-            minterHttpApi = MinterHttpApiOld(httpOptions.raw, httpOptions.timeout, httpOptions.headers)
+            minterHttpApi = MinterHttpApiOld(httpOptions.raw!!, httpOptions.timeout, httpOptions.headers)
             minterAsyncHttpApi = MinterAsyncHttpApi(httpOptions)
         } else {
             throw Exception("grpcOptions = null && httpOptions = null")
@@ -98,6 +98,13 @@ class MinterApi(
             }
             semaphore.acquire()
             return status
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getBlock(height, fields, failed_txs, deadline)
+        }
+    }
+    suspend fun test_getBlockCoroutines(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null): BlockRaw? {
+        minterAsyncHttpApi?.let {
+            return it.test_getBlock(height, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getBlock(height, fields, failed_txs, deadline)
         }
