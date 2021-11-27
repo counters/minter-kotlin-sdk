@@ -8,10 +8,10 @@ Minter Blockchain Kotlin SDK [Minter.network](https://minter.network).
 
 | Class support    | MinterApi  | MinterApiCoroutines  | MinterGrpcApi  |
 | ------- | :----- | :----- | :----- |
-| http transport    | :heavy_check_mark:  | :heavy_multiplication_x: | :heavy_multiplication_x: |
-| gRPC transport     | :heavy_multiplication_x: | :heavy_check_mark: | :heavy_check_mark: |
-| Kotlin data class    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| gRPC class    | :heavy_multiplication_x: | :heavy_check_mark: | :heavy_check_mark: |
+| HTTP transport      | :heavy_check_mark:  | :heavy_multiplication_x: | :heavy_multiplication_x: |
+| gRPC transport      | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Kotlin data class  in output | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| gRPC class in output         | :heavy_multiplication_x: | :heavy_check_mark: | :heavy_check_mark: |
 
 #### Initializing the HTTP Api
 ```kotlin
