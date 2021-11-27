@@ -4,12 +4,11 @@ import counters.minter.sdk.minter.*
 import counters.minter.sdk.minter.Enum.QueryTags
 import counters.minter.sdk.minter.Enum.SwapFromTypes
 import counters.minter.sdk.minter_api.parse.*
-//import khttp.DEFAULT_TIMEOUT
 import org.json.JSONArray
 import org.json.JSONObject
 
 class MinterHttpApiOld(
-    var nodeUrl: String? = null,
+    var nodeUrl: String = "http://localhost:8843/v2",
     timeout: Double? = null,
     val headers: Map<String, String>? = null
 ) {
@@ -29,11 +28,6 @@ class MinterHttpApiOld(
     private val minterMatch = MinterMatch()
 
     private val timeout = timeout ?: khttp.DEFAULT_TIMEOUT
-    init {
-        if (nodeUrl == null) nodeUrl = Api.getUrl()
-//        this.timeout = timeout ?: khttp.DEFAULT_TIMEOUT
-    }
-
 
 
     //    get Events

@@ -5,7 +5,6 @@ import org.joda.time.DateTime
 
 class Coin {
 
-
     data class EstimateCoin(
         val willGet: Double,
         val commission: Double?,
