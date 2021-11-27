@@ -5,8 +5,8 @@ plugins {
     application
 }
 
-group = "MinterKotlinSDK"
-version = "1.0-SNAPSHOT"
+group = "counters"
+version = "2.0.0-beta1"
 
 val grpcKotlinVersion = "1.2.0"
 val coroutinesVersion = "1.5.2"
