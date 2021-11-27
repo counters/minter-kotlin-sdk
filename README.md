@@ -8,18 +8,18 @@ Minter Blockchain Kotlin SDK [Minter.network](https://minter.network).
 
 | Class support    | MinterApi  | MinterApiCoroutines  | MinterGrpcApi  |
 | ------- | :----- | :----- | :----- |
-| http transport    | :heavy_check_mark:  | :heavy_multiplication_x: | :heavy_multiplication_x: |
-| gRPC transport     | :heavy_multiplication_x: | :heavy_check_mark: | :heavy_check_mark: |
-| Kotlin data class    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| gRPC class    | :heavy_multiplication_x: | :heavy_check_mark: | :heavy_check_mark: |
+| HTTP transport      | :heavy_check_mark:  | :heavy_multiplication_x: | :heavy_multiplication_x: |
+| gRPC transport      | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Kotlin data class  in output | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| gRPC class in output         | :heavy_multiplication_x: | :heavy_check_mark: | :heavy_check_mark: |
 
 #### Initializing the HTTP Api
 ```kotlin
-val minterApi = MinterApi("https://minter-node-2.testnet.minter.network:8843")
+val minterApi = MinterApi(HttpOptions(raw = "http://localhost:8843/v2"))
 ```
 #### Initializing gRPC transport
 ```kotlin
-val minterApi2 = MinterApi2(GrpcOptions(hostname = "localhost", deadline = 1000))
+val minterApi2 = MinterApiCoroutines(GrpcOptions(hostname = "localhost", deadline = 1000))
 ```
 
 #### Request with HTTP
