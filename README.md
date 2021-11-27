@@ -6,18 +6,12 @@ Minter Blockchain Kotlin SDK [Minter.network](https://minter.network).
 ![Minter Blockchain Kotlin SDK](static/minter-kotlin-sdk-header.png "counter.minter_sdk.Minter Blockchain Kotlin SDK")
 
 
-[comment]: <> (| Class support    | HTTP  | gRPC  |)
-
-[comment]: <> (| ------- | :----- | :----- |)
-| Class support    | HTTP  | gRPC  |
-| ------- | :----- | :----- |
-| MinterApi    | :heavy_check_mark:  | :heavy_check_mark: |
-| MinterApiCoroutines    | :heavy_multiplication_x: | :heavy_check_mark: |
-| MinterGrpcApi    | :heavy_multiplication_x: | :heavy_check_mark: |
-
-Function | MySQL / MariaDB | PostgreSQL | SQLite
-:------------ | :-------------| :-------------| :-------------
-substr | :heavy_check_mark: 	:ballot_box_with_check:
+| Class support    | MinterApi  | MinterApiCoroutines  | MinterGrpcApi  |
+| ------- | :----- | :----- | :----- |
+| http transport    | :heavy_check_mark:  | :heavy_multiplication_x: | :heavy_multiplication_x: |
+| gRPC transport     | :heavy_multiplication_x: | :heavy_check_mark: | :heavy_check_mark: |
+| Kotlin data class    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| gRPC class    | :heavy_multiplication_x: | :heavy_check_mark: | :heavy_check_mark: |
 
 #### Initializing the HTTP Api
 ```kotlin
