@@ -19,9 +19,6 @@ interface SubscribeInterface {
 
     val logger: KLogger
 
-    /**
-     *  tm.event = 'NewBlock' or tm.event = 'Tx'
-     * */
     fun streamSubscribeGrpc(query: String, deadline: Long? = null, result: ((result: SubscribeResponse?) -> Unit)) {
         val requestBuilder = SubscribeRequest.newBuilder()
 //        if (query != null)

@@ -66,10 +66,9 @@ class MinterHttpApiOld(
         return null
     }    //    Transaction
 
-//    @JvmName("getTransactionsRaw1")
     fun getTransactionsRaw(
     query: Map<QueryTags, String>,
-    page: Int?=null,
+    page: Int=1,
     per_page: Int?=null,
     getJson: ((transactionJson: JSONObject) -> Unit)? = null
     ): List<MinterRaw.TransactionRaw>? {
@@ -169,9 +168,6 @@ class MinterHttpApiOld(
         return null
     }
 
-/*    fun convBlock(): MinterRaw.BlockRaw? {
-
-    }*/
 
     fun getBlockRaw(height: Long): MinterRaw.BlockRaw? {
         val jsonObj = this.get(HttpMethod.BLOCK.patch+"/"+height.toString())

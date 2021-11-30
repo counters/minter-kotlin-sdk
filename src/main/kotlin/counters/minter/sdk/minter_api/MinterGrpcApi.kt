@@ -7,14 +7,13 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import mu.KotlinLogging
 
-class MinterGrpcApi(grpcOptions: GrpcOptions): TransactionInterface, StatusInterface, BlockInterface, SubscribeInterface, UnconfirmedTxs {
+class MinterGrpcApi(grpcOptions: GrpcOptions): TransactionInterface, TransactionsInterface, StatusInterface, BlockInterface, SubscribeInterface, UnconfirmedTxs {
+
 
     private var channel: ManagedChannel? = null
     private var grpcOptions: GrpcOptions? = null
     override lateinit var asyncClient: ApiServiceGrpc.ApiServiceStub
     override lateinit var blockingClient: ApiServiceGrpc.ApiServiceBlockingStub
-//    override var asyncClient2: ApiServiceGrpc.ApiServiceStub,
-//    override var blockingClient2: ApiServiceGrpc.ApiServiceBlockingStub
 
     private val convert = Convert()
 
@@ -41,11 +40,5 @@ class MinterGrpcApi(grpcOptions: GrpcOptions): TransactionInterface, StatusInter
         blockingClient = ApiServiceGrpc.newBlockingStub(channel)
         asyncClient = ApiServiceGrpc.newStub(channel)
     }
-
-/*
-    fun loadTransactions() {
-        TODO("Not yet implemented")
-    }
-*/
 
 }

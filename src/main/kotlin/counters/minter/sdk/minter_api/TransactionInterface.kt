@@ -14,18 +14,6 @@ sealed interface TransactionInterface {
 
     val convertTransaction: ConvertTransaction
 
-/*    fun transactionGrpc2(request: TransactionRequest, deadline: Long? = null, result: ((result: TransactionResponse?) -> Unit)) {
-        var success = false
-        val asyncClient = if (deadline != null) asyncClient.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else asyncClient
-        asyncClient.transaction(request, ResponseStreamObserver(request, {
-            if (!success) result(null) // else  result(null)
-        }) {
-//                logger.info { "Async client. Stream completed. $it" }
-            result(it)
-            success = true
-        })
-    }*/
-
     fun transaction(hash: String, deadline: Long? = null): MinterRaw.TransactionRaw? {
         val request = TransactionRequest.newBuilder().setHash(hash).build()
         return transaction(request, deadline)
@@ -36,7 +24,6 @@ sealed interface TransactionInterface {
             val blockingClient = if (deadline != null) blockingClient.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else blockingClient
             blockingClient
                 .transaction(request)?.let {
-//                    logger.info { it }
                     return convertTransaction.get(it)
                 } ?: run {
                 return null
@@ -45,27 +32,22 @@ sealed interface TransactionInterface {
     }
 
     fun transaction(hash: String, deadline: Long? = null, result: ((result: MinterRaw.TransactionRaw?) -> Unit)) {
-//        if (grpcOptions != null) {
-            transactionGrpc(hash, deadline) {
-                if (it != null) result(convertTransaction.get(it)) else result(null)
-            }
-/*        } else {
-            result(null)
-        }*/
+        transactionGrpc(hash, deadline) {
+            if (it != null) result(convertTransaction.get(it)) else result(null)
+        }
     }
 
     fun transactionGrpc(hash: String, deadline: Long? = null, result: ((result: TransactionResponse?) -> Unit)) {
         val request = TransactionRequest.newBuilder().setHash(hash).build()
-        return transactionGrpc(request, deadline, result)
+        transactionGrpc(request, deadline, result)
     }
 
     fun transactionGrpc(request: TransactionRequest, deadline: Long? = null, result: ((result: TransactionResponse?) -> Unit)) {
         var success = false
         val asyncClient = if (deadline != null) asyncClient.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else asyncClient
         asyncClient.transaction(request, ResponseStreamObserver(request, {
-            if (!success) result(null) // else  result(null)
+            if (!success) result(null)
         }) {
-//                logger.info { "Async client. Stream completed. $it" }
             result(it)
             success = true
         })
