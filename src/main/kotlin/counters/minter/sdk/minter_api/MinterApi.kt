@@ -1,6 +1,7 @@
 package counters.minter.sdk.minter_api
 
 import counters.minter.grpc.client.BlockField
+import counters.minter.sdk.minter.Enum.QueryTags
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw.*
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
@@ -138,12 +139,21 @@ class MinterApi(
             semaphore.acquire()
             return status
         } ?: run {
-//            return minterGrpcApiCoroutines!!.get(hash, deadline)
-        TODO("Fix it")
+            return minterGrpcApiCoroutines!!.getTransaction(hash, deadline)
         }
     }
 
-/*
-    companion object {
-    }*/
+    fun getTransactions(
+        query: Map<QueryTags, String>,
+        page: Int=1,
+        per_page: Int?=null,
+        deadline: Long? = null
+    ): List<TransactionRaw>? {
+        if (minterHttpApi!=null) {
+            return minterHttpApi!!.getTransactionsRaw(query, page, per_page)
+        } else {
+            return minterGrpcApi!!.transactions(query, page, per_page, deadline)
+        }
+    }
+
 }
