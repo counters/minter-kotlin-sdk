@@ -116,6 +116,10 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) {
         }
     }
 
+    fun getLimitOrders(ids: List<Long>, height: Long?, deadline: Long?): Any? {
+        TODO("Not yet implemented")
+    }
+
 /*    fun asyncBlockGrpc(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null, result: ((result: BlockResponse?) -> Unit)) {
         val requestBuilder = BlockRequest.newBuilder().setHeight(height)
         fields?.let {

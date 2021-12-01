@@ -7,7 +7,17 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import mu.KotlinLogging
 
-class MinterGrpcApi(grpcOptions: GrpcOptions): TransactionInterface, TransactionsInterface, StatusInterface, BlockInterface, SubscribeInterface, UnconfirmedTxs {
+class MinterGrpcApi(grpcOptions: GrpcOptions):
+    TransactionInterface,
+    TransactionsInterface,
+    StatusInterface,
+    BlockInterface,
+    SubscribeInterface,
+    UnconfirmedTxs,
+    LimitOrdersOfPoolInterface,
+    LimitOrdersInterface,
+    LimitOrderInterface
+{
 
 
     private var channel: ManagedChannel? = null

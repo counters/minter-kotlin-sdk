@@ -1,6 +1,9 @@
 package counters.minter.sdk.minter_api
 
 import counters.minter.grpc.client.BlockField
+import counters.minter.grpc.client.LimitOrderResponse
+import counters.minter.grpc.client.LimitOrdersOfPoolResponse
+import counters.minter.grpc.client.LimitOrdersResponse
 import counters.minter.sdk.minter.Enum.QueryTags
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw.*
@@ -153,6 +156,45 @@ class MinterApi(
             return minterHttpApi!!.getTransactionsRaw(query, page, per_page)
         } else {
             return minterGrpcApi!!.transactions(query, page, per_page, deadline)
+        }
+    }
+
+    fun getLimitOrdersOfPool(sellCoin: Long, buyCoin: Long, limit: Int? = null, height: Long? = null, deadline: Long? = null): LimitOrdersOfPoolResponse? {
+        if (minterHttpApi != null) {
+//            return minterHttpApi!!.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height)
+            TODO("Not yet implemented")
+        } else {
+            return minterGrpcApi!!.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height, deadline)
+        }
+    }
+
+    fun getLimitOrder(orderId: Long, height: Long? = null, deadline: Long? = null): Any? {
+        if (minterHttpApi != null) {
+            return minterHttpApi!!.getLimitOrder(orderId, height, deadline)
+        } else {
+            return minterGrpcApi!!.getLimitOrder(orderId, height, deadline)
+        }
+    }
+
+    fun getLimitOrders(ids: List<Long>, height: Long? = null, deadline: Long? = null): Any? {
+        if (minterHttpApi != null) {
+            return minterHttpApi!!.getLimitOrders(ids, height, deadline)
+        } else {
+            return minterGrpcApi!!.getLimitOrders(ids, height, deadline)
+        }
+    }
+    suspend fun getLimitOrdersCoroutines(ids: List<Long>, height: Long? = null, deadline: Long? = null): Any? {
+        minterAsyncHttpApi?.let {
+            var status: Any?=null
+            val semaphore = kotlinx.coroutines.sync.Semaphore(1, 1)
+            it.getLimitOrders(ids, height, deadline) {
+                status = it
+                semaphore.release()
+            }
+            semaphore.acquire()
+            return status
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getLimitOrders(ids, height, deadline)
         }
     }
 

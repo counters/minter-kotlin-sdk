@@ -28,6 +28,8 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions):
     private val parseTransaction = ParseTransaction()
     private val parseSwapPoolRaw = ParseSwapPoolRaw()
 
+    private val parseLimitOrder = ParseLimitOrder()
+
     private val logger = KotlinLogging.logger {}
 
     fun getStatusJson(timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
@@ -127,6 +129,33 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions):
         }
     }
 
+    fun getLimitOrdersJson(ids: List<Long>? = null, height: Long? = null, timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to height.toString()) }
+        ids?.forEach {
+            params.add("ids" to it.toString())
+        }
+        this.asyncGet(HttpMethod.LIMIT_ORDERS.patch, params, timeout)
+        {
+//            logger.info { "this.httpGet(*): ${it}" }
+            getJSONObject(it)?.let {
+//                logger.info { "this.httpGet(*): JSON ${it}" }
+                if (it.isNull("error")) {
+                    result(it)
+                } else {
+                    result(null)
+                }
+            } ?: run { result(null) }
+        }
+    }
+
+    fun getLimitOrders(ids: List<Long>?=null, height: Long?=null, timeout: Long?=null, result: ((result: Any?) -> Unit) ) {
+        getLimitOrdersJson(ids, height, timeout) {
+            if (it != null) {
+                result(parseLimitOrder.array(it))
+            } else { result(null) }
+        }
+    }
 
 
     companion object {

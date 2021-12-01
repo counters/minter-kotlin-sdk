@@ -35,10 +35,10 @@ enum class TransactionTypes (val int: Int) {
     VOTE_COMMISSION(32),
     VOTE_UPDATE(33),
     CREATE_SWAP_POOL(34),
+    ADD_LIMIT_ORDER(35),
+    REMOVE_LIMIT_ORDER(36),
     ;
-    companion object {
 
-    }
     fun toHex(): String {
         this.int.toString(16).let {
             if (it.length==1) return "0$it"

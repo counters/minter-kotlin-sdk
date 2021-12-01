@@ -24,6 +24,7 @@ class MinterHttpApiOld(
     private val parseEvents = ParseEvent()
     private val parseTransaction = ParseTransaction()
     private val parseSwapPoolRaw = ParseSwapPoolRaw()
+    private val parseLimitOrder = ParseLimitOrder()
 
     private val minterMatch = MinterMatch()
 
@@ -630,7 +631,7 @@ class MinterHttpApiOld(
 //        val url = this.nodeUrl + "/" + method.patch+"/2"
         val url = this.nodeUrl + "/" + patch
 //        val url = this.nodeUrl + "/" + method.patch+"/" +params.getValue('height')
-//        println("MinterApi.get($url, $params)\n")
+        println("MinterApi.get($url, $params)\n")
 
         val _params = if (params == null)
             mapOf()
@@ -734,6 +735,51 @@ class MinterHttpApiOld(
         this.get("swap_pool/$coin0/$coin1/$address", params)?.let {
             if (it.isNull("error")) {
                 return parseSwapPoolRaw.get(it)
+            }
+        }
+        return null
+    }
+
+    fun getLimitOrderJson(orderId: Long, height: Long?=null, deadline: Long?=null): JSONObject? {
+        val params = if (height!=null) mapOf("height" to height.toString()) else null
+        this.get(HttpMethod.LIMIT_ORDER.patch+"/"+orderId, params)?.let {
+            println(it)
+            return it
+        }
+        return null
+    }
+
+    fun getLimitOrder(orderId: Long, height: Long?=null, deadline: Long?=null): Any? {
+        getLimitOrderJson(orderId, height, deadline)?.let {
+            println(it)
+            if (it.isNull("error")) {
+                TODO()
+//                return parseSwapPoolRaw.get(it)
+            }
+        }
+        return null
+    }
+
+    fun getLimitOrdersJson(ids: List<Long>?=null, height: Long?=null, deadline: Long?=null): JSONObject? {
+        val params = if (height!=null) mapOf("height" to height.toString()) else null
+        var addPathForURL=""
+        if (ids!=null ) {
+            val array= arrayListOf<String>()
+            ids.forEach { array.add("ids=$it") }
+            addPathForURL = "?"+array.joinToString("&")
+        }
+        this.get(HttpMethod.LIMIT_ORDERS.patch + addPathForURL, params)?.let {
+//            println(it)
+            return it
+        }
+        return null
+    }
+
+    fun getLimitOrders(ids: List<Long>, height: Long?=null, deadline: Long?=null): Any? {
+        getLimitOrdersJson(ids, height, deadline)?.let {
+//            println(it)
+            if (it.isNull("error")) {
+                return parseLimitOrder.array(it)
             }
         }
         return null
