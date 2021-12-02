@@ -160,15 +160,6 @@ class MinterApi(
         }
     }
 
-    fun getLimitOrdersOfPool(sellCoin: Long, buyCoin: Long, limit: Int? = null, height: Long? = null, deadline: Long? = null): LimitOrdersOfPoolResponse? {
-        if (minterHttpApi != null) {
-//            return minterHttpApi!!.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height)
-            TODO("Not yet implemented")
-        } else {
-            return minterGrpcApi!!.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height, deadline)
-        }
-    }
-
     fun getLimitOrder(orderId: Long, height: Long? = null, deadline: Long? = null): LimitOrderRaw? {
         if (minterHttpApi != null) {
             return minterHttpApi!!.getLimitOrder(orderId, height, deadline)
@@ -198,6 +189,22 @@ class MinterApi(
             it.getLimitOrders(ids, height, deadline, result)
         } ?: run {
             minterGrpcApi!!.getLimitOrders(ids, height, deadline, result)
+        }
+    }
+
+    fun getLimitOrdersOfPool(sellCoin: Long, buyCoin: Long, limit: Int? = null, height: Long? = null, deadline: Long? = null): List<LimitOrderRaw>? {
+        if (minterHttpApi != null) {
+            return minterHttpApi!!.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height)
+        } else {
+            return minterGrpcApi!!.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height, deadline)
+        }
+    }
+
+    fun getLimitOrdersOfPool(sellCoin: Long, buyCoin: Long, limit: Int? = null, height: Long? = null, deadline: Long? = null, result: ((result: List<LimitOrderRaw>?) -> Unit)) {
+        minterAsyncHttpApi?.let {
+            it.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height, deadline, result)
         }
     }
 

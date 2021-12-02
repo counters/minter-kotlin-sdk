@@ -1,6 +1,7 @@
 package counters.minter.sdk.minter_api.convert
 
 import counters.minter.grpc.client.LimitOrderResponse
+import counters.minter.grpc.client.LimitOrdersOfPoolResponse
 import counters.minter.grpc.client.LimitOrdersResponse
 import counters.minter.sdk.minter.CoinObjClass
 import counters.minter.sdk.minter.LimitOrderRaw
@@ -11,7 +12,6 @@ class ConvertLimitOrder {
     private var minterMatch = MinterMatch()
 
     fun get(response: LimitOrderResponse): LimitOrderRaw {
-//        minterMatch.getAmount("0")
         return LimitOrderRaw(
             id = response.id,
             coinSell = CoinObjClass.CoinObj(response.coinSell.id, response.coinSell.symbol),
@@ -33,5 +33,6 @@ class ConvertLimitOrder {
     }
 
     fun getList(response: LimitOrdersResponse) = getList(response.ordersList)
+    fun getList(response: LimitOrdersOfPoolResponse) = getList(response.ordersList)
 
 }

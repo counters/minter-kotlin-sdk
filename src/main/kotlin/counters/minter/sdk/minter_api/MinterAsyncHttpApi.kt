@@ -185,7 +185,35 @@ fun getLimitOrder(orderId: Long, height: Long?, timeout: Long?, result: (result:
     }
 }
 
+    fun getLimitOrdersOfPoolJson(sellCoin: Long, buyCoin: Long, limit: Int?, height: Long?, timeout: Long?, result: (result: JSONObject?) -> Unit) {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to height.toString()) }
+        limit?.let { params.add("limit" to limit.toString()) }
 
-companion object {
+        this.asyncGet(HttpMethod.LIMIT_ORDERS.patch+"/"+sellCoin+"/"+buyCoin, params, timeout)
+        {
+//            logger.info { "this.httpGet(*): ${it}" }
+            getJSONObject(it)?.let {
+//                logger.info { "this.httpGet(*): JSON ${it}" }
+                if (it.isNull("error")) {
+                    result(it)
+                } else {
+                    result(null)
+                }
+            } ?: run { result(null) }
+        }
+    }
+
+    fun getLimitOrdersOfPool(sellCoin: Long, buyCoin: Long, limit: Int?, height: Long?, timeout: Long?, result: (result: List<LimitOrderRaw>?) -> Unit) {
+        getLimitOrdersOfPoolJson(sellCoin, buyCoin, limit, height, timeout) {
+            if (it != null) {
+                result(parseLimitOrder.array(it))
+            } else {
+                result(null)
+            }
+        }
+    }
+
+    companion object {
 }
 }

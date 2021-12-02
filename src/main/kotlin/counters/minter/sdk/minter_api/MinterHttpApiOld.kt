@@ -621,6 +621,8 @@ class MinterHttpApiOld(
         return false
     }
 
+
+
     @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
     private fun get(
 //        method: Method,
@@ -649,6 +651,16 @@ class MinterHttpApiOld(
 //        println("Error:" +this.nodeUrl + "/" + method.patch+", params $params respond $r r.statusCode ${r.statusCode} \n${r.jsonObject}")
 //        println(r)
         return null
+    }
+
+    private fun get(patch: String) = this.get(patch, mapOf(), null)
+
+    private fun get(
+        patch: String,
+        params: List<Pair<String, String>>? = null,
+        notFound: ((result: JSONObject) -> Unit)? = null
+    ): JSONObject? {
+        return this.get(patch, params?.toMap(), notFound)
     }
 
     @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
@@ -763,7 +775,7 @@ class MinterHttpApiOld(
             params.add("ids" to it.toString())
         }
 
-        this.get(HttpMethod.LIMIT_ORDERS.patch + altUrlHttpGet(params), null)?.let {
+        this.get(HttpMethod.LIMIT_ORDERS.patch + altUrlHttpGet(params), mapOf())?.let {
 //            println(it)
             return it
         }
@@ -779,6 +791,33 @@ class MinterHttpApiOld(
         }
         return null
     }
+
+    private fun getLimitOrdersOfPoolJson(sellCoin: Long, buyCoin: Long, limit: Int?, height: Long?): JSONObject? {
+        val params = arrayListOf<Pair<String, String>>(
+//            "sell_coin" to sellCoin.toString(),
+//            "buy_coin" to buyCoin.toString()
+        )
+
+        height?.let { params.add("height" to height.toString()) }
+        limit?.let { params.add("limit" to limit.toString()) }
+
+        this.get(HttpMethod.LIMIT_ORDERS.patch+"/"+sellCoin+"/"+buyCoin , params)?.let {
+            return it
+        }
+        return null
+    }
+
+    fun getLimitOrdersOfPool(sellCoin: Long, buyCoin: Long, limit: Int?=null, height: Long?=null): List<LimitOrderRaw>? {
+        getLimitOrdersOfPoolJson(sellCoin, buyCoin, limit, height)?.let {
+//            println(it)
+            if (it.isNull("error")) {
+                return parseLimitOrder.array(it)
+            }
+        }
+        return null
+    }
+
+
 
 
 }
