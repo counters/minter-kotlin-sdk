@@ -185,13 +185,22 @@ class MinterApi(
         }
     }
 
-    fun getLimitOrders(ids: List<Long>, height: Long? = null, deadline: Long? = null): Any? {
+    fun getLimitOrders(ids: List<Long>, height: Long? = null, deadline: Long? = null): List<LimitOrderRaw>? {
         if (minterHttpApi != null) {
             return minterHttpApi!!.getLimitOrders(ids, height, deadline)
         } else {
             return minterGrpcApi!!.getLimitOrders(ids, height, deadline)
         }
     }
+
+    fun getLimitOrders(ids: List<Long>, height: Long? = null, deadline: Long? = null, result: ((result: List<LimitOrderRaw>?) -> Unit)) {
+        minterAsyncHttpApi?.let {
+            it.getLimitOrders(ids, height, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.getLimitOrders(ids, height, deadline, result)
+        }
+    }
+
     suspend fun getLimitOrdersCoroutines(ids: List<Long>, height: Long? = null, deadline: Long? = null): Any? {
         minterAsyncHttpApi?.let {
             var status: Any?=null

@@ -11,7 +11,7 @@ class MinterHttpApiOld(
     var nodeUrl: String = "http://localhost:8843/v2",
     timeout: Double? = null,
     val headers: Map<String, String>? = null
-) {
+): AltUrlHttpGetInterface {
 
     private val parseBlock = ParseBlock()
     private val parseNode = ParseNode()
@@ -757,21 +757,20 @@ class MinterHttpApiOld(
     }
 
     fun getLimitOrdersJson(ids: List<Long>?=null, height: Long?=null, deadline: Long?=null): JSONObject? {
-        val params = if (height!=null) mapOf("height" to height.toString()) else null
-        var addPathForURL=""
-        if (ids!=null ) {
-            val array= arrayListOf<String>()
-            ids.forEach { array.add("ids=$it") }
-            addPathForURL = "?"+array.joinToString("&")
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to height.toString()) }
+        ids?.forEach {
+            params.add("ids" to it.toString())
         }
-        this.get(HttpMethod.LIMIT_ORDERS.patch + addPathForURL, params)?.let {
+
+        this.get(HttpMethod.LIMIT_ORDERS.patch + altUrlHttpGet(params), null)?.let {
 //            println(it)
             return it
         }
         return null
     }
 
-    fun getLimitOrders(ids: List<Long>, height: Long?=null, deadline: Long?=null): Any? {
+    fun getLimitOrders(ids: List<Long>, height: Long?=null, deadline: Long?=null): List<LimitOrderRaw>? {
         getLimitOrdersJson(ids, height, deadline)?.let {
 //            println(it)
             if (it.isNull("error")) {

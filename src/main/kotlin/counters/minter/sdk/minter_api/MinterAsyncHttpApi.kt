@@ -13,7 +13,8 @@ import org.json.JSONObject
 
 class MinterAsyncHttpApi(httpOptions: HttpOptions):
 //OkHttpApi(httpOptions)
-    KHttpApi(httpOptions)
+    KHttpApi(httpOptions),
+    AltUrlHttpGetInterface
 {
 
 //    private var headers: Map<String, String>?
@@ -130,15 +131,16 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions):
         }
     }
 
+
     fun getLimitOrdersJson(ids: List<Long>? = null, height: Long? = null, timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
         val params = arrayListOf<Pair<String, String>>()
         height?.let { params.add("height" to height.toString()) }
         ids?.forEach {
             params.add("ids" to it.toString())
         }
-        this.asyncGet(HttpMethod.LIMIT_ORDERS.patch, params, timeout)
+        this.asyncGet(HttpMethod.LIMIT_ORDERS.patch + altUrlHttpGet(params), null, timeout)
         {
-//            logger.info { "this.httpGet(*): ${it}" }
+//            logger.info { "${HttpMethod.LIMIT_ORDERS.patch}, $params: ${it}" }
             getJSONObject(it)?.let {
 //                logger.info { "this.httpGet(*): JSON ${it}" }
                 if (it.isNull("error")) {
@@ -150,40 +152,40 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions):
         }
     }
 
-    fun getLimitOrders(ids: List<Long>?=null, height: Long?=null, timeout: Long?=null, result: ((result: Any?) -> Unit) ) {
-        getLimitOrdersJson(ids, height, timeout) {
-            if (it != null) {
-                result(parseLimitOrder.array(it))
-            } else { result(null) }
-        }
+fun getLimitOrders(ids: List<Long>?=null, height: Long?=null, timeout: Long?=null, result: ((result: List<LimitOrderRaw>?) -> Unit) ) {
+    getLimitOrdersJson(ids, height, timeout) {
+        if (it != null) {
+            result(parseLimitOrder.array(it))
+        } else { result(null) }
     }
+}
 
-    fun getLimitOrderJson(orderId: Long, height: Long?, timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
-        val params = arrayListOf<Pair<String, String>>()
-        height?.let { params.add("height" to height.toString()) }
-        this.asyncGet(HttpMethod.LIMIT_ORDER.patch+"/"+orderId, params, timeout)
-        {
+fun getLimitOrderJson(orderId: Long, height: Long?, timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
+    val params = arrayListOf<Pair<String, String>>()
+    height?.let { params.add("height" to height.toString()) }
+    this.asyncGet(HttpMethod.LIMIT_ORDER.patch+"/"+orderId, params, timeout)
+    {
 //            logger.info { "this.httpGet(*): ${it}" }
-            getJSONObject(it)?.let {
+        getJSONObject(it)?.let {
 //                logger.info { "this.httpGet(*): JSON ${it}" }
-                if (it.isNull("error")) {
-                    result(it)
-                } else {
-                    result(null)
-                }
-            } ?: run { result(null) }
-        }
+            if (it.isNull("error")) {
+                result(it)
+            } else {
+                result(null)
+            }
+        } ?: run { result(null) }
     }
+}
 
-    fun getLimitOrder(orderId: Long, height: Long?, timeout: Long?, result: (result: LimitOrderRaw?) -> Unit) {
-        getLimitOrderJson(orderId, height, timeout) {
-            if (it != null) {
-                result(parseLimitOrder.get(it))
-            } else { result(null) }
-        }
+fun getLimitOrder(orderId: Long, height: Long?, timeout: Long?, result: (result: LimitOrderRaw?) -> Unit) {
+    getLimitOrderJson(orderId, height, timeout) {
+        if (it != null) {
+            result(parseLimitOrder.get(it))
+        } else { result(null) }
     }
+}
 
 
-    companion object {
-    }
+companion object {
+}
 }

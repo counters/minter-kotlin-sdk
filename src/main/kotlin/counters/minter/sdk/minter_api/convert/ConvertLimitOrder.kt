@@ -1,6 +1,7 @@
 package counters.minter.sdk.minter_api.convert
 
 import counters.minter.grpc.client.LimitOrderResponse
+import counters.minter.grpc.client.LimitOrdersResponse
 import counters.minter.sdk.minter.CoinObjClass
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.MinterMatch
@@ -22,4 +23,15 @@ class ConvertLimitOrder {
             height = response.height,
         )
     }
+
+    fun getList(ordersList: List<LimitOrderResponse>): List<LimitOrderRaw> {
+        val array = arrayListOf<LimitOrderRaw>()
+        ordersList.forEach {
+            array.add(this.get(it))
+        }
+        return array
+    }
+
+    fun getList(response: LimitOrdersResponse) = getList(response.ordersList)
+
 }
