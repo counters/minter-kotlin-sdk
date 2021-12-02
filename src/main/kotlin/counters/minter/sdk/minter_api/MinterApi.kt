@@ -5,6 +5,7 @@ import counters.minter.grpc.client.LimitOrderResponse
 import counters.minter.grpc.client.LimitOrdersOfPoolResponse
 import counters.minter.grpc.client.LimitOrdersResponse
 import counters.minter.sdk.minter.Enum.QueryTags
+import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw.*
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
@@ -168,11 +169,19 @@ class MinterApi(
         }
     }
 
-    fun getLimitOrder(orderId: Long, height: Long? = null, deadline: Long? = null): Any? {
+    fun getLimitOrder(orderId: Long, height: Long? = null, deadline: Long? = null): LimitOrderRaw? {
         if (minterHttpApi != null) {
             return minterHttpApi!!.getLimitOrder(orderId, height, deadline)
         } else {
             return minterGrpcApi!!.getLimitOrder(orderId, height, deadline)
+        }
+    }
+
+    fun getLimitOrder(orderId: Long, height: Long? = null, deadline: Long? = null, result: ((result: LimitOrderRaw?) -> Unit)) {
+        minterAsyncHttpApi?.let {
+            it.getLimitOrder(orderId, height, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.getLimitOrder(orderId, height, deadline, result)
         }
     }
 

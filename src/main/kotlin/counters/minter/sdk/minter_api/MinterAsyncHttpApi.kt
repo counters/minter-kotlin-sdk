@@ -1,5 +1,6 @@
 package counters.minter.sdk.minter_api
 
+import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter.*
 import counters.minter.sdk.minter.MinterRaw.*
 import counters.minter.sdk.minter_api.http.OkHttpApi
@@ -153,6 +154,31 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions):
         getLimitOrdersJson(ids, height, timeout) {
             if (it != null) {
                 result(parseLimitOrder.array(it))
+            } else { result(null) }
+        }
+    }
+
+    fun getLimitOrderJson(orderId: Long, height: Long?, timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to height.toString()) }
+        this.asyncGet(HttpMethod.LIMIT_ORDER.patch+"/"+orderId, params, timeout)
+        {
+//            logger.info { "this.httpGet(*): ${it}" }
+            getJSONObject(it)?.let {
+//                logger.info { "this.httpGet(*): JSON ${it}" }
+                if (it.isNull("error")) {
+                    result(it)
+                } else {
+                    result(null)
+                }
+            } ?: run { result(null) }
+        }
+    }
+
+    fun getLimitOrder(orderId: Long, height: Long?, timeout: Long?, result: (result: LimitOrderRaw?) -> Unit) {
+        getLimitOrderJson(orderId, height, timeout) {
+            if (it != null) {
+                result(parseLimitOrder.get(it))
             } else { result(null) }
         }
     }

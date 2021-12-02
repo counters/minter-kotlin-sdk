@@ -31,6 +31,7 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     override val convertTransaction = convert.transaction
     override val convertBlock = convert.block
     override val convertSubscribe = convert.subscribe
+    override val convertLimitOrder = convert.limitOrder
 
     override val logger = KotlinLogging.logger {}
 

@@ -631,8 +631,7 @@ class MinterHttpApiOld(
 //        val url = this.nodeUrl + "/" + method.patch+"/2"
         val url = this.nodeUrl + "/" + patch
 //        val url = this.nodeUrl + "/" + method.patch+"/" +params.getValue('height')
-        println("MinterApi.get($url, $params)\n")
-
+//        println("MinterApi.get($url, $params)\n")
         val _params = if (params == null)
             mapOf()
         else
@@ -743,18 +742,15 @@ class MinterHttpApiOld(
     fun getLimitOrderJson(orderId: Long, height: Long?=null, deadline: Long?=null): JSONObject? {
         val params = if (height!=null) mapOf("height" to height.toString()) else null
         this.get(HttpMethod.LIMIT_ORDER.patch+"/"+orderId, params)?.let {
-            println(it)
             return it
         }
         return null
     }
 
-    fun getLimitOrder(orderId: Long, height: Long?=null, deadline: Long?=null): Any? {
+    fun getLimitOrder(orderId: Long, height: Long?=null, deadline: Long?=null): LimitOrderRaw? {
         getLimitOrderJson(orderId, height, deadline)?.let {
-            println(it)
             if (it.isNull("error")) {
-                TODO()
-//                return parseSwapPoolRaw.get(it)
+                return parseLimitOrder.get(it)
             }
         }
         return null
