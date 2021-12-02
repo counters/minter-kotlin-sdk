@@ -5,6 +5,8 @@ import counters.minter.grpc.client.LimitOrderRequest
 import counters.minter.grpc.client.LimitOrderResponse
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter_api.convert.ConvertLimitOrder
+import io.grpc.StatusRuntimeException
+import mu.KLogger
 import java.util.concurrent.TimeUnit
 
 interface LimitOrderInterface: LimitOrderRequestInterface {
@@ -13,10 +15,20 @@ interface LimitOrderInterface: LimitOrderRequestInterface {
 
     val convertLimitOrder: ConvertLimitOrder
 
+    val logger: KLogger
+
     fun getLimitOrderGrpc(request: LimitOrderRequest, deadline: Long?=null): LimitOrderResponse? {
-        blockingClient.limitOrder(request)?.let {
-            return it
-        } ?: run {
+        try {
+            blockingClient.limitOrder(request)?.let {
+                return it
+            } ?: run {
+                return null
+            }
+        } catch (e: StatusRuntimeException) {
+            logger.warn { e }
+            return null
+        } catch (e: Exception) {
+            e.printStackTrace()
             return null
         }
     }
@@ -33,8 +45,8 @@ interface LimitOrderInterface: LimitOrderRequestInterface {
     }
 
     fun getLimitOrderGrpc(orderId: Long, height: Long?=null, deadline: Long?=null): LimitOrderResponse? {
-        val request = get(orderId, height)
-        return  getLimitOrderGrpc(request, deadline)
+        val request = getRequestLimitOrder(orderId, height)
+        return getLimitOrderGrpc(request, deadline)
     }
 
     fun getLimitOrder(orderId: Long, height: Long?=null, deadline: Long?=null): LimitOrderRaw? {
@@ -45,7 +57,7 @@ interface LimitOrderInterface: LimitOrderRequestInterface {
     }
 
     fun getLimitOrder(orderId: Long, height: Long?=null, deadline: Long?=null, result: ((result: LimitOrderRaw?) -> Unit)) {
-        getLimitOrderGrpc(get(orderId, height), deadline) {
+        getLimitOrderGrpc(getRequestLimitOrder(orderId, height), deadline) {
             it?.let { result(convertLimitOrder.get(it)) } ?: run { result(null) }
         }
     }

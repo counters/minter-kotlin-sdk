@@ -208,9 +208,9 @@ class MinterApi(
         }
     }
 
-    suspend fun getLimitOrdersCoroutines(ids: List<Long>, height: Long? = null, deadline: Long? = null): Any? {
+    suspend fun getLimitOrdersCoroutines(ids: List<Long>, height: Long? = null, deadline: Long? = null): List<LimitOrderRaw>? {
         minterAsyncHttpApi?.let {
-            var status: Any?=null
+            var status: List<LimitOrderRaw>?=null
             val semaphore = kotlinx.coroutines.sync.Semaphore(1, 1)
             it.getLimitOrders(ids, height, deadline) {
                 status = it
@@ -220,6 +220,21 @@ class MinterApi(
             return status
         } ?: run {
             return minterGrpcApiCoroutines!!.getLimitOrders(ids, height, deadline)
+        }
+    }
+
+    suspend fun getLimitOrderCoroutines(orderId: Long, height: Long?=null, deadline: Long? = null): LimitOrderRaw? {
+        minterAsyncHttpApi?.let {
+            var status: LimitOrderRaw?=null
+            val semaphore = kotlinx.coroutines.sync.Semaphore(1, 1)
+            it.getLimitOrder(orderId, height, deadline) {
+                status = it
+                semaphore.release()
+            }
+            semaphore.acquire()
+            return status
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getLimitOrder(orderId, height, deadline)
         }
     }
 

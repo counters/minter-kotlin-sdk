@@ -2,9 +2,11 @@ package counters.minter.sdk.minter_api
 
 import com.google.protobuf.Empty
 import counters.minter.grpc.client.*
+import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter_api.convert.Convert
+import counters.minter.sdk.minter_api.convert.ConvertLimitOrder
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
@@ -12,9 +14,13 @@ import io.grpc.StatusException
 import mu.KotlinLogging
 import java.util.concurrent.TimeUnit
 
-class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) {
+class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
+    LimitOrderRequestInterface,
+    LimitOrdersRequestInterface,
+    LimitOrdersOfPoolRequestInterface
+{
 
-//    private var callOptions: CallOptions = CallOptions.DEFAULT
+    //    private var callOptions: CallOptions = CallOptions.DEFAULT
     private lateinit var stub: ApiServiceGrpcKt.ApiServiceCoroutineStub
     private var channel: ManagedChannel? = null
     private var grpcOptions: GrpcOptions
@@ -22,6 +28,8 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) {
     private val convert = Convert()
     private val logger = KotlinLogging.logger {}
     private val requestEmpty = Empty.newBuilder().build()
+
+    private val convertLimitOrder = ConvertLimitOrder()
 
     init {
         this.grpcOptions = grpcOptions ?: GrpcOptions()
@@ -59,11 +67,11 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) {
     }
 
     suspend fun getStatus(deadline: Long? = null): Minter.Status? {
-            getStatusGrpc(deadline)?.let {
-                return convert.getStatus(it)
-            } ?: run {
-                return null
-            }
+        getStatusGrpc(deadline)?.let {
+            return convert.getStatus(it)
+        } ?: run {
+            return null
+        }
     }
 
     suspend fun getTransactionGrpc(request: TransactionRequest, deadline: Long? = null): TransactionResponse? {
@@ -89,7 +97,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) {
         }
     }
 
-    suspend fun getBlockGrpc(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null): BlockResponse? {
+    suspend fun getBlockGrpc(height: Long, fields: List<BlockField>? = null, failed_txs: Boolean? = null, deadline: Long? = null): BlockResponse? {
         val requestBuilder = BlockRequest.newBuilder().setHeight(height)
         fields?.let {
             it.forEach { requestBuilder.addFields(it) }
@@ -99,6 +107,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) {
         val request = requestBuilder.build()
         return getBlockGrpc(request, deadline)
     }
+
     suspend fun getBlockGrpc(request: BlockRequest, deadline: Long? = null): BlockResponse? {
         val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
         return try {
@@ -108,7 +117,8 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) {
             null
         }
     }
-    suspend fun getBlock(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null): MinterRaw.BlockRaw? {
+
+    suspend fun getBlock(height: Long, fields: List<BlockField>? = null, failed_txs: Boolean? = null, deadline: Long? = null): MinterRaw.BlockRaw? {
         getBlockGrpc(height, fields, failed_txs, deadline)?.let {
             return convert.block.get(it)
         } ?: run {
@@ -116,8 +126,40 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) {
         }
     }
 
-    fun getLimitOrders(ids: List<Long>, height: Long?, deadline: Long?): Any? {
-        TODO("Not yet implemented")
+    suspend fun getLimitOrderGrpc(request: LimitOrderRequest, deadline: Long?=null): LimitOrderResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.limitOrder(request)
+        } catch (e: StatusException) {
+            logger.error { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun getLimitOrderGrpc(orderId: Long, height: Long?=null, deadline: Long?=null) = getLimitOrderGrpc(getRequestLimitOrder(orderId, height), deadline)
+
+    suspend fun getLimitOrder(orderId: Long, height: Long?=null, deadline: Long?=null): LimitOrderRaw? {
+        getLimitOrderGrpc(orderId, height, deadline).let {
+            it?.let { return convertLimitOrder.get(it) } ?: run { return null }
+        }
+    }
+
+    suspend fun getLimitOrdersGrpc(request: LimitOrdersRequest, deadline: Long?=null): LimitOrdersResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.limitOrders(request)
+        } catch (e: StatusException) {
+            logger.error { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun getLimitOrdersGrpc(ids: List<Long>, height: Long?=null, deadline: Long?=null) = getLimitOrdersGrpc(getRequestLimitOrders(ids, height), deadline)
+
+    suspend fun getLimitOrders(ids: List<Long>, height: Long?, deadline: Long?): List<LimitOrderRaw>? {
+        getLimitOrdersGrpc(ids, height, deadline).let {
+            it?.let { return convertLimitOrder.getList(it.ordersList) } ?: run { return null }
+        }
     }
 
 /*    fun asyncBlockGrpc(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null, result: ((result: BlockResponse?) -> Unit)) {

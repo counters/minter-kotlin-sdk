@@ -4,6 +4,7 @@ import counters.minter.grpc.client.ApiServiceGrpc
 import counters.minter.grpc.client.StatusResponse
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter_api.convert.ConvertStatus
+import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
 import mu.KLogger
 import java.util.concurrent.TimeUnit
@@ -17,27 +18,29 @@ sealed interface StatusInterface {
 
     val logger: KLogger
 
-    fun getStatus(deadline: Long? = null): Minter.Status? {
-//        if (grpcOptions != null) {
-            getStatusGrpc(deadline)?.let {
-                return convertStatus.get(it)
-            } ?: run {
-                return null
-            }
-//        }
-//        return null
-    }
-
     fun getStatusGrpc(deadline: Long? = null): StatusResponse? {
-//        if (grpcOptions != null) {
-            val blockingClient = if (deadline != null) blockingClient.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else blockingClient
+        val blockingClient = if (deadline != null) blockingClient.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else blockingClient
+        try {
             blockingClient.status(null)?.let {
                 return it
             } ?: run {
                 return null
             }
-//        }
-//        return null
+        } catch (e: StatusRuntimeException) {
+            logger.warn { e }
+            return null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
+    fun getStatus(deadline: Long? = null): Minter.Status? {
+        getStatusGrpc(deadline)?.let {
+            return convertStatus.get(it)
+        } ?: run {
+            return null
+        }
     }
 
     @Deprecated(level = DeprecationLevel.ERROR, message = "old method")

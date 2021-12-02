@@ -5,6 +5,8 @@ import counters.minter.grpc.client.TransactionRequest
 import counters.minter.grpc.client.TransactionResponse
 import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter_api.convert.ConvertTransaction
+import io.grpc.StatusRuntimeException
+import mu.KLogger
 import java.util.concurrent.TimeUnit
 
 sealed interface TransactionInterface {
@@ -13,22 +15,28 @@ sealed interface TransactionInterface {
     var blockingClient: ApiServiceGrpc.ApiServiceBlockingStub
 
     val convertTransaction: ConvertTransaction
+    val logger: KLogger
+
+    fun transaction(request: TransactionRequest, deadline: Long? = null): MinterRaw.TransactionRaw? {
+        val blockingClient = if (deadline != null) blockingClient.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else blockingClient
+        try {
+            blockingClient.transaction(request)?.let {
+                return convertTransaction.get(it)
+            } ?: run {
+                return null
+            }
+        } catch (e: StatusRuntimeException) {
+            logger.warn { e }
+            return null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
 
     fun transaction(hash: String, deadline: Long? = null): MinterRaw.TransactionRaw? {
         val request = TransactionRequest.newBuilder().setHash(hash).build()
         return transaction(request, deadline)
-    }
-
-    fun transaction(request: TransactionRequest, deadline: Long? = null): MinterRaw.TransactionRaw? {
-
-            val blockingClient = if (deadline != null) blockingClient.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else blockingClient
-            blockingClient
-                .transaction(request)?.let {
-                    return convertTransaction.get(it)
-                } ?: run {
-                return null
-            }
-
     }
 
     fun transaction(hash: String, deadline: Long? = null, result: ((result: MinterRaw.TransactionRaw?) -> Unit)) {
@@ -55,7 +63,7 @@ sealed interface TransactionInterface {
 
     fun asyncTransaction(hash: String, deadline: Long? = null, result: ((result: MinterRaw.TransactionRaw?) -> Unit)) {
         return transactionGrpc(hash, deadline) {
-            if (it != null) result(convertTransaction.get(it) ) else result(null)
+            if (it != null) result(convertTransaction.get(it)) else result(null)
         }
     }
 

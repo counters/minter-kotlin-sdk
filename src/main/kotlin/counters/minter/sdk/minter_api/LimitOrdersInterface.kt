@@ -3,6 +3,8 @@ package counters.minter.sdk.minter_api
 import counters.minter.grpc.client.*
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter_api.convert.ConvertLimitOrder
+import io.grpc.StatusRuntimeException
+import mu.KLogger
 import java.util.concurrent.TimeUnit
 
 interface LimitOrdersInterface : LimitOrdersRequestInterface {
@@ -10,16 +12,26 @@ interface LimitOrdersInterface : LimitOrdersRequestInterface {
     var blockingClient: ApiServiceGrpc.ApiServiceBlockingStub
 
     val convertLimitOrder: ConvertLimitOrder
+    val logger: KLogger
 
     fun getLimitOrdersGrpc(request: LimitOrdersRequest, deadline: Long? = null): LimitOrdersResponse? {
-        blockingClient.limitOrders(request)?.let {
-            return it
-        } ?: run {
+        try {
+            blockingClient.limitOrders(request)?.let {
+                return it
+            } ?: run {
+                return null
+            }
+        } catch (e: StatusRuntimeException) {
+            logger.warn { e }
+            return null
+        } catch (e: Exception) {
+            e.printStackTrace()
             return null
         }
+
     }
 
-    fun getLimitOrdersGrpc(ids: List<Long>, height: Long? = null, deadline: Long? = null) = getLimitOrdersGrpc(request(ids, height), deadline)
+    fun getLimitOrdersGrpc(ids: List<Long>, height: Long? = null, deadline: Long? = null) = getLimitOrdersGrpc(getRequestLimitOrders(ids, height), deadline)
 
     fun getLimitOrdersGrpc(request: LimitOrdersRequest, deadline: Long? = null, result: ((result: LimitOrdersResponse?) -> Unit)) {
         var success = false
@@ -33,7 +45,7 @@ interface LimitOrdersInterface : LimitOrdersRequestInterface {
     }
 
     fun getLimitOrdersGrpc(ids: List<Long>, height: Long? = null, deadline: Long? = null, result: ((result: LimitOrdersResponse?) -> Unit)) =
-        getLimitOrdersGrpc(request(ids, height), deadline, result)
+        getLimitOrdersGrpc(getRequestLimitOrders(ids, height), deadline, result)
 
 
     fun getLimitOrders(ids: List<Long>, height: Long? = null, deadline: Long? = null): List<LimitOrderRaw>? {
