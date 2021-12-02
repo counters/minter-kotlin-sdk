@@ -238,4 +238,19 @@ class MinterApi(
         }
     }
 
+    suspend fun getLimitOrdersOfPoolCoroutines(sellCoin: Long, buyCoin: Long, limit: Int?= null, height: Long?= null, deadline: Long? = null): List<LimitOrderRaw>? {
+        minterAsyncHttpApi?.let {
+            var status: List<LimitOrderRaw>?=null
+            val semaphore = kotlinx.coroutines.sync.Semaphore(1, 1)
+            it.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height, deadline) {
+                status = it
+                semaphore.release()
+            }
+            semaphore.acquire()
+            return status
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height, deadline)
+        }
+    }
+
 }

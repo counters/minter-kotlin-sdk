@@ -17,8 +17,7 @@ import java.util.concurrent.TimeUnit
 class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     LimitOrderRequestInterface,
     LimitOrdersRequestInterface,
-    LimitOrdersOfPoolRequestInterface
-{
+    LimitOrdersOfPoolRequestInterface {
 
     //    private var callOptions: CallOptions = CallOptions.DEFAULT
     private lateinit var stub: ApiServiceGrpcKt.ApiServiceCoroutineStub
@@ -60,7 +59,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         return try {
             stub.status(requestEmpty)
         } catch (e: StatusException) {
-            logger.error { "StatusException: $e" }
+            logger.warn { "StatusException: $e" }
             null
         }
 
@@ -113,7 +112,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         return try {
             stub.block(request)
         } catch (e: StatusException) {
-            logger.error { "StatusException: $e" }
+            logger.warn { "StatusException: $e" }
             null
         }
     }
@@ -126,38 +125,57 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         }
     }
 
-    suspend fun getLimitOrderGrpc(request: LimitOrderRequest, deadline: Long?=null): LimitOrderResponse? {
+    suspend fun getLimitOrderGrpc(request: LimitOrderRequest, deadline: Long? = null): LimitOrderResponse? {
         val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
         return try {
             stub.limitOrder(request)
         } catch (e: StatusException) {
-            logger.error { "StatusException: $e" }
+            logger.warn { "StatusException: $e" }
             null
         }
     }
 
-    suspend fun getLimitOrderGrpc(orderId: Long, height: Long?=null, deadline: Long?=null) = getLimitOrderGrpc(getRequestLimitOrder(orderId, height), deadline)
+    suspend fun getLimitOrderGrpc(orderId: Long, height: Long? = null, deadline: Long? = null) = getLimitOrderGrpc(getRequestLimitOrder(orderId, height), deadline)
 
-    suspend fun getLimitOrder(orderId: Long, height: Long?=null, deadline: Long?=null): LimitOrderRaw? {
+    suspend fun getLimitOrder(orderId: Long, height: Long? = null, deadline: Long? = null): LimitOrderRaw? {
         getLimitOrderGrpc(orderId, height, deadline).let {
             it?.let { return convertLimitOrder.get(it) } ?: run { return null }
         }
     }
 
-    suspend fun getLimitOrdersGrpc(request: LimitOrdersRequest, deadline: Long?=null): LimitOrdersResponse? {
+    suspend fun getLimitOrdersGrpc(request: LimitOrdersRequest, deadline: Long? = null): LimitOrdersResponse? {
         val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
         return try {
             stub.limitOrders(request)
         } catch (e: StatusException) {
-            logger.error { "StatusException: $e" }
+            logger.warn { "StatusException: $e" }
             null
         }
     }
 
-    suspend fun getLimitOrdersGrpc(ids: List<Long>, height: Long?=null, deadline: Long?=null) = getLimitOrdersGrpc(getRequestLimitOrders(ids, height), deadline)
+    suspend fun getLimitOrdersGrpc(ids: List<Long>, height: Long? = null, deadline: Long? = null) = getLimitOrdersGrpc(getRequestLimitOrders(ids, height), deadline)
 
     suspend fun getLimitOrders(ids: List<Long>, height: Long?, deadline: Long?): List<LimitOrderRaw>? {
         getLimitOrdersGrpc(ids, height, deadline).let {
+            it?.let { return convertLimitOrder.getList(it.ordersList) } ?: run { return null }
+        }
+    }
+
+    suspend fun getLimitOrdersOfPoolGrpc(request: LimitOrdersOfPoolRequest, deadline: Long? = null): LimitOrdersOfPoolResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.limitOrdersOfPool(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun getLimitOrdersOfPoolGrpc(sellCoin: Long, buyCoin: Long, limit: Int? = null, height: Long? = null, deadline: Long? = null) =
+        getLimitOrdersOfPoolGrpc(getRequestLimitOrdersOfPool(sellCoin, buyCoin, limit, height), deadline)
+
+    suspend fun getLimitOrdersOfPool(sellCoin: Long, buyCoin: Long, limit: Int? = null, height: Long? = null, deadline: Long? = null): List<LimitOrderRaw>? {
+        getLimitOrdersOfPoolGrpc(sellCoin, buyCoin, limit, height, deadline).let {
             it?.let { return convertLimitOrder.getList(it.ordersList) } ?: run { return null }
         }
     }

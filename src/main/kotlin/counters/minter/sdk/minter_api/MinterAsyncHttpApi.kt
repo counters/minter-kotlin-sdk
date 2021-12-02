@@ -17,11 +17,9 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions):
     AltUrlHttpGetInterface
 {
 
-//    private var headers: Map<String, String>?
     private val parseBlock = ParseBlock()
     private val parseNode = ParseNode()
     private val parseWallet = ParseWallet()
-    //    private val parseTransaction = ParseTransaction()
     private val parseCoin = ParseCoin()
     private val parseStatus = ParseStatus()
     private val parseEstimateCoinBuy = ParseEstimateCoinBuy()
@@ -51,9 +49,7 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions):
 
     fun getBlockJson(height: Long, timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
         this.asyncGet(HttpMethod.BLOCK.patch+"/"+height, null, timeout) {
-//            logger.info { "this.httpGet(*): ${it}" }
             getJSONObject(it)?.let {
-//                logger.info { "this.httpGet(*): JSON ${it}" }
                 if (it.isNull("error")) {
                     result(it)
                 } else {
@@ -89,9 +85,7 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions):
 
     fun getBlock(height: Long, timeout: Long? = null, result: ((result: BlockRaw?) -> Unit)) {
         getBlockJson(height, timeout) {
-//            logger.info { "getBlockJson($height, $timeout) : $it" }
             if (it != null) {
-//                logger.info { "getBlockJson($height, $timeout) : ${parseBlock.getRaw(it)}" }
                 result(parseBlock.getRaw(it))
             } else { result(null) }
         }
@@ -109,9 +103,7 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions):
 
     fun getTransactionJson(hash: String, timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
         this.asyncGet(HttpMethod.TRANSACTION.patch+"/"+hash, null, timeout) {
-//            logger.info { "this.httpGet(*): ${it}" }
             getJSONObject(it)?.let {
-//                logger.info { "this.httpGet(*): JSON ${it}" }
                 if (it.isNull("error")) {
                     result(it)
                 } else {
@@ -140,9 +132,7 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions):
         }
         this.asyncGet(HttpMethod.LIMIT_ORDERS.patch + altUrlHttpGet(params), null, timeout)
         {
-//            logger.info { "${HttpMethod.LIMIT_ORDERS.patch}, $params: ${it}" }
             getJSONObject(it)?.let {
-//                logger.info { "this.httpGet(*): JSON ${it}" }
                 if (it.isNull("error")) {
                     result(it)
                 } else {
@@ -165,9 +155,7 @@ fun getLimitOrderJson(orderId: Long, height: Long?, timeout: Long? = null, resul
     height?.let { params.add("height" to height.toString()) }
     this.asyncGet(HttpMethod.LIMIT_ORDER.patch+"/"+orderId, params, timeout)
     {
-//            logger.info { "this.httpGet(*): ${it}" }
         getJSONObject(it)?.let {
-//                logger.info { "this.httpGet(*): JSON ${it}" }
             if (it.isNull("error")) {
                 result(it)
             } else {
@@ -192,9 +180,7 @@ fun getLimitOrder(orderId: Long, height: Long?, timeout: Long?, result: (result:
 
         this.asyncGet(HttpMethod.LIMIT_ORDERS.patch+"/"+sellCoin+"/"+buyCoin, params, timeout)
         {
-//            logger.info { "this.httpGet(*): ${it}" }
             getJSONObject(it)?.let {
-//                logger.info { "this.httpGet(*): JSON ${it}" }
                 if (it.isNull("error")) {
                     result(it)
                 } else {

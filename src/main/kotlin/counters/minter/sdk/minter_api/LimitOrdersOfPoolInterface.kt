@@ -56,7 +56,7 @@ interface LimitOrdersOfPoolInterface : LimitOrdersOfPoolRequestInterface {
     }
 
     fun getLimitOrdersOfPoolGrpc(sellCoin: Long, buyCoin: Long, limit: Int?, height: Long?, deadline: Long?, result: (result: LimitOrdersOfPoolResponse?) -> Unit) =
-        getLimitOrdersOfPoolGrpc(getRequestLimitOrdersOfPool(sellCoin, buyCoin, limit, height, deadline), deadline, result)
+        getLimitOrdersOfPoolGrpc(getRequestLimitOrdersOfPool(sellCoin, buyCoin, limit, height), deadline, result)
 
     fun getLimitOrdersOfPool(sellCoin: Long, buyCoin: Long, limit: Int?, height: Long?, deadline: Long?, result: (result: List<LimitOrderRaw>?) -> Unit) {
         getLimitOrdersOfPoolGrpc(sellCoin, buyCoin, limit, height, deadline){
