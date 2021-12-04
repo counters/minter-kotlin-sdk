@@ -5,6 +5,7 @@ import counters.minter.grpc.client.TransactionResponse
 import counters.minter.grpc.client.TransactionsRequest
 import counters.minter.sdk.minter.Enum.QueryTags
 import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.Models.TransactionRaw
 import counters.minter.sdk.minter_api.convert.ConvertTransaction
 import io.grpc.StatusRuntimeException
 import mu.KLogger
@@ -34,7 +35,7 @@ interface TransactionsInterface {
         }
     }
 
-    fun transactions(query: Map<QueryTags, String>, page: Int = 1, perPage: Int? = null, deadline: Long? = null): List<MinterRaw.TransactionRaw>? {
+    fun transactions(query: Map<QueryTags, String>, page: Int = 1, perPage: Int? = null, deadline: Long? = null): List<TransactionRaw>? {
         val params = arrayListOf<String>()
         query.forEach {
             val value = if (it.value.length == 42) it.value.drop(2) else it.value
@@ -47,9 +48,9 @@ interface TransactionsInterface {
         return convert(transactionsGrpc(request, deadline))
     }
 
-    private fun convert(list: List<TransactionResponse>?): List<MinterRaw.TransactionRaw>? {
+    private fun convert(list: List<TransactionResponse>?): List<TransactionRaw>? {
         list?.let {
-            val _list = arrayListOf<MinterRaw.TransactionRaw>()
+            val _list = arrayListOf<TransactionRaw>()
             list.forEach {
                 _list.add(convertTransaction.get(it))
             }

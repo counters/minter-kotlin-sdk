@@ -21,6 +21,7 @@ class ConvertLimitOrder {
             price = response.price.toDouble(),
             owner = response.owner,
             height = response.height,
+            pool_id = null
         )
     }
 

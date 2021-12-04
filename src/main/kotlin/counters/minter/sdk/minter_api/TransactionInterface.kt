@@ -4,6 +4,7 @@ import counters.minter.grpc.client.ApiServiceGrpc
 import counters.minter.grpc.client.TransactionRequest
 import counters.minter.grpc.client.TransactionResponse
 import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.Models.TransactionRaw
 import counters.minter.sdk.minter_api.convert.ConvertTransaction
 import io.grpc.StatusRuntimeException
 import mu.KLogger
@@ -17,7 +18,7 @@ sealed interface TransactionInterface {
     val convertTransaction: ConvertTransaction
     val logger: KLogger
 
-    fun transaction(request: TransactionRequest, deadline: Long? = null): MinterRaw.TransactionRaw? {
+    fun transaction(request: TransactionRequest, deadline: Long? = null): TransactionRaw? {
         val blockingClient = if (deadline != null) blockingClient.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else blockingClient
         try {
             blockingClient.transaction(request)?.let {
@@ -34,12 +35,12 @@ sealed interface TransactionInterface {
         }
     }
 
-    fun transaction(hash: String, deadline: Long? = null): MinterRaw.TransactionRaw? {
+    fun transaction(hash: String, deadline: Long? = null): TransactionRaw? {
         val request = TransactionRequest.newBuilder().setHash(hash).build()
         return transaction(request, deadline)
     }
 
-    fun transaction(hash: String, deadline: Long? = null, result: ((result: MinterRaw.TransactionRaw?) -> Unit)) {
+    fun transaction(hash: String, deadline: Long? = null, result: ((result: TransactionRaw?) -> Unit)) {
         transactionGrpc(hash, deadline) {
             if (it != null) result(convertTransaction.get(it)) else result(null)
         }
@@ -61,7 +62,7 @@ sealed interface TransactionInterface {
         })
     }
 
-    fun asyncTransaction(hash: String, deadline: Long? = null, result: ((result: MinterRaw.TransactionRaw?) -> Unit)) {
+    fun asyncTransaction(hash: String, deadline: Long? = null, result: ((result: TransactionRaw?) -> Unit)) {
         return transactionGrpc(hash, deadline) {
             if (it != null) result(convertTransaction.get(it)) else result(null)
         }

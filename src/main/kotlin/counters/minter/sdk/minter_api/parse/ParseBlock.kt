@@ -3,6 +3,7 @@ package counters.minter.sdk.minter_api.parse
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.Models.TransactionRaw
 import org.joda.time.DateTime
 import org.json.JSONArray
 import org.json.JSONObject
@@ -21,7 +22,7 @@ class ParseBlock {
 //        if(result==null) return null
         val height = result.getLong("height")
 
-        val transaction = ArrayList<MinterRaw.TransactionRaw>()
+        val transaction = ArrayList<TransactionRaw>()
         val transaction_json = ArrayList<JSONObject>()
         val signedValidators = ArrayList<MinterRaw.SignedValidatorsRaw>()
 

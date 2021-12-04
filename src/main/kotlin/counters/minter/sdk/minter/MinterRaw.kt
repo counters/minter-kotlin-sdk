@@ -3,6 +3,7 @@ package counters.minter.sdk.minter
 import org.joda.time.DateTime
 import org.json.JSONObject
 import counters.minter.sdk.minter.CoinObjClass.CoinObj
+import counters.minter.sdk.minter.Models.TransactionRaw
 
 class MinterRaw {
 
@@ -59,29 +60,6 @@ class MinterRaw {
         val token: CoinObj,
 //        val token_symbol: String,
 //        val token_id: Long,
-    )
-
-    data class TransactionRaw(
-        val hash: String,
-        val height: Long,
-        val type: Int,
-        val from: String,
-        val to: String?,
-        val node: String?,
-        val stake: String?,
-        val coin: CoinObj?,
-        val coin2: CoinObj?,
-        val amount: Double?,
-        val gas_price: Int,
-        @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
-        val commission: Double?,
-        val payload: Boolean,
-        val gas: Int,
-        val gascoin: CoinObj,
-        val optDouble: Double?,
-        val optString: String?,
-        val optList: List<Any>?,
-        val base64Payload: String?
     )
 
     data class MultisendItemRaw(

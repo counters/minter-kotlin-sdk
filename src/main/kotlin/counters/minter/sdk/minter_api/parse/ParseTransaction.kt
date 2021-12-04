@@ -2,6 +2,7 @@ package counters.minter.sdk.minter_api.parse
 
 import counters.minter.sdk.minter.*
 import counters.minter.sdk.minter.Enum.TransactionTypes
+import counters.minter.sdk.minter.Models.TransactionRaw
 import org.json.JSONObject
 
 class ParseTransaction {
@@ -9,13 +10,13 @@ class ParseTransaction {
     private val parsePoolExchange = ParsePoolExchange()
     //    defaultCoin
 
-    fun getRaw(result: JSONObject): MinterRaw.TransactionRaw? {
+    fun getRaw(result: JSONObject): TransactionRaw? {
         val height = result.getLong("height")
         return getRaw(result, height)
     }
 
     @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
-    fun getRaw(result: JSONObject, height: Long): MinterRaw.TransactionRaw? {
+    fun getRaw(result: JSONObject, height: Long): TransactionRaw? {
         var gascoin: CoinObjClass.CoinObj = CoinObjClass.CoinObj(0, "")
         var coin: CoinObjClass.CoinObj? = null
         var coin2: CoinObjClass.CoinObj? = null
@@ -24,7 +25,8 @@ class ParseTransaction {
         var to: String? = null
         var optDouble: Double?=null
         var optString: String?=null
-        var optList: ArrayList<Any>?=null
+//        var optList: ArrayList<Any>?=null
+        var optList: Any?=null
         var payloadByte: String?=null
 
 
@@ -54,10 +56,11 @@ class ParseTransaction {
 //            coin = address
                 return CoinObjClass.CoinObj(0, "") // CreateCoin
             }, {
-                if (optList == null) optList = arrayListOf()
+//                if (optList == null) optList = arrayListOf()
                 val multisendItem = MinterRaw.MultisendItemRaw(it.address, it.value, it.coin)
-                optList!!.add(multisendItem)
-                multisendItem // Node
+                if (optList == null) optList = arrayListOf<MinterRaw.MultisendItemRaw>()
+                (optList as ArrayList<MinterRaw.MultisendItemRaw>).add(multisendItem)
+                multisendItem
             },
             fun(jsonObject: JSONObject, type: Int) {
                 if (type == TransactionTypes.BUY_SWAP_POOL.int || type == TransactionTypes.SELL_SWAP_POOL.int || type == TransactionTypes.SELL_ALL_SWAP_POOL.int) {
@@ -65,11 +68,15 @@ class ParseTransaction {
                 }
                 if ( !jsonObject.isNull("payload") ) payloadByte = jsonObject.getString("payload")
                 if (payloadByte=="") payloadByte =null
+            }, fun(any: Any, type: Int) {
+                if (type == TransactionTypes.ADD_LIMIT_ORDER.int ) {
+                    optList = any
+                }
             }
         )
 
         if (transaction != null) {
-            val transactionRaw = MinterRaw.TransactionRaw(
+            val transactionRaw = TransactionRaw(
                 transaction.hash,
                 transaction.height,
                 transaction.type,
@@ -80,8 +87,9 @@ class ParseTransaction {
                 transaction.coin,
                 transaction.coin2,
                 transaction.amount,
-                transaction.gas_price,
+                transaction.gasPrice,
                 transaction.commission,
+//                -1,
                 transaction.payload,
                 transaction.gas,
                 gascoin,
@@ -104,8 +112,9 @@ class ParseTransaction {
         getToWallet: ((address: String) -> Long),
         getNode: ((address: String) -> Int),
         getCreateCoin: ((jsonObject: JSONObject, tagsObject: JSONObject, address: String) -> CoinObjClass.CoinObj?)? = null,
-        getMultisendItem: ((multisendItemRaw: MinterRaw.MultisendItemRaw) -> MinterRaw.MultisendItemRaw)? = null,
-        getOther: ((jsonObject: JSONObject, type: Int) -> Unit)
+        getMultisendItem: ((multisendItemRaw: MinterRaw.MultisendItemRaw) -> MinterRaw.MultisendItemRaw)? = null,//Deprecated
+        getOther: ((jsonObject: JSONObject, type: Int) -> Unit), //Deprecated
+        getData: ((any: Any, type: Int) -> Unit)? = null,
     ): Minter.Transaction? {
         var transaction: Minter.Transaction? = null
         if (!result.isNull("code")) {
@@ -151,6 +160,8 @@ class ParseTransaction {
 
 
                 val tags = if (result.isNull("tags")) null else result.getJSONObject("tags")
+
+                commission = minterMatch.getAmount(tags!!.getString("tx.commission_in_base_coin"))
 
                 if (type == counters.minter.sdk.minter.TransactionTypes.TypeMultiSend) {
                     val data_list = result.getJSONObject("data").getJSONArray("list")
@@ -231,7 +242,7 @@ class ParseTransaction {
                         node = getNode(data.getString("pub_key"))
                         stake = data.getString("stake")
                         amount = minterMatch.getAmount(stake)
-                        commission = minterMatch.getAmount(data.getString("commission"))
+//                        commission = minterMatch.getAmount(data.getString("commission"))
                     } else if (type == counters.minter.sdk.minter.TransactionTypes.TypeCreateCoin) {
                         getCreateCoin?.invoke(data, tags!!, fromStr)
                         stake = data.getString("initial_amount")
@@ -353,7 +364,7 @@ class ParseTransaction {
                         optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
                         optString = data.getString("minimum_value_to_buy")
                     } else if (type == TransactionTypes.SELL_ALL_SWAP_POOL.int) {
-                        val coin_to_sell = tags!!.getLong("tx.coin_to_sell")
+                        val coin_to_sell = tags.getLong("tx.coin_to_sell")
                         val coin_to_buy = tags.getLong("tx.coin_to_buy")
                         coin = coinObjMap[coin_to_sell]!!
                         coin2 = coinObjMap[coin_to_buy]!!
@@ -362,11 +373,39 @@ class ParseTransaction {
 //                        coin = this.getCoin(coin.id, coin.symbol, getCoin)
 //                        coin2 = this.getCoin(coin2.id, coin2.symbol, getCoin2)
                         stake = tags!!.getString("tx.sell_amount")
-                        commission = minterMatch.getAmount(tags!!.getString("tx.commission_amount"))
+//                        commission = minterMatch.getAmount(tags!!.getString("tx.commission_amount"))
+//                        commission = minterMatch.getAmount(tags!!.getString("tx.commission_in_base_coin"))
                         amount = minterMatch.getAmount(stake)
                         optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
                         optString = data.getString("minimum_value_to_buy")
-                    } else if ( 1==2) {
+                    } else if (type == TransactionTypes.ADD_LIMIT_ORDER.int) {
+
+                        val coin_to_sell = data.getJSONObject("coin_to_sell")
+                        val coin_to_buy = data.getJSONObject("coin_to_buy")
+                        coin = CoinObjClass.fromJson(coin_to_sell)
+                        coin2 = CoinObjClass.fromJson(coin_to_buy)
+                        getCoin(coin!!.id, coin!!.symbol)
+                        getCoin2(coin2!!.id, coin2!!.symbol)
+
+                        stake = data.getString("value_to_sell")
+                        amount = minterMatch.getAmount(stake)
+                        optDouble = minterMatch.getAmount(data.getString("value_to_buy"))
+
+                        val limitOrderRaw = LimitOrderRaw(
+                            id = tags.getLong("tx.order_id"),
+                            coinSell = coin,
+                            wantSell = amount,
+                            coinBuy = coin2,
+                            wantBuy = optDouble,
+                            price = optDouble / amount ,
+                            owner = fromStr,
+                            height = height,
+                            pool_id = tags.getLong("tx.pool_id")
+                        )
+                        getData?.invoke(limitOrderRaw, type)
+
+                    }
+                    else if ( 1==2) {
                         val coin_to_sell = data.getJSONObject("coin_to_sell")
                         val coin_to_buy = data.getJSONObject("coin_to_buy")
                         coin = CoinObjClass.CoinObj(
@@ -382,6 +421,8 @@ class ParseTransaction {
                         optDouble = minterMatch.getAmount(tags.getString("tx.return"))
                         /*tags	tx.sell_amount*/
 
+                    } else {
+                        throw Exception("unknown transaction type: $type")
                     }
 
                     if (
@@ -405,6 +446,8 @@ class ParseTransaction {
                     }
                 }
                 getOther.invoke(result, type)
+
+//                val commissionCoinId: Long = -1
 //        println("type $type gas_price $gas_price gas $gas gas_coin $gas_coin from $from        ")
                 transaction = Minter.Transaction(
                     null,
@@ -420,6 +463,7 @@ class ParseTransaction {
                     amount,
                     gas_price,
                     commission,
+//                    commissionCoinId,
                     payload,
                     gas,
                     gas_coin,

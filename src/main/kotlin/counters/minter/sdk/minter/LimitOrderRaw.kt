@@ -8,7 +8,8 @@ data class LimitOrderRaw(
     val wantBuy: Double,
     val price: Double,
     val owner: String,
-    val height: Long
+    val height: Long,
+    val pool_id: Long?
 )
 
 /*

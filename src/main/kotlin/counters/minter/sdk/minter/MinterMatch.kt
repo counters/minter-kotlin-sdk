@@ -4,7 +4,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 
-class MinterMatch {
+open class MinterMatch {
 
 //    private val FEE_BASE_STRING = "0.001"
 //    val FEE_BASE = BigDecimal(FEE_BASE_STRING)
@@ -23,11 +23,6 @@ class MinterMatch {
     public const UNIT = 10 ** -15;
     public const UNIT_STR = '0.000000000000001';*/
 
-    init {
-//    println(FEE_BASE)
-//    println( "getAmount "+ getAmount("333000000000000000000").toString() )
-//    println( "getPip "+ getPip(333.01).toString() )
-    }
 
     fun getAmount(pip: String): Double {
         val numF = BigDecimal(pip).multiply(PIP)

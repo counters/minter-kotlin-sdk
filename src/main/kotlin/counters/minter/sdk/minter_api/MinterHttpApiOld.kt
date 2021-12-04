@@ -3,6 +3,7 @@ package counters.minter.sdk.minter_api
 import counters.minter.sdk.minter.*
 import counters.minter.sdk.minter.Enum.QueryTags
 import counters.minter.sdk.minter.Enum.SwapFromTypes
+import counters.minter.sdk.minter.Models.TransactionRaw
 import counters.minter.sdk.minter_api.parse.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -72,7 +73,7 @@ class MinterHttpApiOld(
     page: Int=1,
     per_page: Int?=null,
     getJson: ((transactionJson: JSONObject) -> Unit)? = null
-    ): List<MinterRaw.TransactionRaw>? {
+    ): List<TransactionRaw>? {
         val newQuery = mutableMapOf<String, String>()
         query.forEach { newQuery[it.key.str] = it.value }
         return _getTransactionsRaw(newQuery, page, per_page, getJson)
@@ -83,7 +84,7 @@ class MinterHttpApiOld(
         page: Int?=null,
         per_page: Int?=null,
         getJson: ((transactionJson: JSONObject) -> Unit)? = null
-    ): List<MinterRaw.TransactionRaw>?{
+    ): List<TransactionRaw>?{
         per_page?.let { if (it>Conf.maxPerPage) return null }
         if (query.count()>0) {
             val params = arrayListOf<String>()
@@ -97,7 +98,7 @@ class MinterHttpApiOld(
             val patch = "transactions?$strQuery"
 //            println("patch $patch")
             this.get(patch)?.optJSONArray("transactions")?.let {
-                    val arrayList = arrayListOf<MinterRaw.TransactionRaw>()
+                    val arrayList = arrayListOf<TransactionRaw>()
                     it.forEach { transactionJson ->
                         parseTransaction.getRaw(transactionJson as JSONObject, 0)?.let {
                             arrayList.add(it)
@@ -123,7 +124,7 @@ class MinterHttpApiOld(
     fun getTransactionRaw(
         hash: String,
         getJson: ((transactionJson: JSONObject, height: Long) -> Unit)? = null
-    ): MinterRaw.TransactionRaw? {
+    ): TransactionRaw? {
         val jsonObj = this.get(HttpMethod.TRANSACTION.patch+"/"+hash)
         if (jsonObj != null) {
             var result: JSONObject? = null
@@ -187,7 +188,7 @@ class MinterHttpApiOld(
 
     fun getBlockRawOld(height: Long): MinterRaw.BlockRaw? {
         var proposer: String = ""
-        val transaction = ArrayList<MinterRaw.TransactionRaw>()
+        val transaction = ArrayList<TransactionRaw>()
 //        val validators = ArrayList<MinterRaw.SignedValidatorsRaw>()
         val transaction_json = ArrayList<JSONObject>()
         val signedValidators = ArrayList<MinterRaw.SignedValidatorsRaw>()

@@ -4,13 +4,14 @@ import com.google.common.io.BaseEncoding.base64
 import counters.minter.grpc.client.TransactionResponse
 import counters.minter.sdk.minter.CoinObjClass
 import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.Models.TransactionRaw
 
 @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
 interface ConvertTransactionOld {
 
-    fun getTransaction(transaction: TransactionResponse): MinterRaw.TransactionRaw {
+    fun getTransaction(transaction: TransactionResponse): TransactionRaw {
 
-        return MinterRaw.TransactionRaw(
+        return TransactionRaw(
             hash = transaction.hash,
             height = transaction.height,
             type = transaction.type.toInt(),
@@ -21,14 +22,15 @@ interface ConvertTransactionOld {
             coin = CoinObjClass.CoinObj(-1,"NULL"),
             coin2 = CoinObjClass.CoinObj(-1,"NULL"),
             amount = -1.0,
-            gas_price = transaction.gasCoin.id.toInt(),
+            gasPrice = transaction.gasCoin.id.toInt(),
             commission = -1.0,
+//            commissionCoinId = -1,
             payload = false,
             gas = transaction.gas.toInt(),
-            gascoin = CoinObjClass.CoinObj(transaction.gasCoin.id,transaction.gasCoin.symbol),
+            gasCoin = CoinObjClass.CoinObj(transaction.gasCoin.id,transaction.gasCoin.symbol),
             optDouble = -1.0,
             optString = "NULL",
-            optList = null,
+            optData = null,
             base64Payload = base64().encode(transaction.payload.toByteArray()) ,
 
         )

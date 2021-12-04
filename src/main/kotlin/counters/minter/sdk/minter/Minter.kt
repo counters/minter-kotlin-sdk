@@ -32,11 +32,12 @@ class Minter {
         val coin: CoinObj?,
         val coin2: CoinObj?,
         val amount: Double?,
-        val gas_price: Int,
+        val gasPrice: Int,
         val commission: Double?,
+//        val commissionCoinId: Long,
         val payload: Boolean,
         val gas: Int,
-        val gascoin: CoinObj,
+        val gasCoin: CoinObj,
         val optDouble: Double?,
         val optString: String?
     )

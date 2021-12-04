@@ -3,6 +3,7 @@ package counters.minter.sdk.minter_api.convert
 import counters.minter.grpc.client.BlockResponse
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.Models.TransactionRaw
 import org.joda.time.DateTime
 
 class ConvertBlock {
@@ -12,7 +13,7 @@ class ConvertBlock {
 
     fun get(response: BlockResponse): MinterRaw.BlockRaw {
 
-        val transaction = arrayListOf<MinterRaw.TransactionRaw>()
+        val transaction = arrayListOf<TransactionRaw>()
         val validators = arrayListOf<MinterRaw.SignedValidatorsRaw>()
 
         val datetime = DateTime(response.time)

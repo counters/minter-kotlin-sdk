@@ -8,6 +8,7 @@ import counters.minter.sdk.minter.Enum.QueryTags
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw.*
+import counters.minter.sdk.minter.Models.TransactionRaw
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import counters.minter.sdk.minter_api.http.HttpOptions
 import io.grpc.ManagedChannelBuilder

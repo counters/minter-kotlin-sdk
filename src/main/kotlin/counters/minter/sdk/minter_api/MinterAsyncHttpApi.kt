@@ -3,6 +3,7 @@ package counters.minter.sdk.minter_api
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter.*
 import counters.minter.sdk.minter.MinterRaw.*
+import counters.minter.sdk.minter.Models.TransactionRaw
 import counters.minter.sdk.minter_api.http.OkHttpApi
 import counters.minter.sdk.minter_api.http.HttpOptions
 import counters.minter.sdk.minter_api.http.KHttpApi

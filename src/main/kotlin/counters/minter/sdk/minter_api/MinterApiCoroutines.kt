@@ -5,6 +5,7 @@ import counters.minter.grpc.client.*
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.Models.TransactionRaw
 import counters.minter.sdk.minter_api.convert.Convert
 import counters.minter.sdk.minter_api.convert.ConvertLimitOrder
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
@@ -88,7 +89,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         return getTransactionGrpc(request, deadline)
     }
 
-    suspend fun getTransaction(hash: String, deadline: Long? = null): MinterRaw.TransactionRaw? {
+    suspend fun getTransaction(hash: String, deadline: Long? = null): TransactionRaw? {
         getTransactionGrpc(hash, deadline)?.let {
             return convert.transaction.get(it)
         } ?: run {

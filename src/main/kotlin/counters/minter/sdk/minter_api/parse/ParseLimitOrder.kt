@@ -27,6 +27,7 @@ class ParseLimitOrder {
             price = price,
             owner = owner,
             height = height,
+            pool_id = null
         )
     }
 
