@@ -254,4 +254,35 @@ class MinterApi(
         }
     }
 
+    fun getEvent(height: Long, search: List<String>? = null/*, addSymbol: Boolean = false*/, deadline: Long? = null): List<EventRaw>? {
+        if (minterHttpApi != null) {
+            return minterHttpApi!!.getEventsRaw(height, search)
+        } else {
+            return minterGrpcApi!!.getEvents(height, search, deadline)
+        }
+    }
+
+    fun getEvent(height: Long, search: List<String>? = null, deadline: Long? = null, result: ((result: List<EventRaw>?) -> Unit)) {
+        minterAsyncHttpApi?.let {
+            it.getEvents(height, search, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.getEvents(height, search, deadline, result)
+        }
+    }
+
+    suspend fun getEventCoroutines(height: Long, search: List<String>? = null, deadline: Long? = null): List<EventRaw>? {
+        minterAsyncHttpApi?.let {
+            var status: List<EventRaw>?=null
+            val semaphore = kotlinx.coroutines.sync.Semaphore(1, 1)
+            it.getEvents(height, search, deadline) {
+                status = it
+                semaphore.release()
+            }
+            semaphore.acquire()
+            return status
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getEvents(height, search, deadline)
+        }
+    }
+
 }

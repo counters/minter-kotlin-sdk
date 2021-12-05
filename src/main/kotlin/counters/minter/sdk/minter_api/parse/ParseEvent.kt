@@ -6,7 +6,8 @@ import counters.minter.sdk.minter.Utils.EventType
 import org.json.JSONObject
 
 class ParseEvent {
-    var minterMatch = MinterMatch()
+
+    private var minterMatch = MinterMatch()
 
     private val mapCache: MutableMap<Long, CoinObjClass.CoinObj> = HashMap()
 
@@ -112,10 +113,12 @@ class ParseEvent {
                 val eventJsonObject = it as JSONObject
                 val value = eventJsonObject.getJSONObject("value")
 
-                val node = if (value.isNull("validator_pub_key")) {
-                    null
-                } else {
+                val node = if (!value.isNull("validator_pub_key")) {
                     getNode(value.getString("validator_pub_key"))
+                } else if (!value.isNull("candidate_pub_key")) {
+                    getNode(value.getString("candidate_pub_key"))
+                } else {
+                    null
                 }
 
 
@@ -127,7 +130,8 @@ class ParseEvent {
                     role = EventRole.get(role_type).uid
                 }
                 var coin: CoinObjClass.CoinObj? = null
-                if (!value.isNull("coin")) {
+//                println(value)
+                if (!value.isNull("coin") ) {
                     val coinId = value.getLong("coin")
 //                    getCoin(coinId)
                     if (getCoinByIdRaw==null) {
@@ -136,16 +140,24 @@ class ParseEvent {
 //                        val rawCoin = getCoinByIdRaw(coinId)
                         getCoinByIdFromCache(coinId, getCoinByIdRaw).let { coin = it }
                     }
+                } else if (!value.isNull("for_coin") ) {
+                    val coinId = value.getLong("for_coin")
+                    if (getCoinByIdRaw==null) {
+                        coin = CoinObjClass.CoinObj(coinId, null)
+                    } else {
+                        getCoinByIdFromCache(coinId, getCoinByIdRaw).let { coin = it }
+                    }
                 }
-                val wallet = if (value.isNull("address")) {
-                    null
-                } else {
+
+                val wallet = if (!value.isNull("address")) {
                     getWallet(value.getString("address"))
-                }
-                val amount = if (value.isNull("amount")) {
-                    null
                 } else {
+                    null
+                }
+                val amount = if (!value.isNull("amount")) {
                     minterMatch.getAmount(value.getString("amount"))
+                } else {
+                    null
                 }
 
                 val event = Minter.Event(

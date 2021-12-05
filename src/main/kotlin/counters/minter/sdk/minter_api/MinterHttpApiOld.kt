@@ -52,8 +52,9 @@ class MinterHttpApiOld(
     }    //    Transaction
 
     fun getEventsRaw(height: Long, search: List<String>?=null, addSymbol: Boolean= false): List<MinterRaw.EventRaw>?  {
-
-        val jsonObj = this.get(HttpMethod.EVENTS.patch+"/"+height) // mapOf("height" to height.toString())
+        val params = arrayListOf<Pair<String, String>>()
+        search?.forEach { params.add("search" to it) }
+        val jsonObj = this.get(HttpMethod.EVENTS.patch+"/"+height + altUrlHttpGet(params), mapOf()) // mapOf("height" to height.toString())
         if (jsonObj != null) {
             var result: JSONObject? = null
             if (jsonObj.isNull("error")) {
@@ -634,7 +635,7 @@ class MinterHttpApiOld(
 //        val url = this.nodeUrl + "/" + method.patch+"/2"
         val url = this.nodeUrl + "/" + patch
 //        val url = this.nodeUrl + "/" + method.patch+"/" +params.getValue('height')
-//        println("MinterApi.get($url, $params)\n")
+        println("MinterApi.get($url, $params)\n")
         val _params = if (params == null)
             mapOf()
         else

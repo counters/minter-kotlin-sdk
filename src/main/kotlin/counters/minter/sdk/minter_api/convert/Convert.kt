@@ -6,6 +6,5 @@ class Convert: ConvertStatusOld, ConvertTransactionOld {
     val block = ConvertBlock()
     val subscribe = ConvertSubscribe
     val limitOrder = ConvertLimitOrder()
-
-
+    val events = ConvertEvents()
 }

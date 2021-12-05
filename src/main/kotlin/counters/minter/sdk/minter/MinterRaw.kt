@@ -89,12 +89,17 @@ class MinterRaw {
 
     data class EventRaw(
         val height: Long?,
-        val node: String,
+        val node: String?,
         val wallet: String?,
         val coin: CoinObj?,
         val type: String,
         val amount: Double?,
         var role: String?
+
+  /*      "type": "minter/UpdateNetworkEvent",
+    "value": {
+        "version": "v260"
+    }*/
     )
 
 }

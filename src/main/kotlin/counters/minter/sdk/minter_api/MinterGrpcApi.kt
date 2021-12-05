@@ -1,6 +1,7 @@
 package counters.minter.sdk.minter_api
 
 import counters.minter.grpc.client.*
+import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter_api.convert.Convert
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import io.grpc.ManagedChannel
@@ -16,7 +17,8 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     UnconfirmedTxs,
     LimitOrdersOfPoolInterface,
     LimitOrdersInterface,
-    LimitOrderInterface
+    LimitOrderInterface,
+    EventInterface
 {
 
 
@@ -32,6 +34,7 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     override val convertBlock = convert.block
     override val convertSubscribe = convert.subscribe
     override val convertLimitOrder = convert.limitOrder
+    override val convertEvents = convert.events
 
     override val logger = KotlinLogging.logger {}
 

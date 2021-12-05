@@ -7,6 +7,7 @@ import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter.Models.TransactionRaw
 import counters.minter.sdk.minter_api.convert.Convert
+import counters.minter.sdk.minter_api.convert.ConvertEvents
 import counters.minter.sdk.minter_api.convert.ConvertLimitOrder
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import io.grpc.ManagedChannel
@@ -18,7 +19,8 @@ import java.util.concurrent.TimeUnit
 class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     LimitOrderRequestInterface,
     LimitOrdersRequestInterface,
-    LimitOrdersOfPoolRequestInterface {
+    LimitOrdersOfPoolRequestInterface,
+    EventsRequestInterface {
 
     //    private var callOptions: CallOptions = CallOptions.DEFAULT
     private lateinit var stub: ApiServiceGrpcKt.ApiServiceCoroutineStub
@@ -31,6 +33,9 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
 
     private val convertLimitOrder = ConvertLimitOrder()
 
+    private val convertEvents= ConvertEvents()
+
+
     init {
         this.grpcOptions = grpcOptions ?: GrpcOptions()
         initClient()
@@ -38,6 +43,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
 
     private fun initClient() {
         val channelBuilder = ManagedChannelBuilder.forAddress(grpcOptions.hostname, grpcOptions.port)
+        channelBuilder.maxInboundMessageSize(9999999)//9999999
         if (grpcOptions.ssl_contest != null) {
 
         } else if (grpcOptions.useTransportSecurity) {
@@ -180,6 +186,28 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
             it?.let { return convertLimitOrder.getList(it.ordersList) } ?: run { return null }
         }
     }
+
+
+    suspend fun getEventsGrpc(request: EventsRequest, deadline: Long? = null): EventsResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.events(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun getEventsGrpc(height: Long, search: List<String>? = null, deadline: Long? = null) =
+        getEventsGrpc(getRequestEvents(height, search), deadline)
+
+    suspend fun getEvents(height: Long, search: List<String>? = null, deadline: Long? = null): List<MinterRaw.EventRaw>? {
+        getEventsGrpc(height, search, deadline).let {
+            it?.let { return convertEvents.get(it, height) } ?: run { return null }
+        }
+    }
+
+
 
 /*    fun asyncBlockGrpc(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null, result: ((result: BlockResponse?) -> Unit)) {
         val requestBuilder = BlockRequest.newBuilder().setHeight(height)

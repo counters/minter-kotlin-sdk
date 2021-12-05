@@ -8,15 +8,22 @@ object EventType {
     val Unbond = Data("Unbond", 3,"minter/UnbondEvent")
     val Jail = Data("Jail", 4,"minter/JailEvent")
     val UpdateCommissions = Data("UpdateCommissions", 5,"minter/UpdateCommissionsEvent")
+    val UpdateNetwork = Data("UpdateNetwork", 6,"minter/UpdateNetworkEvent")
+    val RemoveCandidate = Data("UpdateNetwork", 7,"minter/RemoveCandidateEvent")
+    val StakeKick = Data("StakeKick", 8,"minter/StakeKickEvent")
+//    val UpdateCommissions = Data("UpdateCommissions", 9,"minter/UpdateCommissionsEvent")
     val NoName = Data("NoName", 0,"")
 
-    fun get(raw: String):Data {
+    fun get(raw: String): Data {
         return when (raw) {
             Reward.raw -> Reward
             Slash.raw -> Slash
             Unbond.raw -> Unbond
             Jail.raw -> Jail
             UpdateCommissions.raw -> UpdateCommissions
+            UpdateNetwork.raw -> UpdateNetwork
+            RemoveCandidate.raw -> RemoveCandidate
+            StakeKick.raw -> StakeKick
             else -> NoName
         }
     }
@@ -27,6 +34,9 @@ object EventType {
             Unbond.uid -> Unbond
             Jail.uid -> Jail
             UpdateCommissions.uid -> UpdateCommissions
+            UpdateNetwork.uid -> UpdateNetwork
+            RemoveCandidate.uid -> RemoveCandidate
+            StakeKick.uid -> StakeKick
             else -> NoName
         }
     }
