@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "counters"
-version = "2.1.0-beta1"
+version = "2.1.0-beta2"
 
 val grpcKotlinVersion = "1.2.0"
 val coroutinesVersion = "1.5.2"
@@ -39,7 +39,7 @@ dependencies {
 //    implementation("khttp:khttp:1.0.0")
 
     implementation("com.github.kittinunf.fuel:fuel:2.3.1")
-    implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
+//    implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("com.github.kittinunf.fuel:fuel-coroutines:2.3.1")
 
     implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")

@@ -3,7 +3,6 @@ package counters.minter.sdk.minter_api.http
 import mu.KotlinLogging
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.MediaType.Companion.toMediaType
 import okio.IOException
 import java.util.concurrent.TimeUnit
 
@@ -16,15 +15,13 @@ open class OkHttpApi(httpOptions: HttpOptions ) {
 
     private var nodeUrl: String
 
-    private val MEDIA_TYPE_JSON = "application/json; charset=utf-8".toMediaType()
-
     init {
         this.httpOptions = httpOptions
         val builder = OkHttpClient.Builder()
 
         httpOptions.timeout?.let {
-            builder.connectTimeout((it*1000.0).toLong(), TimeUnit.MILLISECONDS)
-                .readTimeout((it*1000.0).toLong(), TimeUnit.MILLISECONDS)
+            builder.connectTimeout(it, TimeUnit.MILLISECONDS)
+                .readTimeout(it, TimeUnit.MILLISECONDS)
         }
         client = builder.build()
         headers = httpOptions.headers
@@ -37,8 +34,8 @@ open class OkHttpApi(httpOptions: HttpOptions ) {
         } ?: kotlin.run {
             val builder = OkHttpClient.Builder()
             httpOptions.timeout?.let {
-                builder.connectTimeout((it*1000.0).toLong(), TimeUnit.MILLISECONDS)
-                    .readTimeout((it*1000.0).toLong(), TimeUnit.MILLISECONDS)
+                builder.connectTimeout(it, TimeUnit.MILLISECONDS)
+                    .readTimeout(it, TimeUnit.MILLISECONDS)
             }
             builder.build()
         }
