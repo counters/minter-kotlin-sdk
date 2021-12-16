@@ -64,6 +64,9 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
     suspend fun getBlockJson(height: Long, fields: List<BlockField>? = null, failed_txs: Boolean? = null, events: Boolean? = null, timeout: Long? = null) =
         getBlockJson(height, conv(fields), failed_txs, events, timeout)
 
+    suspend fun getBlockJson(height: Long, timeout: Long? = null) =
+        getBlockJson(height, null as HashSet<String>?, null, null, timeout)
+
     suspend fun getBlock(height: Long, fields: HashSet<String>? = null, failed_txs: Boolean? = null, events: Boolean? = null, timeout: Long? = null): BlockRaw? {
         getBlockJson(height, fields, failed_txs, events, timeout)?.let {
             if (it.isNull("error")) {
