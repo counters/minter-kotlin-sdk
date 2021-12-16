@@ -3,29 +3,39 @@ package counters.minter.sdk.minter_api.convert
 import counters.minter.grpc.client.BuyCoinData
 import counters.minter.grpc.client.EventsResponse
 import counters.minter.sdk.minter.CoinObjClass
+import counters.minter.sdk.minter.Enum.CommissionKey
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.Models.Commission
 import counters.minter.sdk.minter.Utils.EventRole
 import counters.minter.sdk.minter.Utils.EventType
+import mu.KotlinLogging
 
 class ConvertEvents : MinterMatch() {
 
     private val eventType = EventType
     private val eventRole = EventRole
 
+    private val logger = KotlinLogging.logger {}
+
     fun get(response: EventsResponse, height: Long): List<MinterRaw.EventRaw> {
         val array = arrayListOf<MinterRaw.EventRaw>()
 //        val array = ArrayList<MinterRaw.EventRaw>()
-        var node: String? = null
-        var wallet: String? = null
-        var coin: CoinObjClass.CoinObj? = null
-        var coinId: Long? = null
-        var type: String? = null
-//        var amount: Double? = null
-        var rawRole: String? = null
-        var pipAmount: String? = null
+
 //        var role: String? = null
         response.eventsList.forEach {
+
+            var node: String? = null
+            var wallet: String? = null
+            var coin: CoinObjClass.CoinObj? = null
+            var coinId: Long? = null
+//            var type: String? = null
+//        var amount: Double? = null
+            var rawRole: String? = null
+            var pipAmount: String? = null
+            var option: Any? = null
+
+
             val strType = it.getFieldsOrThrow("type").stringValue
             val structValue = it.getFieldsOrThrow("value").structValue
             val type = eventType.get(strType)
@@ -50,17 +60,26 @@ class ConvertEvents : MinterMatch() {
                 val version = structValue.getFieldsOrThrow("version").stringValue
                 println("version: $version")
 //                println(it)
-            }  else if (type == EventType.StakeKick) {
+            } else if (type == EventType.StakeKick) {
                 node = structValue.getFieldsOrThrow("validator_pub_key").stringValue
                 wallet = structValue.getFieldsOrThrow("address").stringValue
                 pipAmount = structValue.getFieldsOrThrow("amount").stringValue
                 coinId = structValue.getFieldsOrThrow("coin").stringValue.toLong()
 //                coin = CoinObjClass.CoinObj(coinId, null)
 //                println(it)
-            }   else if (type == EventType.UpdateCommissions) {
-
-                println(it)
-                TODO()
+            } else if (type == EventType.UpdateCommissions) {
+                val array = arrayListOf<Commission>()
+                structValue.fieldsMap.forEach { key, value ->
+                    val amount = getAmount(value.stringValue)
+                    CommissionKey.fromStr(key)?.let {
+                        array.add(Commission(it, amount))
+                    } ?: run {
+                        val message = "Error: ${CommissionKey.fromStr(key)}"
+                        logger.error { message }
+                        throw Exception(message)
+                    }
+                }
+                option = listOf(array)
             } else {
                 println(it)
                 TODO()
@@ -69,7 +88,7 @@ class ConvertEvents : MinterMatch() {
             val amount = pipAmount?.let { getAmount(it) } ?: run { null }
             coin = coinId?.let { CoinObjClass.CoinObj(it, null) }
 
-            val role = if (rawRole != null) eventRole.get(rawRole!!).name else null
+            val role = if (rawRole != null) eventRole.get(rawRole).name else null
 
             val eventRaw = MinterRaw.EventRaw(
                 height = height,
@@ -78,6 +97,7 @@ class ConvertEvents : MinterMatch() {
                 coin = coin,
                 type = type.name,
                 amount = amount,
+                option = option,
                 role = role
             )
             array.add(eventRaw)

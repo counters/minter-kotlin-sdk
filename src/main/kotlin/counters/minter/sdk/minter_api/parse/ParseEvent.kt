@@ -1,15 +1,21 @@
 package counters.minter.sdk.minter_api.parse
 
+import com.google.protobuf.option
 import counters.minter.sdk.minter.*
+import counters.minter.sdk.minter.Enum.CommissionKey
+import counters.minter.sdk.minter.Models.Commission
 import counters.minter.sdk.minter.Utils.EventRole
 import counters.minter.sdk.minter.Utils.EventType
+import mu.KotlinLogging
 import org.json.JSONObject
 
-class ParseEvent {
+class ParseEvent: MinterMatch() {
 
     private var minterMatch = MinterMatch()
 
     private val mapCache: MutableMap<Long, CoinObjClass.CoinObj> = HashMap()
+
+    private val logger = KotlinLogging.logger {}
 
     private fun getCoinByIdFromCache(coinId: Long, getCoinByIdRaw: ((id: Long) -> MinterRaw.CoinRaw?)): CoinObjClass.CoinObj {
         if (coinId == Conf.defaultCoinUid) return CoinObjClass.CoinObj(Conf.defaultCoinUid, Conf.defaultCoin)
@@ -61,6 +67,7 @@ class ParseEvent {
                 coin = it.coin,
                 type = EventType.get(it.type).name,
                 amount = it.amount,
+                option = it.option,
                 role = role
             )
             array.add(eventRaw)
@@ -113,6 +120,9 @@ class ParseEvent {
                 val eventJsonObject = it as JSONObject
                 val value = eventJsonObject.getJSONObject("value")
 
+                var option: Any? = null
+
+
                 val node = if (!value.isNull("validator_pub_key")) {
                     getNode(value.getString("validator_pub_key"))
                 } else if (!value.isNull("candidate_pub_key")) {
@@ -123,7 +133,7 @@ class ParseEvent {
 
 
                 val event_type = eventJsonObject.getString("type")
-                val type = EventType.get(event_type).uid
+                val type = EventType.get(event_type)
                 var role: Int? = null
                 if (!value.isNull("role")) {
                     val role_type = value.getString("role")
@@ -160,13 +170,44 @@ class ParseEvent {
                     null
                 }
 
+                if (type == EventType.UpdateCommissions) {
+                    val array = arrayListOf<Commission>()
+//                    println(value)
+                    value.keySet().forEach { key ->
+                        CommissionKey.fromStr(key)?.let {
+                            val _amount = getAmount(value.getString(key))
+                            array.add(Commission(it, _amount))
+                        } ?: run {
+                            val message = "Error: ${CommissionKey.fromStr(key)}"
+                            logger.error { message }
+                            throw Exception(message)
+                        }
+                    }
+                    option = listOf(array)
+      /*              CommissionKey.values().forEach {
+
+                    }
+                    structValue.fieldsMap.forEach { key, value ->
+                        val amount = getAmount(value.stringValue)
+                        CommissionKey.fromStr(key)?.let {
+                            array.add(Commission(it, amount))
+                        } ?: run {
+                            val message = "Error: ${CommissionKey.fromStr(key)}"
+                            logger.error { message }
+                            throw Exception(message)
+                        }
+                        option = listOf(array)
+                    }*/
+                }
+
                 val event = Minter.Event(
                     height = height,
                     node = node,
                     wallet = wallet,
                     coin = coin,
-                    type = type,
+                    type = type.uid,
                     amount = amount,
+                    option = option,
                     role = role
                 )
 //                println(event)

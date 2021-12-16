@@ -6,49 +6,90 @@ import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import counters.minter.sdk.minter_api.http.HttpOptions
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
+import kotlin.random.Random
 
 internal class MinterApiTest {
 
-    private val httpOptions = HttpOptions(raw = "http://node.knife.io:8843/v2", timeout = 1.0)
+    private val httpOptions = HttpOptions(raw = "http://node.knife.io:8843/v2", timeout = 60000)
     private val grpcOptions = GrpcOptions(hostname = "node.knife.io", deadline = 1000)
 
-//    private val minterApi = MinterApi(grpcOptions, httpOptions)
+    //    private val minterApi = MinterApi(grpcOptions, httpOptions)
     private val minterHttpApi = MinterApi(null, httpOptions)
     private val minterGrpcApi = MinterApi(grpcOptions, null)
 
-
-    @Test
-    fun getStatus() {
+    @AfterEach
+    internal fun tearDown() {
+        minterGrpcApi.shutdown()
     }
 
     @Test
-    fun testGetStatus() {
+    fun getStatus() {
+        minterHttpApi.getStatus()?.let { status ->
+            minterGrpcApi.getStatus()?.let {
+//                assert(false)
+                assertEquals(status, it)
+                return
+            } ?: run {
+                assert(false)
+            }
+        }
+        assert(false)
     }
 
     @Test
     fun getStatusCoroutines() {
+        runBlocking {
+            assertNotEquals(null, minterHttpApi.getStatusCoroutines())
+        }
     }
 
     @Test
     fun getBlock() {
-    }
-
-    @Test
-    fun testGetBlock() {
+        minterHttpApi.getStatus()?.height?.let { height ->
+            minterHttpApi.getBlock(height)?.let { block ->
+                assertEquals(block, minterGrpcApi.getBlock(height))
+                return
+            }
+        }
+        assert(false)
     }
 
     @Test
     fun getBlockCoroutines() {
+        runBlocking {
+            minterGrpcApi.getStatus()?.let { status ->
+                val expected = async { minterHttpApi.getBlockCoroutines(status.height) }
+                val actual = async { minterGrpcApi.getBlockCoroutines(status.height) }
+//                val actualValue = actual.await()
+                assertNotEquals(null, actual.await())
+                assertEquals(expected.await(), actual.await())
+                return@runBlocking
+            }
+            assert(false)
+        }
     }
 
     @Test
     fun getTransaction() {
+        val type = TransactionTypes.TypeSend
+        LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
+            val index = Random.nextInt(1, count).dec()
+            LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {
+                val expected = minterHttpApi.getTransaction(it)
+                val actual = minterGrpcApi.getTransaction(it)
+                assertNotEquals(null, actual)
+                assertEquals(expected, actual)
+                return
+            }
+        }
+        assert(false)
     }
 
-    @Test
+    //    @Test
     fun getTransaction2() {
         runBlocking {
 //        val type = TransactionTypes.TypeSend
@@ -59,7 +100,7 @@ internal class MinterApiTest {
                     val expected = async { minterHttpApi.getTransactionCoroutines(it) }
                     val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
                     expected.await()?.let {
-             //           println(it)
+                        //           println(it)
                         assertEquals(it, actual.await())
                     } ?: run {
                         assertEquals(null, actual.await())
@@ -71,11 +112,22 @@ internal class MinterApiTest {
     }
 
     @Test
-    fun testGetTransaction() {
-    }
-
-    @Test
     fun getTransactionCoroutines() {
+        runBlocking {
+            val type = TransactionTypes.TypeSend
+            LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
+                val index = Random.nextInt(1, count).dec()
+                LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {
+                    val expected = async { minterHttpApi.getTransactionCoroutines(it) }
+                    val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
+//                    val actualValue = actual.await()
+                    assertNotEquals(null, actual.await())
+                    assertEquals(expected.await(), actual.await())
+                    return@runBlocking
+                }
+            }
+            assert(false)
+        }
     }
 
     @Test

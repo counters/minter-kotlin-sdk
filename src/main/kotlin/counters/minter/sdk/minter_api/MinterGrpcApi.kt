@@ -20,8 +20,6 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     LimitOrderInterface,
     EventInterface
 {
-
-
     private var channel: ManagedChannel? = null
     private var grpcOptions: GrpcOptions? = null
     override lateinit var asyncClient: ApiServiceGrpc.ApiServiceStub
@@ -53,6 +51,10 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
         channel = channelBuilder.build()
         blockingClient = ApiServiceGrpc.newBlockingStub(channel)
         asyncClient = ApiServiceGrpc.newStub(channel)
+    }
+
+    fun shutdown(): Unit {
+        channel?.shutdown()
     }
 
 }

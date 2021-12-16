@@ -86,7 +86,6 @@ class MinterRaw {
         var transaction_json: List<JSONObject>?
     )
 
-
     data class EventRaw(
         val height: Long?,
         val node: String?,
@@ -94,6 +93,7 @@ class MinterRaw {
         val coin: CoinObj?,
         val type: String,
         val amount: Double?,
+        val option: Any?,
         var role: String?
 
   /*      "type": "minter/UpdateNetworkEvent",

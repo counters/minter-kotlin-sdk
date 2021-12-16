@@ -13,9 +13,10 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class MinterAsyncHttpApi(httpOptions: HttpOptions) :
-//OkHttpApi(httpOptions)
-    KHttpApi(httpOptions),
-    AltUrlHttpGetInterface {
+OkHttpApi(httpOptions),
+//    KHttpApi(httpOptions),
+    AltUrlHttpGetInterface,
+    StringJSON {
 
     private val parseBlock = ParseBlock()
     private val parseNode = ParseNode()
@@ -96,15 +97,6 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
         }
     }
 
-    private fun getJSONObject(strJson: String?): JSONObject? {
-        if (strJson == null) return null
-        return try {
-            JSONObject(strJson)
-        } catch (e: JSONException) {
-            logger.error { "JSONException $e" }
-            null
-        }
-    }
 
     fun getTransactionJson(hash: String, timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
         this.asyncGet(HttpMethod.TRANSACTION.patch + "/" + hash, null, timeout) {

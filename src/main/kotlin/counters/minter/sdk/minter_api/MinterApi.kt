@@ -1,9 +1,6 @@
 package counters.minter.sdk.minter_api
 
 import counters.minter.grpc.client.BlockField
-import counters.minter.grpc.client.LimitOrderResponse
-import counters.minter.grpc.client.LimitOrdersOfPoolResponse
-import counters.minter.grpc.client.LimitOrdersResponse
 import counters.minter.sdk.minter.Enum.QueryTags
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter
@@ -22,6 +19,7 @@ class MinterApi(
     private var minterAsyncHttpApi: MinterAsyncHttpApi? = null
     private var minterGrpcApiCoroutines: MinterApiCoroutines? = null
     private var minterGrpcApi: MinterGrpcApi? = null
+    private var minterCoroutinesHttpApi: MinterCoroutinesHttpApi? = null
 
     init {
         if (grpcOptions != null) {
@@ -37,16 +35,23 @@ class MinterApi(
             minterGrpcApiCoroutines = MinterApiCoroutines(grpcOptions)
             minterGrpcApi = MinterGrpcApi(grpcOptions)
         } else if (httpOptions != null) {
-            minterHttpApi = MinterHttpApiOld(httpOptions.raw!!, httpOptions.timeout, httpOptions.headers)
+            val timeoutD = if (httpOptions.timeout != null) httpOptions.timeout.toDouble() / 1000.0 else null
+            minterHttpApi = MinterHttpApiOld(httpOptions.raw!!, timeoutD, httpOptions.headers)
             minterAsyncHttpApi = MinterAsyncHttpApi(httpOptions)
+            minterCoroutinesHttpApi = MinterCoroutinesHttpApi(httpOptions = httpOptions)
         } else {
             throw Exception("grpcOptions = null && httpOptions = null")
             TODO("grpcOptions = null && httpOptions = null")
         }
     }
 
+    fun shutdown() {
+        minterGrpcApiCoroutines?.shutdown()
+        minterGrpcApi?.shutdown()
+    }
+
     fun getStatus(deadline: Long? = null): Minter.Status? {
-        if (minterHttpApi!=null) {
+        if (minterHttpApi != null) {
             return minterHttpApi!!.getStatus()
         } else {
             return minterGrpcApi!!.getStatus(deadline)
@@ -62,30 +67,22 @@ class MinterApi(
     }
 
     suspend fun getStatusCoroutines(deadline: Long? = null): Minter.Status? {
-        minterAsyncHttpApi?.let {
-//            return minterHttpApi!!.getStatus()
-            var status: Minter.Status?=null
-            val semaphore = kotlinx.coroutines.sync.Semaphore(1, 1)
-            it.getStatus(deadline) {
-                status = it
-                semaphore.release()
-            }
-            semaphore.acquire()
-            return status
+        minterCoroutinesHttpApi?.let {
+            return it.getStatus(deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getStatus(deadline)
         }
     }
 
     fun getBlock(height: Long, deadline: Long? = null): BlockRaw? {
-        if (minterHttpApi!=null) {
+        if (minterHttpApi != null) {
             return minterHttpApi!!.getBlockRaw(height)
         } else {
             return minterGrpcApi!!.block(height, deadline)
         }
     }
 
-    fun getBlock(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null, result: ((result: BlockRaw?) -> Unit)) {
+    fun getBlock(height: Long, fields: List<BlockField>? = null, failed_txs: Boolean? = null, deadline: Long? = null, result: ((result: BlockRaw?) -> Unit)) {
         minterAsyncHttpApi?.let {
             it.getBlock(height, deadline, result)
         } ?: run {
@@ -93,22 +90,16 @@ class MinterApi(
         }
     }
 
-    suspend fun getBlockCoroutines(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null): BlockRaw? {
-        minterAsyncHttpApi?.let {
-//            return minterHttpApi!!.getBlockRaw(height)
-            var status: BlockRaw?=null
-            val semaphore = kotlinx.coroutines.sync.Semaphore(1, 1)
-            it.getBlock(height, deadline) {
-                status = it
-                semaphore.release()
-            }
-            semaphore.acquire()
-            return status
+    suspend fun getBlockCoroutines(height: Long, fields: List<BlockField>? = null, failed_txs: Boolean? = null, deadline: Long? = null): BlockRaw? {
+        minterCoroutinesHttpApi?.let {
+            return it.getBlock(height, minterCoroutinesHttpApi!!.BlockFieldHashSet(fields), failed_txs, null, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getBlock(height, fields, failed_txs, deadline)
         }
     }
-    suspend fun test_getBlockCoroutines(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null): BlockRaw? {
+
+    @Deprecated(level = DeprecationLevel.ERROR, message = "for test")
+    suspend fun test_getBlockCoroutines(height: Long, fields: List<BlockField>? = null, failed_txs: Boolean? = null, deadline: Long? = null): BlockRaw? {
         minterAsyncHttpApi?.let {
             return it.test_getBlock(height, deadline)
         } ?: run {
@@ -117,7 +108,7 @@ class MinterApi(
     }
 
     fun getTransaction(hash: String, deadline: Long? = null): TransactionRaw? {
-        if (minterHttpApi!=null) {
+        if (minterHttpApi != null) {
             return minterHttpApi!!.getTransactionRaw(hash)
         } else {
             return minterGrpcApi!!.transaction(hash, deadline)
@@ -133,6 +124,9 @@ class MinterApi(
     }
 
     suspend fun getTransactionCoroutines(hash: String, deadline: Long? = null): TransactionRaw? {
+        minterCoroutinesHttpApi?.let {
+            return it.getTransaction(hash, deadline)
+/*        }
         minterAsyncHttpApi?.let {
 //            return minterHttpApi!!.getTransactionRaw(hash)
             var status: TransactionRaw?=null
@@ -142,7 +136,7 @@ class MinterApi(
                 semaphore.release()
             }
             semaphore.acquire()
-            return status
+            return status*/
         } ?: run {
             return minterGrpcApiCoroutines!!.getTransaction(hash, deadline)
         }
@@ -150,11 +144,11 @@ class MinterApi(
 
     fun getTransactions(
         query: Map<QueryTags, String>,
-        page: Int=1,
-        per_page: Int?=null,
+        page: Int = 1,
+        per_page: Int? = null,
         deadline: Long? = null
     ): List<TransactionRaw>? {
-        if (minterHttpApi!=null) {
+        if (minterHttpApi != null) {
             return minterHttpApi!!.getTransactionsRaw(query, page, per_page)
         } else {
             return minterGrpcApi!!.transactions(query, page, per_page, deadline)
@@ -210,45 +204,24 @@ class MinterApi(
     }
 
     suspend fun getLimitOrdersCoroutines(ids: List<Long>, height: Long? = null, deadline: Long? = null): List<LimitOrderRaw>? {
-        minterAsyncHttpApi?.let {
-            var status: List<LimitOrderRaw>?=null
-            val semaphore = kotlinx.coroutines.sync.Semaphore(1, 1)
-            it.getLimitOrders(ids, height, deadline) {
-                status = it
-                semaphore.release()
-            }
-            semaphore.acquire()
-            return status
+        minterCoroutinesHttpApi?.let {
+            return it.getLimitOrders(ids, height, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getLimitOrders(ids, height, deadline)
         }
     }
 
-    suspend fun getLimitOrderCoroutines(orderId: Long, height: Long?=null, deadline: Long? = null): LimitOrderRaw? {
-        minterAsyncHttpApi?.let {
-            var status: LimitOrderRaw?=null
-            val semaphore = kotlinx.coroutines.sync.Semaphore(1, 1)
-            it.getLimitOrder(orderId, height, deadline) {
-                status = it
-                semaphore.release()
-            }
-            semaphore.acquire()
-            return status
+    suspend fun getLimitOrderCoroutines(orderId: Long, height: Long? = null, deadline: Long? = null): LimitOrderRaw? {
+        minterCoroutinesHttpApi?.let {
+            return it.getLimitOrder(orderId, height, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getLimitOrder(orderId, height, deadline)
         }
     }
 
-    suspend fun getLimitOrdersOfPoolCoroutines(sellCoin: Long, buyCoin: Long, limit: Int?= null, height: Long?= null, deadline: Long? = null): List<LimitOrderRaw>? {
-        minterAsyncHttpApi?.let {
-            var status: List<LimitOrderRaw>?=null
-            val semaphore = kotlinx.coroutines.sync.Semaphore(1, 1)
-            it.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height, deadline) {
-                status = it
-                semaphore.release()
-            }
-            semaphore.acquire()
-            return status
+    suspend fun getLimitOrdersOfPoolCoroutines(sellCoin: Long, buyCoin: Long, limit: Int? = null, height: Long? = null, deadline: Long? = null): List<LimitOrderRaw>? {
+        minterCoroutinesHttpApi?.let {
+            return it.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getLimitOrdersOfPool(sellCoin, buyCoin, limit, height, deadline)
         }
@@ -271,15 +244,8 @@ class MinterApi(
     }
 
     suspend fun getEventCoroutines(height: Long, search: List<String>? = null, deadline: Long? = null): List<EventRaw>? {
-        minterAsyncHttpApi?.let {
-            var status: List<EventRaw>?=null
-            val semaphore = kotlinx.coroutines.sync.Semaphore(1, 1)
-            it.getEvents(height, search, deadline) {
-                status = it
-                semaphore.release()
-            }
-            semaphore.acquire()
-            return status
+        minterCoroutinesHttpApi?.let {
+            return it.getEvents(height, search, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getEvents(height, search, deadline)
         }

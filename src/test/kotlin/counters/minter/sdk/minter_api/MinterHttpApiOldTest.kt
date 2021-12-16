@@ -4,14 +4,19 @@ import counters.minter.sdk.minter.Enum.QueryTags
 import counters.minter.sdk.minter.Enum.TransactionTypes
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.Models.TransactionRaw
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
 
 internal class MinterHttpApiOldTest {
 
-    private val hostname = "localhost"
-    private val minterHttpApiOld = MinterHttpApiOld("http://$hostname:8843/v2", 300.0)
+//    private val hostname = "localhost"
+//    private val hostname = "xeon24.local"
+    private val hostname = "node.knife.io"
+
+
+    private val minterHttpApiOld = MinterHttpApiOld("http://$hostname:8843/v2", 60.0)
     private val _testAddress = "Mx0000000000000000000000000000000000000000"
 
 //    private var status: Minter.Status? = null
@@ -45,7 +50,7 @@ internal class MinterHttpApiOldTest {
     @Test
     fun getAddress(/*address: String? = null*/) {
 //        val testAddress = address ?: value4test.address
-        val address: String = if (value4test.address!=null ) value4test.address!! else this._getTransactionsRaw(TransactionTypes.TypeSend)!!.first().from
+        val address: String = if (value4test.address!=null ) value4test.address!! else this._getTransactionsRaw(TransactionTypes.TypeSetCandidateOnline)!!.first().from
         val result = minterHttpApiOld.getAddress(address)
         if (result != null) {
             assertEquals(address, result.address)
@@ -70,7 +75,7 @@ internal class MinterHttpApiOldTest {
     @Test
     fun getTransactionRaw(/*transaction: String? = null*/) {
 //        val hash = transaction ?: value4test.hash!!
-        val hash: String = if (value4test.hash!=null ) value4test.hash!! else this._getTransactionsRaw(TransactionTypes.TypeSend)!!.first().hash
+        val hash: String = if (value4test.hash!=null ) value4test.hash!! else this._getTransactionsRaw(TransactionTypes.TypeSetCandidateOffline)!!.first().hash
 
         minterHttpApiOld.getTransactionRaw(hash)?.let {
             if (it.hash == hash  ) assert(true)
@@ -81,7 +86,7 @@ internal class MinterHttpApiOldTest {
     }
 
 //    @Test
-    fun getTransactionsRaw(type: TransactionTypes?= null): MinterRaw.TransactionRaw? {
+    fun getTransactionsRaw(type: TransactionTypes?= null): TransactionRaw? {
         val transactionType = type ?: TransactionTypes.TypeSend
         val queryMap = mutableMapOf(
             QueryTags.TagsTxType to transactionType.toHex(),
@@ -98,7 +103,7 @@ internal class MinterHttpApiOldTest {
         }
         return null
     }
-    fun _getTransactionsRaw(type: TransactionTypes?= null): List<MinterRaw.TransactionRaw>? {
+    fun _getTransactionsRaw(type: TransactionTypes?= null): List<TransactionRaw>? {
         val transactionType = type ?: TransactionTypes.TypeSend
         val queryMap = mutableMapOf(
             QueryTags.TagsTxType to transactionType.toHex(),

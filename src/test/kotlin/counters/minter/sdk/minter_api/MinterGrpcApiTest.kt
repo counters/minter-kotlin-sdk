@@ -3,6 +3,8 @@ package counters.minter.sdk.minter_api
 import counters.minter.grpc.client.BlockResponse
 import counters.minter.grpc.client.StatusResponse
 import counters.minter.grpc.client.TransactionResponse
+import counters.minter.sdk.lib.LibTransactionTypes
+import counters.minter.sdk.minter.Enum.TransactionTypes
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import mu.KotlinLogging
@@ -13,7 +15,9 @@ import java.util.concurrent.Semaphore
 
 internal class MinterGrpcApiTest {
 
-    private val hostname = "localhost"
+//    private val hostname = "localhost"
+//    private val hostname = "xeon24.local"
+    private val hostname = "node.knife.io"
 
     private val grpcOptions = GrpcOptions(hostname = hostname, deadline = 1000)
 
@@ -107,6 +111,8 @@ internal class MinterGrpcApiTest {
         semaphore.acquire()
 //        logger.info { "transactionResponse $transactionResponse" }
         assertNotEquals(null, transactionResponse)
+
+//        LibTransactionTypes.mapTypeTrs[TransactionTypes.TypeSend]
     }
 
 }

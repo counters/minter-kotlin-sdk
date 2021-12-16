@@ -153,6 +153,7 @@ class Minter {
         val coin: CoinObj?,
         val type: Int,
         val amount: Double?,
+        val option: Any?,
         var role: Int?
     )
 }

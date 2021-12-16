@@ -6,7 +6,7 @@ data class HttpOptions(
     val hostname: String= "127.0.0.1",
     val port: Int?= 8843,
     val path: String="v2",
-    val timeout: Double?=null,
+    val timeout: Long?=null,
     val headers: Map<String, String>? = null
 ){
     init {

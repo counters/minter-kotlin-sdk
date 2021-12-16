@@ -6,6 +6,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.json.JSONObject
 
 open class KHttpApi(httpOptions: HttpOptions ) {
+/*
 
     private val logger = KotlinLogging.logger {}
     private val httpOptions: HttpOptions
@@ -17,7 +18,7 @@ open class KHttpApi(httpOptions: HttpOptions ) {
 
     init {
         this.httpOptions = httpOptions
-        httpOptions.timeout?.let { timeoutD = it }
+        httpOptions.timeout?.let { timeoutD = it.toDouble()/1000.0 }
         headers = httpOptions.headers
         nodeUrl = httpOptions.raw!!
     }
@@ -45,6 +46,7 @@ open class KHttpApi(httpOptions: HttpOptions ) {
         }) {
             if (this.statusCode!=200) {
                 error?.invoke(this.text)
+                result (null)
             } else {
                 result(this.text)
             }
@@ -129,5 +131,6 @@ open class KHttpApi(httpOptions: HttpOptions ) {
 //        println(r.jsonObject)
         return null
     }
+*/
 
 }

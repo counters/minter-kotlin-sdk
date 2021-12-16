@@ -56,8 +56,10 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         if (grpcOptions.deadline != null) stub = ApiServiceGrpcKt.ApiServiceCoroutineStub(channel!!)
 //            .withDeadlineAfter(grpcOptions.deadline!!, TimeUnit.MILLISECONDS) // TODO(Global Deadline?!)
         else stub = ApiServiceGrpcKt.ApiServiceCoroutineStub(channel!!)
+    }
 
-
+    fun shutdown(): Unit {
+        channel?.shutdown()
     }
 
     suspend fun getStatusGrpc(deadline: Long? = null): StatusResponse? {

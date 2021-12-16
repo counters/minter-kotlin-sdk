@@ -100,10 +100,9 @@ open class OkHttpApi(httpOptions: HttpOptions ) {
         val formBuilder = FormBody.Builder()
         params?.forEach { formBuilder.add(it.first, it.second) }
         requestBuilder.url(httpUrl).post(formBuilder.build())
-        logger.info { "request: ${requestBuilder.build()}" }
+//        logger.info { "request: ${requestBuilder.build()}" }
         asyncOkHttp(requestBuilder.build(), timeout, error, result)
     }
-
 
     private fun asyncOkHttp(
         request: Request,
@@ -121,6 +120,7 @@ open class OkHttpApi(httpOptions: HttpOptions ) {
                     if (response.isSuccessful) {
                         if(response.code != 200) {
                             error?.invoke(response.body!!.string())
+                            result(null)
                         } else {
                             result(it.body!!.string())
                         }
