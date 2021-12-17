@@ -270,8 +270,11 @@ class ConvertTransaction : MinterMatch() {
                 // TODO add DataRecreateCoin
             }
             TransactionTypes.RECREATE_TOKEN.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
-                TODO()
+                val data = transaction.data.unpack(RecreateTokenData::class.java)
+                coin = CoinObjClass.CoinObj(tags["tx.coin_id"]!!.toLong(), data.symbol)
+                optDouble = getAmount(data.initialAmount)
+                optString = data.initialAmount
+                // TODO add DataRecreateCoin
             }
             TransactionTypes.VOTE_COMMISSION.int -> {
                 //            val data = transaction.data.unpack(SendData::class.java)

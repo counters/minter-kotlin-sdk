@@ -480,6 +480,15 @@ class ParseTransaction {
                         getCoin(coin.id, coin.symbol)
                         optString = initialAmount
                         optDouble = minterMatch.getAmount(initialAmount)
+                        // TODO add DataRecreateCoin
+                    }  else if (type == TransactionTypes.RECREATE_TOKEN.int) {
+                        val initialAmount = data.getString("initial_amount")
+                        val coinId = tags!!.getLong("tx.coin_id")
+                        coin = CoinObjClass.CoinObj(coinId, data.getString("symbol"))
+                        getCoin(coin.id, coin.symbol)
+                        optString = initialAmount
+                        optDouble = minterMatch.getAmount(initialAmount)
+                        // TODO add DataRecreateCoin
                     } else if (1 == 2) {
                         val coin_to_sell = data.getJSONObject("coin_to_sell")
                         val coin_to_buy = data.getJSONObject("coin_to_buy")
