@@ -1,7 +1,9 @@
 package counters.minter.sdk.minter_api.parse
 
 import counters.minter.sdk.minter.*
+import counters.minter.sdk.minter.Enum.CommissionKey
 import counters.minter.sdk.minter.Enum.TransactionTypes
+import counters.minter.sdk.minter.Models.Commission
 import counters.minter.sdk.minter.Models.DataEditCandidate
 import counters.minter.sdk.minter.Models.TransactionRaw
 import counters.minter.sdk.minter_api.convert.ConvertMultisig
@@ -489,6 +491,19 @@ class ParseTransaction {
                         optString = initialAmount
                         optDouble = minterMatch.getAmount(initialAmount)
                         // TODO add DataRecreateCoin
+                    }   else if (type == TransactionTypes.VOTE_COMMISSION.int) {
+                        node = getNode(data.getString("pub_key"))
+                        val array = arrayListOf<Commission>()
+                        var successNum = 0
+                        CommissionKey.values().forEach {
+                            data.getString(it.key)?.let { value ->
+//                                if (successNum==44) return@forEach
+                                array.add(Commission(it, minterMatch.getAmount( value)))
+                                successNum++
+                            }
+                        }
+//                        println("$successNum ${CommissionKey.values().count()}")
+                        getData?.invoke(array, type)
                     } else if (1 == 2) {
                         val coin_to_sell = data.getJSONObject("coin_to_sell")
                         val coin_to_buy = data.getJSONObject("coin_to_buy")

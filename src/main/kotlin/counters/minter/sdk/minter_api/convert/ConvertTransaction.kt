@@ -1,10 +1,13 @@
 package counters.minter.sdk.minter_api.convert
 
 import com.google.common.io.BaseEncoding
+import com.google.protobuf.Descriptors
 import counters.minter.grpc.client.*
 import counters.minter.grpc.client.Coin
 import counters.minter.sdk.minter.*
+import counters.minter.sdk.minter.Enum.CommissionKey
 import counters.minter.sdk.minter.Enum.TransactionTypes
+import counters.minter.sdk.minter.Models.Commission
 import counters.minter.sdk.minter.Models.DataEditCandidate
 import counters.minter.sdk.minter.Models.TransactionRaw
 import mu.KotlinLogging
@@ -277,8 +280,20 @@ class ConvertTransaction : MinterMatch() {
                 // TODO add DataRecreateCoin
             }
             TransactionTypes.VOTE_COMMISSION.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
-                TODO()
+                val data = transaction.data.unpack(VoteCommissionData::class.java)
+                node = data.pubKey
+                val commissionKey = CommissionKey
+                val array = arrayListOf<Commission>()
+                var successNum = 0
+                data.allFields.forEach { field ->
+                    val key = field.key.toString().split(".").last()
+                    commissionKey.fromStr(key)?.let {
+                        array.add(Commission(it, getAmount( field.value.toString())))
+                        successNum++
+                    }
+                }
+//                println("$successNum ${CommissionKey.values().count()}")
+                optList = array
             }
             TransactionTypes.VOTE_UPDATE.int -> {
                 //            val data = transaction.data.unpack(SendData::class.java)

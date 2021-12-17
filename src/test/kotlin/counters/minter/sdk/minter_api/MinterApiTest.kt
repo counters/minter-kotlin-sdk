@@ -2,6 +2,9 @@ package counters.minter.sdk.minter_api
 
 import counters.minter.sdk.lib.LibTransactionTypes
 import counters.minter.sdk.minter.Enum.TransactionTypes
+import counters.minter.sdk.minter.Models.Commission
+import counters.minter.sdk.minter.Models.TransactionRaw
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
@@ -66,8 +69,8 @@ internal class MinterApiTest {
     }
 
     @Test
-    fun getTransaction() {
-        val type = TransactionTypes.CREATE_TOKEN
+    fun getOneTypeTransaction() {
+        val type = TransactionTypes.VOTE_COMMISSION
         LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
             val index = Random.nextInt(1, count).dec()
 //            LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {
@@ -78,7 +81,11 @@ internal class MinterApiTest {
                 val actual = minterGrpcApi.getTransaction(it)
                 println(actual)
                 assertNotEquals(null, actual)
-                assertEquals(expected, actual)
+                if (type == TransactionTypes.VOTE_COMMISSION) {
+                    assertVOTE_COMMISSION(expected, actual)
+                } else {
+                    assertEquals(expected, actual)
+                }
                 return
             }
         }
@@ -86,7 +93,7 @@ internal class MinterApiTest {
     }
 
     @Test
-    fun getTransactionCoroutines() {
+    fun getAllTypesTransactionCoroutines() {
         runBlocking {
 //        val type = TransactionTypes.TypeSend
             TransactionTypes.values().forEach { type ->
@@ -96,8 +103,11 @@ internal class MinterApiTest {
                     val expected = async { minterHttpApi.getTransactionCoroutines(it) }
                     val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
                     expected.await()?.let {
-                        //           println(it)
-                        assertEquals(it, actual.await())
+                        if (type == TransactionTypes.VOTE_COMMISSION) {
+                            assertVOTE_COMMISSION(it, actual.await())
+                        } else {
+                            assertEquals(it, actual.await())
+                        }
                     } ?: run {
                         assertEquals(null, actual.await())
                     }
@@ -118,12 +128,30 @@ internal class MinterApiTest {
                     val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
 //                    val actualValue = actual.await()
                     assertNotEquals(null, actual.await())
-                    assertEquals(expected.await(), actual.await())
+                    if (type == TransactionTypes.VOTE_COMMISSION) {
+                        assertVOTE_COMMISSION(expected.await(), actual.await())
+                    } else {
+                        assertEquals(expected.await(), actual.await())
+                    }
                     return@runBlocking
                 }
             }
             assert(false)
         }
+    }
+
+    private fun assertVOTE_COMMISSION(expected: TransactionRaw?, actual: TransactionRaw?) {
+        actual?.let {
+            (it.optData as List<Commission>).forEach { commision ->
+                val expectedValue = (expected?.optData as List<Commission>).firstOrNull { it.key == commision.key }
+                if (expectedValue != null) {
+                    assertEquals(expectedValue.value, commision.value, 0.00000000000001)
+                } else {
+                    assert(false)
+                }
+            }
+        } ?: run { assert(false) }
+        assertEquals(expected?.copy(optData = null), actual?.copy(optData = null))
     }
 
     @Test
