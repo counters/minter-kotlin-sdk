@@ -70,7 +70,7 @@ internal class MinterApiTest {
 
     @Test
     fun getOneTypeTransaction() {
-        val type = TransactionTypes.VOTE_COMMISSION
+        val type = TransactionTypes.CREATE_SWAP_POOL
         LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
             val index = Random.nextInt(1, count).dec()
 //            LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {

@@ -307,7 +307,23 @@ class ConvertTransaction : MinterMatch() {
                 optString = data.version
             }
             TransactionTypes.CREATE_SWAP_POOL.int -> {
-                TODO()
+                val data = transaction.data.unpack(CreateSwapPoolData::class.java)
+                coin = CoinObjClass.CoinObj(data.coin0.id, data.coin0.symbol)
+                coin2 = CoinObjClass.CoinObj(data.coin1.id, data.coin1.symbol)
+                stake = data.volume0
+                amount = getAmount(stake)
+                optDouble = getAmount(data.volume1)
+                val token =  CoinObjClass.CoinObj(tags["tx.pool_token_id"]!!.toLong(), tags["tx.pool_token"])
+                optList = MinterRaw.PoolRaw(
+                    tags["tx.pool_id"]!!.toInt(),
+                    coin,
+                    coin2,
+                    amount,
+                    optDouble,
+                    getAmount(tags["tx.liquidity"]!!),
+                    token,
+                )
+
             }
             TransactionTypes.ADD_LIMIT_ORDER.int -> {
                 val data = transaction.data.unpack(AddLimitOrderData::class.java)

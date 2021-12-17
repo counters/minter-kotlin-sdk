@@ -515,21 +515,20 @@ class ParseTransaction {
                         node = getNode(data.getString("pub_key"))
                         optString = data.getString("version")
                         optDouble = data.getDouble("height")
-                    } else if (1 == 2) {
-                        val coin_to_sell = data.getJSONObject("coin_to_sell")
-                        val coin_to_buy = data.getJSONObject("coin_to_buy")
-                        coin = CoinObjClass.CoinObj(
-                            coin_to_sell.getString("id").toLong(),
-                            coin_to_sell.getString("symbol")
-                        )
-                        coin2 =
-                            CoinObjClass.CoinObj(coin_to_buy.getString("id").toLong(), coin_to_buy.getString("symbol"))
-                        this.getCoin(coin.id, coin.symbol, getCoin)
-                        this.getCoin(coin2.id, coin2.symbol, getCoin2)
-                        stake = tags!!.getString("tx.sell_amount")
-                        amount = minterMatch.getAmount(stake)
-                        optDouble = minterMatch.getAmount(tags.getString("tx.return"))
-                        /*tags	tx.sell_amount*/
+                    } else if (type == TransactionTypes.CREATE_SWAP_POOL.int) {
+                        val parsePool = ParsePool()
+                        stake = data.getString("volume0")
+                        parsePool.getRaw(result)?.let { swapPool->
+                            coin = swapPool.coin0
+                            coin2 = swapPool.coin1
+                            getCoin(coin!!.id, coin!!.symbol)
+                            getCoin2(coin2!!.id, coin2!!.symbol)
+                            amount = swapPool.volume0
+                            optDouble = swapPool.volume1
+                            getData?.invoke(swapPool, type)
+                        } ?: run {
+                            throw Exception("parsePool.getRaw($result)")
+                        }
 
                     } else {
                         throw Exception("unknown transaction type: $type")
@@ -548,10 +547,10 @@ class ParseTransaction {
 //                        println("height $height hash $hash result $result data $data")
                         val _coin = data.getJSONObject("coin")
                         coin = CoinObjClass.CoinObj(_coin.getString("id").toLong(), _coin.getString("symbol"))
-                        if (coin.symbol == Conf.defaultCoin) {
-                            getCoin(coin.id, coin.symbol)
+                        if (coin!!.symbol == Conf.defaultCoin) {
+                            getCoin(coin!!.id, coin!!.symbol)
                         } else {
-                            this.getCoin(coin.id, coin.symbol, getCoin)
+                            this.getCoin(coin!!.id, coin!!.symbol, getCoin)
                         }
                     }
                 }
