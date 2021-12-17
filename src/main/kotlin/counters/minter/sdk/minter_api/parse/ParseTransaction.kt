@@ -493,6 +493,13 @@ class ParseTransaction {
                         // TODO add DataRecreateCoin
                     }   else if (type == TransactionTypes.VOTE_COMMISSION.int) {
                         node = getNode(data.getString("pub_key"))
+                        coin = CoinObjClass.fromJson(data.getJSONObject("coin"))
+                        val dataHeight = data.getString("height")
+                        optString = dataHeight
+                        optDouble = dataHeight.toDouble()
+                        stake = "0"
+                        amount = 0.0
+
                         val array = arrayListOf<Commission>()
                         var successNum = 0
                         CommissionKey.values().forEach {

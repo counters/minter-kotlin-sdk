@@ -282,6 +282,11 @@ class ConvertTransaction : MinterMatch() {
             TransactionTypes.VOTE_COMMISSION.int -> {
                 val data = transaction.data.unpack(VoteCommissionData::class.java)
                 node = data.pubKey
+                coin = CoinObjClass.CoinObj(data.coin.id, data.coin.symbol)
+                stake = "0"
+                optDouble = data.height.toDouble()
+                optString = data.height.toString()
+
                 val commissionKey = CommissionKey
                 val array = arrayListOf<Commission>()
                 var successNum = 0
