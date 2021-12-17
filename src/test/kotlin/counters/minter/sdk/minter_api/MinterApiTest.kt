@@ -2,28 +2,17 @@ package counters.minter.sdk.minter_api
 
 import counters.minter.sdk.lib.LibTransactionTypes
 import counters.minter.sdk.minter.Enum.TransactionTypes
-import counters.minter.sdk.minter_api.grpc.GrpcOptions
-import counters.minter.sdk.minter_api.http.HttpOptions
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-
 import org.junit.jupiter.api.Assertions.*
 import kotlin.random.Random
 
 internal class MinterApiTest {
 
-    private val hostname = "node.knife.io"
-
-    //    private val hostname = "node-api.testnet.minter.network"
-//    private val hostname = "node-api.taconet.minter.network"
-    private val httpOptions = HttpOptions(raw = "http://$hostname:8843/v2", timeout = 60000)
-    private val grpcOptions = GrpcOptions(hostname = hostname, deadline = 1000)
-
-    //    private val minterApi = MinterApi(grpcOptions, httpOptions)
-    private val minterHttpApi = MinterApi(null, httpOptions)
-    private val minterGrpcApi = MinterApi(grpcOptions, null)
+    private val minterHttpApi = MinterApi(null, Config.httpOptions)
+    private val minterGrpcApi = MinterApi(Config.grpcOptions, null)
 
     @AfterEach
     internal fun tearDown() {
@@ -34,7 +23,6 @@ internal class MinterApiTest {
     fun getStatus() {
         minterHttpApi.getStatus()?.let { status ->
             minterGrpcApi.getStatus()?.let {
-//                assert(false)
                 assertEquals(status, it)
                 return
             } ?: run {

@@ -15,11 +15,7 @@ import java.util.concurrent.Semaphore
 
 internal class MinterGrpcApiTest {
 
-//    private val hostname = "localhost"
-//    private val hostname = "xeon24.local"
-    private val hostname = "node.knife.io"
-
-    private val grpcOptions = GrpcOptions(hostname = hostname, deadline = 1000)
+    private val grpcOptions = Config.grpcOptions
 
     private val logger = KotlinLogging.logger {}
 

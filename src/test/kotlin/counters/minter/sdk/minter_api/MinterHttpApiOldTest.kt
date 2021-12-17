@@ -3,7 +3,6 @@ package counters.minter.sdk.minter_api
 import counters.minter.sdk.minter.Enum.QueryTags
 import counters.minter.sdk.minter.Enum.TransactionTypes
 import counters.minter.sdk.minter.Minter
-import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter.Models.TransactionRaw
 import org.junit.jupiter.api.Test
 
@@ -11,16 +10,10 @@ import org.junit.jupiter.api.Assertions.*
 
 internal class MinterHttpApiOldTest {
 
-//    private val hostname = "localhost"
-//    private val hostname = "xeon24.local"
-    private val hostname = "node.knife.io"
+    private val httpOptions = Config.httpOptions
 
-
-    private val minterHttpApiOld = MinterHttpApiOld("http://$hostname:8843/v2", 60.0)
+    private val minterHttpApiOld = MinterHttpApiOld(httpOptions.raw!!, 60.0)
     private val _testAddress = "Mx0000000000000000000000000000000000000000"
-
-//    private var status: Minter.Status? = null
-//    private var address: String? = null
 
     data class Value4test(
         var init: Boolean = false,
@@ -31,11 +24,6 @@ internal class MinterHttpApiOldTest {
     )
     private val value4test = Value4test()
 
-    init {
-//        if (!value4test.init) loadValuesForMethod()
-
-
-    }
 
     private fun loadValuesForMethod(httpMethod: HttpMethod? = null){
         val method = if (httpMethod==null) HttpMethod.values() else arrayOf(httpMethod)
@@ -103,6 +91,7 @@ internal class MinterHttpApiOldTest {
         }
         return null
     }
+
     fun _getTransactionsRaw(type: TransactionTypes?= null): List<TransactionRaw>? {
         val transactionType = type ?: TransactionTypes.TypeSend
         val queryMap = mutableMapOf(
