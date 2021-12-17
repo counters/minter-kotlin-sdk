@@ -452,7 +452,7 @@ class ParseTransaction {
                         amount = minterMatch.getAmount(stake)
                         optDouble = minterMatch.getAmount(tags.getString("tx.volume1"))
 // TODO add DataAddLiquidity
-                    }  else if (type == TransactionTypes.REMOVE_LIQUIDITY.int) {
+                    } else if (type == TransactionTypes.REMOVE_LIQUIDITY.int) {
                         coin = CoinObjClass.fromJson(data.getJSONObject("coin0"))
                         coin2 = CoinObjClass.fromJson(data.getJSONObject("coin1"))
                         getCoin(coin!!.id, coin!!.symbol)
@@ -464,14 +464,14 @@ class ParseTransaction {
 // TODO add DataAddLiquidity
                     } else if (type == TransactionTypes.EDIT_CANDIDATE_COMMISSION.int) {
                         node = getNode(data.getString("pub_key"))
-                        val data_commission =data.getString("commission")
-                        optString =  data_commission
+                        val data_commission = data.getString("commission")
+                        optString = data_commission
                         optDouble = data_commission.toDouble()
-                    }  else if (type == TransactionTypes.MINT_TOKEN.int) {
+                    } else if (type == TransactionTypes.MINT_TOKEN.int) {
                         coin = CoinObjClass.fromJson(data.getJSONObject("coin"))
                         stake = data.getString("value")
                         amount = minterMatch.getAmount(stake)
-                    }  else if (type == TransactionTypes.BURN_TOKEN.int) {
+                    } else if (type == TransactionTypes.BURN_TOKEN.int) {
                         coin = CoinObjClass.fromJson(data.getJSONObject("coin"))
                         stake = data.getString("value")
                         amount = minterMatch.getAmount(stake)
@@ -483,7 +483,7 @@ class ParseTransaction {
                         optString = initialAmount
                         optDouble = minterMatch.getAmount(initialAmount)
                         // TODO add DataRecreateCoin
-                    }  else if (type == TransactionTypes.RECREATE_TOKEN.int) {
+                    } else if (type == TransactionTypes.RECREATE_TOKEN.int) {
                         val initialAmount = data.getString("initial_amount")
                         val coinId = tags!!.getLong("tx.coin_id")
                         coin = CoinObjClass.CoinObj(coinId, data.getString("symbol"))
@@ -491,26 +491,30 @@ class ParseTransaction {
                         optString = initialAmount
                         optDouble = minterMatch.getAmount(initialAmount)
                         // TODO add DataRecreateCoin
-                    }   else if (type == TransactionTypes.VOTE_COMMISSION.int) {
+                    } else if (type == TransactionTypes.VOTE_COMMISSION.int) {
                         node = getNode(data.getString("pub_key"))
-                        coin = CoinObjClass.fromJson(data.getJSONObject("coin"))
+//                        coin = CoinObjClass.fromJson(data.getJSONObject("coin"))
                         val dataHeight = data.getString("height")
                         optString = dataHeight
                         optDouble = dataHeight.toDouble()
-                        stake = "0"
-                        amount = 0.0
+//                        stake = "0"
+//                        amount = 0.0
 
                         val array = arrayListOf<Commission>()
                         var successNum = 0
                         CommissionKey.values().forEach {
                             data.getString(it.key)?.let { value ->
 //                                if (successNum==44) return@forEach
-                                array.add(Commission(it, minterMatch.getAmount( value)))
+                                array.add(Commission(it, minterMatch.getAmount(value)))
                                 successNum++
                             }
                         }
 //                        println("$successNum ${CommissionKey.values().count()}")
                         getData?.invoke(array, type)
+                    } else if (type == TransactionTypes.VOTE_UPDATE.int) {
+                        node = getNode(data.getString("pub_key"))
+                        optString = data.getString("version")
+                        optDouble = data.getDouble("height")
                     } else if (1 == 2) {
                         val coin_to_sell = data.getJSONObject("coin_to_sell")
                         val coin_to_buy = data.getJSONObject("coin_to_buy")

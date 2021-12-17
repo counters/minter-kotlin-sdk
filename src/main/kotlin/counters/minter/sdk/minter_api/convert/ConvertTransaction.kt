@@ -282,8 +282,8 @@ class ConvertTransaction : MinterMatch() {
             TransactionTypes.VOTE_COMMISSION.int -> {
                 val data = transaction.data.unpack(VoteCommissionData::class.java)
                 node = data.pubKey
-                coin = CoinObjClass.CoinObj(data.coin.id, data.coin.symbol)
-                stake = "0"
+//                coin = CoinObjClass.CoinObj(data.coin.id, data.coin.symbol)
+//                stake = "0"
                 optDouble = data.height.toDouble()
                 optString = data.height.toString()
 
@@ -293,7 +293,7 @@ class ConvertTransaction : MinterMatch() {
                 data.allFields.forEach { field ->
                     val key = field.key.toString().split(".").last()
                     commissionKey.fromStr(key)?.let {
-                        array.add(Commission(it, getAmount( field.value.toString())))
+                        array.add(Commission(it, getAmount(field.value.toString())))
                         successNum++
                     }
                 }
@@ -301,8 +301,10 @@ class ConvertTransaction : MinterMatch() {
                 optList = array
             }
             TransactionTypes.VOTE_UPDATE.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
-                TODO()
+                val data = transaction.data.unpack(VoteUpdateData::class.java)
+                node = data.pubKey
+                optDouble = data.height.toDouble()
+                optString = data.version
             }
             TransactionTypes.CREATE_SWAP_POOL.int -> {
                 TODO()
