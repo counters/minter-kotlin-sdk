@@ -5,48 +5,16 @@ import counters.minter.grpc.client.*
 import counters.minter.grpc.client.Coin
 import counters.minter.sdk.minter.*
 import counters.minter.sdk.minter.Enum.TransactionTypes
+import counters.minter.sdk.minter.Models.DataEditCandidate
 import counters.minter.sdk.minter.Models.TransactionRaw
 import mu.KotlinLogging
 
-/*TypeSend(1),
-TypeSellCoin(2),
-TypeSellAllCoin(3),
-TypeBuyCoin(4),
-TypeCreateCoin(5),
-TypeDeclareCandidacy(6),
-TypeDelegate(7),
-TypeUnbond(8),
-TypeRedeemCheck(9),
-TypeSetCandidateOnline(10),
-TypeSetCandidateOffline(11),
-TypeCreateMultisig(12),
-TypeMultiSend(13),
-TypeEditCandidate(14),
-TypeSetHaltBlock(15),
-TypeRecreateCoin(16),
-TypeEditCoinOwner(17),
-TypeEditMultisig(18),
-TypePriceVote(19),
-TypeEditCandidatePublicKey(20),
-ADD_LIQUIDITY(21),
-REMOVE_LIQUIDITY(22),
-SELL_SWAP_POOL(23),
-BUY_SWAP_POOL(24),
-SELL_ALL_SWAP_POOL(25),
-EDIT_CANDIDATE_COMMISSION(26),
-MOVE_STAKE(27),
-MINT_TOKEN(28),
-BURN_TOKEN(29),
-CREATE_TOKEN(30),
-RECREATE_TOKEN(31),
-VOTE_COMMISSION(32),
-VOTE_UPDATE(33),
-CREATE_SWAP_POOL(34),*/
-class ConvertTransaction: MinterMatch() {
+class ConvertTransaction : MinterMatch() {
     private var minterMatch = MinterMatch()
     private val logger = KotlinLogging.logger {}
     private var multiSendAdv = MultiSendAdv()
     private val convertTxPools = ConvertTxPools
+    private val convertMultisig = ConvertMultisig
 
     fun get(transaction: TransactionResponse): TransactionRaw {
         val type = transaction.type.toInt()
@@ -63,7 +31,7 @@ class ConvertTransaction: MinterMatch() {
         var optList: Any? = null
         val tags = transaction.tagsMap
 
-        val from = transaction.from
+        var from = transaction.from
 
         when (type) {
             TransactionTypes.TypeSend.int -> {
@@ -95,9 +63,15 @@ class ConvertTransaction: MinterMatch() {
             }
             TransactionTypes.TypeCreateCoin.int -> {
                 val data = transaction.data.unpack(CreateCoinData::class.java)
+                stake = data.initialAmount
+                optDouble = getAmount(data.initialReserve)
+                coin = CoinObjClass.CoinObj(tags["tx.coin_id"]!!.toLong(), tags["tx.coin_symbol"])
             }
             TransactionTypes.TypeDeclareCandidacy.int -> {
                 val data = transaction.data.unpack(DeclareCandidacyData::class.java)
+                stake = data.stake
+                node = data.pubKey
+                coin = CoinObjClass.CoinObj(data.coin.id, data.coin.symbol)
             }
             TransactionTypes.TypeDelegate.int -> {
                 val data = transaction.data.unpack(DelegateData::class.java)
@@ -113,16 +87,29 @@ class ConvertTransaction: MinterMatch() {
 
             }
             TransactionTypes.TypeRedeemCheck.int -> {
-//                val data = transaction.data.unpack(SendData::class.java)
+//                val data = transaction.data.unpack(RedeemCheckData::class.java)
+//                val byteArrayCheck = Base64.getDecoder().decode(data.rawCheck) //TODO(decode amount and coin)
+//                println(byteArrayCheck.toString() )
+                to = "Mx" + tags["tx.to"]
+                from = "Mx" + tags["tx.from"]
             }
             TransactionTypes.TypeSetCandidateOnline.int -> {
-//                val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(SetCandidateOnData::class.java)
+                node = data.pubKey
+
             }
             TransactionTypes.TypeSetCandidateOffline.int -> {
-//                val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(SetCandidateOffData::class.java)
+                node = data.pubKey
             }
             TransactionTypes.TypeCreateMultisig.int -> {
-//                val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(CreateMultisigData::class.java)
+                val created_multisig = tags["tx.created_multisig"]!!
+                optList = convertMultisig.get(data.addressesList, data.weightsList, data.threshold, created_multisig)
+            }
+            TransactionTypes.TypeEditMultisig.int -> {
+                val data = transaction.data.unpack(EditMultisigData::class.java)
+                optList = convertMultisig.get(data.addressesList, data.weightsList, data.threshold, from)
             }
             TransactionTypes.TypeMultiSend.int -> {
                 val data = transaction.data.unpack(MultiSendData::class.java)
@@ -134,33 +121,60 @@ class ConvertTransaction: MinterMatch() {
                 amount = multiSendAdvObj.amount
 
             }
-
             TransactionTypes.TypeEditCandidate.int -> {
-//                val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(EditCandidateData::class.java)
+                node = data.pubKey
+//                to = data.ownerAddress
+                optList = DataEditCandidate(
+                    pub_key = data.pubKey,
+                    reward_address = data.rewardAddress,
+                    owner_address = data.ownerAddress,
+                    control_address = data.controlAddress,
+                )
             }
             TransactionTypes.TypeSetHaltBlock.int -> {
-//                val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(SetHaltBlockData::class.java)
+                node = data.pubKey
+                optList = data.height
             }
             TransactionTypes.TypeRecreateCoin.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(RecreateCoinData::class.java)
+                coin = CoinObjClass.CoinObj(tags["tx.coin_id"]!!.toLong(), data.symbol)
+                coin2 = CoinObjClass.CoinObj(tags["tx.old_coin_id"]!!.toLong(), tags["tx.old_coin_symbol"])
+                optDouble = getAmount(data.initialReserve)
+                // TODO add DataRecreateCoin
             }
             TransactionTypes.TypeEditCoinOwner.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
-            }
-            TransactionTypes.TypeEditMultisig.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(EditCoinOwnerData::class.java)
+                to = data.newOwner
+                coin = CoinObjClass.CoinObj(tags["tx.coin_id"]!!.toLong(), data.symbol)
             }
             TransactionTypes.TypePriceVote.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
+                TODO()
             }
             TransactionTypes.TypeEditCandidatePublicKey.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(EditCandidatePublicKeyData::class.java)
+//                "pub_key": "Mp5919a1946dc2c91886ad09deff5ec073fd81b322e0e0d7ad0349315c66d6c8fd",
+//                "new_pub_key": "Mp32b95bac78d18d840783dd119a2e830f0e9374507eaee49a1056435ebc75decc"
+                node = data.pubKey
+                optString = data.newPubKey
+
             }
             TransactionTypes.ADD_LIQUIDITY.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(AddLiquidityData::class.java)
+                coin = CoinObjClass.CoinObj(data.coin0.id, data.coin0.symbol)
+                coin2 = CoinObjClass.CoinObj(data.coin1.id, data.coin1.symbol)
+                stake = data.volume0
+                optDouble = getAmount(tags["tx.volume1"]!!)
+                // TODO add DataAddLiquidity
             }
             TransactionTypes.REMOVE_LIQUIDITY.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(RemoveLiquidityData::class.java)
+                coin = CoinObjClass.CoinObj(data.coin0.id, data.coin0.symbol)
+                coin2 = CoinObjClass.CoinObj(data.coin1.id, data.coin1.symbol)
+                stake = tags["tx.volume0"]
+                optDouble = getAmount(tags["tx.volume1"]!!)
+                // TODO add DataAddLiquidity
             }
             TransactionTypes.SELL_SWAP_POOL.int -> {
                 val data = transaction.data.unpack(SellSwapPoolData::class.java)
@@ -228,31 +242,47 @@ class ConvertTransaction: MinterMatch() {
                 }
             }
             TransactionTypes.EDIT_CANDIDATE_COMMISSION.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(EditCandidateCommission::class.java)
+                node = data.pubKey
+                val data_commission = data.commission
+                optString = data_commission.toString()
+                optDouble = data_commission.toDouble()
             }
             TransactionTypes.MOVE_STAKE.int -> {
                 //            val data = transaction.data.unpack(SendData::class.java)
+                TODO()
             }
             TransactionTypes.MINT_TOKEN.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(MintTokenData::class.java)
+                coin = CoinObjClass.CoinObj(data.coin.id, data.coin.symbol)
+                stake = data.value
             }
             TransactionTypes.BURN_TOKEN.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(BurnTokenData::class.java)
+                coin = CoinObjClass.CoinObj(data.coin.id, data.coin.symbol)
+                stake = data.value
             }
             TransactionTypes.CREATE_TOKEN.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
+                val data = transaction.data.unpack(CreateTokenData::class.java)
+                coin = CoinObjClass.CoinObj(tags["tx.coin_id"]!!.toLong(), data.symbol)
+                optDouble = getAmount(data.initialAmount)
+                optString = data.initialAmount
+                // TODO add DataRecreateCoin
             }
             TransactionTypes.RECREATE_TOKEN.int -> {
                 //            val data = transaction.data.unpack(SendData::class.java)
+                TODO()
             }
             TransactionTypes.VOTE_COMMISSION.int -> {
                 //            val data = transaction.data.unpack(SendData::class.java)
+                TODO()
             }
             TransactionTypes.VOTE_UPDATE.int -> {
                 //            val data = transaction.data.unpack(SendData::class.java)
+                TODO()
             }
             TransactionTypes.CREATE_SWAP_POOL.int -> {
-
+                TODO()
             }
             TransactionTypes.ADD_LIMIT_ORDER.int -> {
                 val data = transaction.data.unpack(AddLimitOrderData::class.java)
@@ -275,7 +305,7 @@ class ConvertTransaction: MinterMatch() {
                 )
             }
             TransactionTypes.REMOVE_LIMIT_ORDER.int -> {
-
+                TODO()
             }
             else -> {
                 throw Exception("unknown transaction type: $type")

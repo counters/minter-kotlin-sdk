@@ -14,8 +14,12 @@ import kotlin.random.Random
 
 internal class MinterApiTest {
 
-    private val httpOptions = HttpOptions(raw = "http://node.knife.io:8843/v2", timeout = 60000)
-    private val grpcOptions = GrpcOptions(hostname = "node.knife.io", deadline = 1000)
+    private val hostname = "node.knife.io"
+
+    //    private val hostname = "node-api.testnet.minter.network"
+//    private val hostname = "node-api.taconet.minter.network"
+    private val httpOptions = HttpOptions(raw = "http://$hostname:8843/v2", timeout = 60000)
+    private val grpcOptions = GrpcOptions(hostname = hostname, deadline = 1000)
 
     //    private val minterApi = MinterApi(grpcOptions, httpOptions)
     private val minterHttpApi = MinterApi(null, httpOptions)
@@ -75,12 +79,16 @@ internal class MinterApiTest {
 
     @Test
     fun getTransaction() {
-        val type = TransactionTypes.TypeSend
+        val type = TransactionTypes.CREATE_TOKEN
         LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
             val index = Random.nextInt(1, count).dec()
-            LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {
+//            LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {
+            LibTransactionTypes.mapTypeTrs[type]?.first()?.let {
+//            "Mt8ec2d8b3bae4be125c8b4fd412f6733a094eea7bd08f7affcec09ecf145d34c7".let {
+                println(it)
                 val expected = minterHttpApi.getTransaction(it)
                 val actual = minterGrpcApi.getTransaction(it)
+                println(actual)
                 assertNotEquals(null, actual)
                 assertEquals(expected, actual)
                 return
@@ -89,8 +97,8 @@ internal class MinterApiTest {
         assert(false)
     }
 
-    //    @Test
-    fun getTransaction2() {
+    @Test
+    fun getTransactionCoroutines() {
         runBlocking {
 //        val type = TransactionTypes.TypeSend
             TransactionTypes.values().forEach { type ->
@@ -112,7 +120,7 @@ internal class MinterApiTest {
     }
 
     @Test
-    fun getTransactionCoroutines() {
+    fun getTransactionCoroutines2() {
         runBlocking {
             val type = TransactionTypes.TypeSend
             LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
