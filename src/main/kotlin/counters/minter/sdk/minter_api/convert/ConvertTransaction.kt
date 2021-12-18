@@ -346,7 +346,10 @@ class ConvertTransaction : MinterMatch() {
                 )
             }
             TransactionTypes.REMOVE_LIMIT_ORDER.int -> {
-                TODO()
+                val data = transaction.data.unpack(RemoveLimitOrderData::class.java)
+                optString = data.id.toString()
+                optDouble = data.id.toDouble()
+                optList = data.id
             }
             else -> {
                 throw Exception("unknown transaction type: $type")
@@ -402,6 +405,7 @@ class ConvertTransaction : MinterMatch() {
             optString = optString,
             optData = optList,
             base64Payload = base64Payload,
+            code = transaction.code.toInt()
         )
     }
 

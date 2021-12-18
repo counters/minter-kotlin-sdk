@@ -39,7 +39,7 @@ class ParseTransaction {
 
         val transaction = get(result, height,
             { idCoin, symbolCoin ->
-                val coinId = if (idCoin == null) -1L else idCoin
+                val coinId = idCoin ?: -1L
                 coin = CoinObjClass.CoinObj(coinId, symbolCoin)
                 coin!! // Coin
             }, { idCoin, symbolCoin ->
@@ -105,7 +105,8 @@ class ParseTransaction {
                 transaction.optDouble,
                 transaction.optString,
                 optList,
-                payloadByte
+                payloadByte,
+                transaction.code
             )
             return transactionRaw
         }
@@ -146,6 +147,8 @@ class ParseTransaction {
                 val hash = result.getString("hash")
 
                 val fromStr = result.getString("from")
+
+                val code = result.getInt("code")
 //            val from: Long
                 val from = if (type == counters.minter.sdk.minter.TransactionTypes.TypeRedeemCheck) {
                     val fromStrRedeemCheck = "Mx" + result.getJSONObject("tags").getString("tx.from")
@@ -518,7 +521,7 @@ class ParseTransaction {
                     } else if (type == TransactionTypes.CREATE_SWAP_POOL.int) {
                         val parsePool = ParsePool()
                         stake = data.getString("volume0")
-                        parsePool.getRaw(result)?.let { swapPool->
+                        parsePool.getRaw(result)?.let { swapPool ->
                             coin = swapPool.coin0
                             coin2 = swapPool.coin1
                             getCoin(coin!!.id, coin!!.symbol)
@@ -529,7 +532,11 @@ class ParseTransaction {
                         } ?: run {
                             throw Exception("parsePool.getRaw($result)")
                         }
-
+                    } else if (type == TransactionTypes.REMOVE_LIMIT_ORDER.int) {
+                        val orderId = data.getString("id")
+                        optString = orderId
+                        optDouble = orderId.toDouble()
+                        getData?.invoke(orderId.toLong(), type)
                     } else {
                         throw Exception("unknown transaction type: $type")
                     }
@@ -555,7 +562,6 @@ class ParseTransaction {
                     }
                 }
                 getOther.invoke(result, type)
-
 //                val commissionCoinId: Long = -1
 //        println("type $type gas_price $gas_price gas $gas gas_coin $gas_coin from $from        ")
                 transaction = Minter.Transaction(
@@ -577,7 +583,8 @@ class ParseTransaction {
                     gas,
                     gas_coin,
                     optDouble,
-                    optString
+                    optString,
+                    code
                 )
             }
         }
