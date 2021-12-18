@@ -1,15 +1,16 @@
 package counters.minter.sdk.minter_api
 
+import Config
 import counters.minter.sdk.lib.LibTransactionTypes
 import counters.minter.sdk.minter.Enum.TransactionTypes
 import counters.minter.sdk.minter.Models.Commission
 import counters.minter.sdk.minter.Models.TransactionRaw
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.*
 import kotlin.random.Random
 
 internal class MinterApiTest {
