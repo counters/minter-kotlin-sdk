@@ -29,13 +29,14 @@ class ConvertBlock {
             height = response.height,
             time = datetime,
             num_txs = response.transactionsCount,
-            total_txs = -1,
+//            total_txs = -1,
             reward = minterMatch.getAmount(response.blockReward),
             size = response.size,
             proposer = response.proposer,
             transaction = transaction,
             validators = validators,
-            transaction_json = null,
+//            transaction_json = null,
+//        code = response.
         )
     }
 

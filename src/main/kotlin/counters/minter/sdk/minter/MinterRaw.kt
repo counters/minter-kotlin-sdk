@@ -75,15 +75,15 @@ class MinterRaw {
         val height: Long?,
         val time: DateTime,
         val num_txs: Int,
-        @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
-        val total_txs: Int,
+//        @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
+//        val total_txs: Int,
         var reward: Double,
         var size: Long,
         var proposer: String,
         var transaction: List<TransactionRaw>,
         var validators: List<SignedValidatorsRaw>,
-        @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
-        var transaction_json: List<JSONObject>?
+//        @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
+//        var transaction_json: List<JSONObject>?
     )
 
     data class EventRaw(

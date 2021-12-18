@@ -199,7 +199,7 @@ class MinterHttpApiOld(
     }
 
 
-    fun getBlockRawOld(height: Long): MinterRaw.BlockRaw? {
+/*    fun getBlockRawOld(height: Long): MinterRaw.BlockRaw? {
         var proposer: String = ""
         val transaction = ArrayList<TransactionRaw>()
 //        val validators = ArrayList<MinterRaw.SignedValidatorsRaw>()
@@ -234,7 +234,7 @@ class MinterHttpApiOld(
                 height,
                 block.time,
                 block.num_txs,
-                block.total_txs,
+//                block.total_txs,
                 block.reward,
                 block.size,
                 proposer,
@@ -246,7 +246,7 @@ class MinterHttpApiOld(
             return blockRaw
         }
         return null
-    }
+    }*/
 
     fun getNode(
         pub_key: String,

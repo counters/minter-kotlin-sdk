@@ -55,11 +55,12 @@ class ParseBlock {
         val block_reward = result.getString("block_reward")
         val reward = minterMatch.getAmount(block_reward)
 
+
         return MinterRaw.BlockRaw(
-            height, time, num_txs, total_txs, reward, size, proposer,
+            height, time, num_txs, /*total_txs,*/ reward, size, proposer,
             transaction,
             signedValidators,
-            null
+//            code
         )
     }
 

@@ -45,8 +45,9 @@ internal class MinterApiTest {
     @Test
     fun getBlock() {
         minterHttpApi.getStatus()?.height?.let { height ->
+//        7709800L.let { height ->
             minterHttpApi.getBlock(height)?.let { block ->
-                assertEquals(block, minterGrpcApi.getBlock(height))
+                assertEquals(block.copy(transaction = arrayListOf()), minterGrpcApi.getBlock(height)?.copy(transaction = arrayListOf()))
                 return
             }
         }
@@ -70,16 +71,16 @@ internal class MinterApiTest {
 
     @Test
     fun getOneTypeTransaction() {
-        val type = TransactionTypes.CREATE_SWAP_POOL
+        val type = TransactionTypes.REMOVE_LIMIT_ORDER
         LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
             val index = Random.nextInt(1, count).dec()
 //            LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {
             LibTransactionTypes.mapTypeTrs[type]?.first()?.let {
 //            "Mt8ec2d8b3bae4be125c8b4fd412f6733a094eea7bd08f7affcec09ecf145d34c7".let {
-                println(it)
+//                println(it)
                 val expected = minterHttpApi.getTransaction(it)
                 val actual = minterGrpcApi.getTransaction(it)
-                println(actual)
+//                println(actual)
                 assertNotEquals(null, actual)
                 if (type == TransactionTypes.VOTE_COMMISSION) {
                     assertVOTE_COMMISSION(expected, actual)

@@ -23,5 +23,6 @@ data class TransactionRaw(
     val optString: String?,
 //    val optList: List<Any>?,
     val optData: Any?,
-    val base64Payload: String?
+    val base64Payload: String?,
+    val code: Int
 )

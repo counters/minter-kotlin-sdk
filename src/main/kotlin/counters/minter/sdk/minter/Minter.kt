@@ -39,7 +39,8 @@ class Minter {
         val gas: Int,
         val gasCoin: CoinObj,
         val optDouble: Double?,
-        val optString: String?
+        val optString: String?,
+        val code: Int
     )
 
     data class MultisendItem(
