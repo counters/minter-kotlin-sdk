@@ -3,10 +3,7 @@ package counters.minter.sdk.minter_api
 import counters.minter.grpc.client.BlockResponse
 import counters.minter.grpc.client.StatusResponse
 import counters.minter.grpc.client.TransactionResponse
-import counters.minter.sdk.lib.LibTransactionTypes
-import counters.minter.sdk.minter.Enum.TransactionTypes
 import counters.minter.sdk.minter.Minter
-import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import mu.KotlinLogging
 import org.junit.jupiter.api.Test
 

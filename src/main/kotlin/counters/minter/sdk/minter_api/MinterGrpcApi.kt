@@ -18,7 +18,8 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     LimitOrdersOfPoolInterface,
     LimitOrdersInterface,
     LimitOrderInterface,
-    EventInterface
+    EventInterface,
+    AddressInterface
 {
     private var channel: ManagedChannel? = null
     private var grpcOptions: GrpcOptions? = null
@@ -33,6 +34,7 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     override val convertSubscribe = convert.subscribe
     override val convertLimitOrder = convert.limitOrder
     override val convertEvents = convert.events
+    override val convertAddress = convert.address
 
     override val logger = KotlinLogging.logger {}
 

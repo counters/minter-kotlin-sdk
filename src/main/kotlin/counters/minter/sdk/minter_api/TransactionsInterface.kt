@@ -3,9 +3,8 @@ package counters.minter.sdk.minter_api
 import counters.minter.grpc.client.ApiServiceGrpc
 import counters.minter.grpc.client.TransactionResponse
 import counters.minter.grpc.client.TransactionsRequest
-import counters.minter.sdk.minter.Enum.QueryTags
-import counters.minter.sdk.minter.MinterRaw
-import counters.minter.sdk.minter.Models.TransactionRaw
+import counters.minter.sdk.minter.enum.QueryTags
+import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.convert.ConvertTransaction
 import io.grpc.StatusRuntimeException
 import mu.KLogger

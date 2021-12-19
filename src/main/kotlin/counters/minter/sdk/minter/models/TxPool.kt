@@ -1,4 +1,4 @@
-package counters.minter.sdk.minter.Enum
+package counters.minter.sdk.minter.enum
 
 import counters.minter.sdk.minter.CoinObjClass.CoinObj
 

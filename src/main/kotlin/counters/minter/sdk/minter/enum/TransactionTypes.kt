@@ -1,4 +1,4 @@
-package counters.minter.sdk.minter.Enum
+package counters.minter.sdk.minter.enum
 
 enum class TransactionTypes (val int: Int) {
     TypeSend(1),

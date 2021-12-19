@@ -1,11 +1,12 @@
 package counters.minter.sdk.minter_api
 
 
-import counters.minter.sdk.minter.Enum.BlockField
+import counters.minter.sdk.minter.enum.BlockField
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter.*
 import counters.minter.sdk.minter.MinterRaw.*
-import counters.minter.sdk.minter.Models.TransactionRaw
+import counters.minter.sdk.minter.models.AddressRaw
+import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.http.FuelCoroutinesHttpApi
 import counters.minter.sdk.minter_api.http.HttpOptions
 import counters.minter.sdk.minter_api.parse.*
@@ -218,7 +219,7 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
                 if (it.isNull("error")) {
                     return it
                 } else {
-                   return null
+                    return null
                 }
             } ?: run { return null }
         }
@@ -228,6 +229,31 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
         getEventsJson(height, search, timeout).let {
             if (it != null) {
                 return parseEvents.getRaw(it, height)
+            } else {
+                return null
+            }
+        }
+    }
+
+    suspend fun getAddressJson(address: String, height: Long? = null, delegated: Boolean? = null, timeout: Long? = null): JSONObject? {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to height.toString()) }
+        delegated?.let { if (it) params.add("delegated" to "true")  }
+        this.get(HttpMethod.ADDRESS.patch + "/" + address, params, timeout).let {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    return it
+                } else {
+                    return null
+                }
+            } ?: run { return null }
+        }
+    }
+
+    suspend fun getAddress(address: String, height: Long? = null, delegated: Boolean? = null, timeout: Long? = null): AddressRaw? {
+        getAddressJson(address, height, delegated, timeout).let {
+            if (it != null) {
+                return parseWallet.getRaw(it, address)
             } else {
                 return null
             }

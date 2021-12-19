@@ -1,7 +1,7 @@
 package counters.minter.sdk.minter_api.parse
 
 import counters.minter.sdk.minter.CoinObjClass
-import counters.minter.sdk.minter.Enum.TxPool
+import counters.minter.sdk.minter.enum.TxPool
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
 import org.json.JSONArray

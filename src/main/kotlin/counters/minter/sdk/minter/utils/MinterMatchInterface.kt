@@ -1,7 +1,4 @@
-package counters.minter.sdk.minter.Utils
-
-import java.math.BigDecimal
-import java.math.RoundingMode
+package counters.minter.sdk.minter.utils
 
 /*
 interface MinterMatchInterface {

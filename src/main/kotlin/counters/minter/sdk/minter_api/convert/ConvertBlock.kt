@@ -3,7 +3,7 @@ package counters.minter.sdk.minter_api.convert
 import counters.minter.grpc.client.BlockResponse
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
-import counters.minter.sdk.minter.Models.TransactionRaw
+import counters.minter.sdk.minter.models.TransactionRaw
 import org.joda.time.DateTime
 
 class ConvertBlock {

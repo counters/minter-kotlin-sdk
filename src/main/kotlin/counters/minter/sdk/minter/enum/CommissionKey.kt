@@ -1,4 +1,4 @@
-package counters.minter.sdk.minter.Enum
+package counters.minter.sdk.minter.enum
 
 enum class CommissionKey(val key: String) {
     add_limit_order("add_limit_order"),

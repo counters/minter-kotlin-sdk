@@ -1,15 +1,14 @@
 package counters.minter.sdk.minter_api.convert
 
 import com.google.common.io.BaseEncoding
-import com.google.protobuf.Descriptors
 import counters.minter.grpc.client.*
 import counters.minter.grpc.client.Coin
 import counters.minter.sdk.minter.*
-import counters.minter.sdk.minter.Enum.CommissionKey
-import counters.minter.sdk.minter.Enum.TransactionTypes
-import counters.minter.sdk.minter.Models.Commission
-import counters.minter.sdk.minter.Models.DataEditCandidate
-import counters.minter.sdk.minter.Models.TransactionRaw
+import counters.minter.sdk.minter.enum.CommissionKey
+import counters.minter.sdk.minter.enum.TransactionTypes
+import counters.minter.sdk.minter.models.Commission
+import counters.minter.sdk.minter.models.DataEditCandidate
+import counters.minter.sdk.minter.models.TransactionRaw
 import mu.KotlinLogging
 
 class ConvertTransaction : MinterMatch() {
@@ -35,6 +34,7 @@ class ConvertTransaction : MinterMatch() {
         val tags = transaction.tagsMap
 
         var from = transaction.from
+        val code = transaction.code.toInt()
 
         when (type) {
             TransactionTypes.TypeSend.int -> {
@@ -185,41 +185,39 @@ class ConvertTransaction : MinterMatch() {
                 val coin_to_buy = tags["tx.coin_to_buy"]?.toLong()
                 val tx_return = tags["tx.return"]
                 val minimum_value_to_buy = data.minimumValueToBuy
-
+                stake = data.valueToSell
+                optString = minimum_value_to_buy
                 val coinIdToSymbol = CoinIdToSymbol(data.coinsList)
-//                logger.error { "data: $data" }
-                if (coin_to_sell != null && coin_to_buy != null && tx_return != null) {
+//                logger.error { "data: $transaction" }
+                if (code==0 && coin_to_sell != null && coin_to_buy != null && tx_return != null) {
                     coin = CoinObjClass.CoinObj(coin_to_sell, coinIdToSymbol[coin_to_sell])
                     coin2 = CoinObjClass.CoinObj(coin_to_buy, coinIdToSymbol[coin_to_buy])
-                    optString = minimum_value_to_buy
+
                     optDouble = minterMatch.getAmount(tx_return)
-                    stake = data.valueToSell
-                } else {
+                    optList = convertTxPools.get(data.coinsList, tags)
+                } else if(code==0) {
                     throw Exception("unknown")
                 }
-
-                optList = convertTxPools.get(data.coinsList, tags)
-
             }
             TransactionTypes.BUY_SWAP_POOL.int -> {
                 val data = transaction.data.unpack(BuySwapPoolData::class.java)
                 val coin_to_buy = tags["tx.coin_to_sell"]?.toLong()
                 val coin_to_sell = tags["tx.coin_to_buy"]?.toLong()
                 val tx_return = tags["tx.return"]
-
+                stake = data.valueToBuy
+                optString = data.maximumValueToSell
                 val coinIdToSymbol = CoinIdToSymbol(data.coinsList)
 //                logger.error { "data: $data" }
-                if (coin_to_sell != null && coin_to_buy != null && tx_return != null) {
+                if (code==0 && coin_to_sell != null && coin_to_buy != null && tx_return != null) {
                     coin = CoinObjClass.CoinObj(coin_to_sell, coinIdToSymbol[coin_to_sell])
                     coin2 = CoinObjClass.CoinObj(coin_to_buy, coinIdToSymbol[coin_to_buy])
-                    optString = data.maximumValueToSell
                     optDouble = minterMatch.getAmount(tx_return)
-                    stake = data.valueToBuy
-                } else {
+                    optList = convertTxPools.get(data.coinsList, tags)
+                } else if(code==0)  {
                     throw Exception("unknown")
                 }
 
-                optList = convertTxPools.get(data.coinsList, tags)
+
 
             }
             TransactionTypes.SELL_ALL_SWAP_POOL.int -> {
@@ -230,17 +228,17 @@ class ConvertTransaction : MinterMatch() {
                 val tx_return = tags["tx.return"]
 
                 val coinIdToSymbol = CoinIdToSymbol(data.coinsList)
-
-                if (coin_to_sell != null && coin_to_buy != null && tx_return != null) {
+                optString = data.minimumValueToBuy
+                if (code==0 && coin_to_sell != null && coin_to_buy != null && tx_return != null) {
                     coin = CoinObjClass.CoinObj(coin_to_sell, coinIdToSymbol[coin_to_sell])
                     coin2 = CoinObjClass.CoinObj(coin_to_buy, coinIdToSymbol[coin_to_buy])
-                    optString = data.minimumValueToBuy
+
                     optDouble = minterMatch.getAmount(tx_return)
 
                     stake = tags["tx.sell_amount"]
 
                     optList = convertTxPools.get(data.coinsList, tags)
-                } else {
+                }  else if(code==0)  {
                     throw Exception("unknown transaction type: $type")
                 }
             }
@@ -378,7 +376,7 @@ class ConvertTransaction : MinterMatch() {
 
 //        logger.info { "transaction: $transaction" }
 
-        val commission = tags["tx.commission_in_base_coin"]?.let { minterMatch.getAmount(it) } ?: run { -1.0 }
+        val commission = tags["tx.commission_in_base_coin"]?.let { minterMatch.getAmount(it) } ?: run { 0.0 }
 //        val commission = -1.0
 
 //        val commissionCoinId: Long = tags["tx.commission_coin"]!!.toLong()
@@ -405,7 +403,7 @@ class ConvertTransaction : MinterMatch() {
             optString = optString,
             optData = optList,
             base64Payload = base64Payload,
-            code = transaction.code.toInt()
+            code = code
         )
     }
 

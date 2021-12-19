@@ -3,7 +3,7 @@ package counters.minter.sdk.minter_api
 import counters.minter.grpc.client.ApiServiceGrpc
 import counters.minter.grpc.client.SubscribeRequest
 import counters.minter.grpc.client.SubscribeResponse
-import counters.minter.sdk.minter.Enum.Subscribe
+import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter_api.convert.ConvertSubscribe
 import io.grpc.stub.StreamObserver

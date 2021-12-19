@@ -1,4 +1,4 @@
-package counters.minter.sdk.minter.Enum
+package counters.minter.sdk.minter.enum
 
 enum class SwapFromTypes(val value: String) {
     OPTIMAL("optimal"),

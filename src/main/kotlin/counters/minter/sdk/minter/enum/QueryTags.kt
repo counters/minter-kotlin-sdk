@@ -1,4 +1,4 @@
-package counters.minter.sdk.minter.Enum
+package counters.minter.sdk.minter.enum
 
 enum class QueryTags(val str: String) {
     TagsTxFrom("tags.tx.from"),

@@ -1,14 +1,13 @@
 package counters.minter.sdk.minter_api.convert
 
-import counters.minter.grpc.client.BuyCoinData
 import counters.minter.grpc.client.EventsResponse
 import counters.minter.sdk.minter.CoinObjClass
-import counters.minter.sdk.minter.Enum.CommissionKey
+import counters.minter.sdk.minter.enum.CommissionKey
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
-import counters.minter.sdk.minter.Models.Commission
-import counters.minter.sdk.minter.Utils.EventRole
-import counters.minter.sdk.minter.Utils.EventType
+import counters.minter.sdk.minter.models.Commission
+import counters.minter.sdk.minter.utils.EventRole
+import counters.minter.sdk.minter.utils.EventType
 import mu.KotlinLogging
 
 class ConvertEvents : MinterMatch() {

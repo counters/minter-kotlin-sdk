@@ -5,8 +5,10 @@ import counters.minter.grpc.client.*
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw
-import counters.minter.sdk.minter.Models.TransactionRaw
+import counters.minter.sdk.minter.models.AddressRaw
+import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.convert.Convert
+import counters.minter.sdk.minter_api.convert.ConvertAddress
 import counters.minter.sdk.minter_api.convert.ConvertEvents
 import counters.minter.sdk.minter_api.convert.ConvertLimitOrder
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
@@ -20,7 +22,8 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     LimitOrderRequestInterface,
     LimitOrdersRequestInterface,
     LimitOrdersOfPoolRequestInterface,
-    EventsRequestInterface {
+    EventsRequestInterface,
+    AddressRequestInterface {
 
     //    private var callOptions: CallOptions = CallOptions.DEFAULT
     private lateinit var stub: ApiServiceGrpcKt.ApiServiceCoroutineStub
@@ -31,9 +34,10 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     private val logger = KotlinLogging.logger {}
     private val requestEmpty = Empty.newBuilder().build()
 
-    private val convertLimitOrder = ConvertLimitOrder()
+    private val convertLimitOrder = convert.limitOrder
 
-    private val convertEvents= ConvertEvents()
+    private val convertEvents = convert.events
+    private val convertAddress = convert.address
 
 
     init {
@@ -209,6 +213,23 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         }
     }
 
+    suspend fun getAddressGrpc(request: AddressRequest, deadline: Long? = null): AddressResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.address(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
+        }
+    }
+    suspend fun getAddressGrpc(address: String, height: Long? = null, delegated: Boolean? = null, deadline: Long? = null) =
+        getAddressGrpc(getRequestAddress(address, height, delegated), deadline)
+
+    suspend fun getAddress(address: String, height: Long? = null, delegated: Boolean? = null, deadline: Long? = null): AddressRaw? {
+        getAddressGrpc(address, height, delegated, deadline).let {
+            it?.let { return convertAddress.get(it, address) } ?: run { return null }
+        }
+    }
 
 
 /*    fun asyncBlockGrpc(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null, result: ((result: BlockResponse?) -> Unit)) {

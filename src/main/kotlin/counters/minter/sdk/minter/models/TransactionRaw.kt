@@ -1,4 +1,4 @@
-package counters.minter.sdk.minter.Models
+package counters.minter.sdk.minter.models
 
 import counters.minter.sdk.minter.CoinObjClass
 

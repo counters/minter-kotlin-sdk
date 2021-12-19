@@ -7,4 +7,5 @@ class Convert: ConvertStatusOld, ConvertTransactionOld {
     val subscribe = ConvertSubscribe
     val limitOrder = ConvertLimitOrder()
     val events = ConvertEvents()
+    val address = ConvertAddress()
 }

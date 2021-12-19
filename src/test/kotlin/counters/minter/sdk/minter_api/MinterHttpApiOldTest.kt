@@ -1,9 +1,9 @@
 package counters.minter.sdk.minter_api
 
-import counters.minter.sdk.minter.Enum.QueryTags
-import counters.minter.sdk.minter.Enum.TransactionTypes
+import counters.minter.sdk.minter.enum.QueryTags
+import counters.minter.sdk.minter.enum.TransactionTypes
 import counters.minter.sdk.minter.Minter
-import counters.minter.sdk.minter.Models.TransactionRaw
+import counters.minter.sdk.minter.models.TransactionRaw
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*

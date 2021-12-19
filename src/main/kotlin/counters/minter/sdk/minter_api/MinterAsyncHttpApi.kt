@@ -3,13 +3,11 @@ package counters.minter.sdk.minter_api
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter.*
 import counters.minter.sdk.minter.MinterRaw.*
-import counters.minter.sdk.minter.Models.TransactionRaw
+import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.http.OkHttpApi
 import counters.minter.sdk.minter_api.http.HttpOptions
-import counters.minter.sdk.minter_api.http.KHttpApi
 import counters.minter.sdk.minter_api.parse.*
 import mu.KotlinLogging
-import org.json.JSONException
 import org.json.JSONObject
 
 class MinterAsyncHttpApi(httpOptions: HttpOptions) :

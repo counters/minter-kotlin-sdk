@@ -1,7 +1,7 @@
 package counters.minter.sdk.minter
 
-import counters.minter.sdk.minter.Enum.QueryTags
-import counters.minter.sdk.minter.Enum.TransactionTypes as MinterTransactionTypes
+import counters.minter.sdk.minter.enum.QueryTags
+import counters.minter.sdk.minter.enum.TransactionTypes as MinterTransactionTypes
 
 @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
 class MinterTransactionQuery {

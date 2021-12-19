@@ -3,7 +3,7 @@ package counters.minter.sdk.minter_api.parse
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
-import counters.minter.sdk.minter.Models.TransactionRaw
+import counters.minter.sdk.minter.models.TransactionRaw
 import org.joda.time.DateTime
 import org.json.JSONArray
 import org.json.JSONObject

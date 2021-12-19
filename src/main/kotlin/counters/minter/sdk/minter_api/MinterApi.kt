@@ -1,11 +1,12 @@
 package counters.minter.sdk.minter_api
 
 import counters.minter.grpc.client.BlockField
-import counters.minter.sdk.minter.Enum.QueryTags
+import counters.minter.sdk.minter.enum.QueryTags
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw.*
-import counters.minter.sdk.minter.Models.TransactionRaw
+import counters.minter.sdk.minter.models.AddressRaw
+import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import counters.minter.sdk.minter_api.http.HttpOptions
 import io.grpc.ManagedChannelBuilder
@@ -248,6 +249,25 @@ class MinterApi(
             return it.getEvents(height, search, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getEvents(height, search, deadline)
+        }
+    }
+
+    fun getAddress(address: String, height: Long? = null, delegated: Boolean = false, deadline: Long? = null): AddressRaw? {
+        if (minterHttpApi != null) {
+            val newHeight = height?: 0
+            TODO()
+//            return minterHttpApi!!.getAddress(address, newHeight, delegated)
+        } else {
+//            TODO()
+            return minterGrpcApi!!.getAddress(address, height, delegated)
+        }
+    }
+
+    suspend fun getAddressCoroutines(address: String, height: Long? = null, delegated: Boolean? = null, deadline: Long? = null): AddressRaw? {
+        minterCoroutinesHttpApi?.let {
+            return it.getAddress(address, height, delegated, deadline)
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getAddress(address, height, delegated, deadline)
         }
     }
 

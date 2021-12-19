@@ -1,7 +1,7 @@
 package counters.minter.sdk.minter_api.parse
 
 import counters.minter.sdk.minter.Coin
-import counters.minter.sdk.minter.Enum.SwapFromTypes
+import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.MinterMatch
 import org.json.JSONObject
 

@@ -1,6 +1,6 @@
 package counters.minter.sdk.minter
 
-@Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated? use *.minter.Enum.TransactionTypes")
+@Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated? use *.minter.enum.TransactionTypes")
 object TransactionTypes {
 
     const val TypeSend = 1 // 7, 509

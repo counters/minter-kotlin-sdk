@@ -54,7 +54,7 @@ class Minter {
         val address: String,
         val count_txs: Long,
         val balance: List<Balance>,
-        val delegated: List<Balance>?,
+        val delegated: List<Delegated>?,
         val total: List<Balance>?,
         val bip_value: Double
     )
@@ -64,6 +64,13 @@ class Minter {
         val value: Double,
         val bipValue: Double
     )
+    data class Delegated(
+        val coin: CoinObj,
+        val value: Double,
+        val bipValue: Double,
+        val delegateBip: Double
+    )
+
     data class Payload(
         val transaction: Long?,
         val text: String,

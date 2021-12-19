@@ -1,4 +1,4 @@
-package counters.minter.sdk.minter.Models
+package counters.minter.sdk.minter.models
 
 data class DataEditCandidate(
     val pub_key: String,

@@ -1,9 +1,8 @@
 package counters.minter.sdk.minter
 
 import org.joda.time.DateTime
-import org.json.JSONObject
 import counters.minter.sdk.minter.CoinObjClass.CoinObj
-import counters.minter.sdk.minter.Models.TransactionRaw
+import counters.minter.sdk.minter.models.TransactionRaw
 
 class MinterRaw {
 

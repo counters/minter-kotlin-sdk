@@ -1,6 +1,6 @@
 package counters.minter.sdk.lib
 
-import counters.minter.sdk.minter.Enum.TransactionTypes
+import counters.minter.sdk.minter.enum.TransactionTypes
 
 class LibTransactionTypes {
 

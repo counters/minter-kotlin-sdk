@@ -1,11 +1,10 @@
 package counters.minter.sdk.minter_api.parse
 
-import com.google.protobuf.option
 import counters.minter.sdk.minter.*
-import counters.minter.sdk.minter.Enum.CommissionKey
-import counters.minter.sdk.minter.Models.Commission
-import counters.minter.sdk.minter.Utils.EventRole
-import counters.minter.sdk.minter.Utils.EventType
+import counters.minter.sdk.minter.enum.CommissionKey
+import counters.minter.sdk.minter.models.Commission
+import counters.minter.sdk.minter.utils.EventRole
+import counters.minter.sdk.minter.utils.EventType
 import mu.KotlinLogging
 import org.json.JSONObject
 

@@ -1,4 +1,4 @@
-package counters.minter.sdk.minter.Models
+package counters.minter.sdk.minter.models
 
 @Deprecated(level = DeprecationLevel.ERROR, message = "Deprecated")
 data class DataSwapPool(

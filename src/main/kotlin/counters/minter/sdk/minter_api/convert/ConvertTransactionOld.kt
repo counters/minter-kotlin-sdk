@@ -3,8 +3,7 @@ package counters.minter.sdk.minter_api.convert
 import com.google.common.io.BaseEncoding.base64
 import counters.minter.grpc.client.TransactionResponse
 import counters.minter.sdk.minter.CoinObjClass
-import counters.minter.sdk.minter.MinterRaw
-import counters.minter.sdk.minter.Models.TransactionRaw
+import counters.minter.sdk.minter.models.TransactionRaw
 
 @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
 interface ConvertTransactionOld {
