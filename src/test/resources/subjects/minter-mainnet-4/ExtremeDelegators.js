@@ -1,10 +1,9 @@
 /**
  * Extreme delegators
  *
- * @author Aleksey Kukhnovets, github.com/counters
+ * @author Aleksey Kukhnovets (github.com/counters)
  * @license Apache-2.0
  * @version 1.0.0
- * @return string[]
  * */
 [
     "Mx43066306e54ca0a715625e4f6fbd927a7cf39ecc",

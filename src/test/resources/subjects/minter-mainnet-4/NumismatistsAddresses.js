@@ -4,7 +4,6 @@
  * @author Aleksey Kukhnovets (github.com/counters)
  * @license Apache-2.0
  * @version 1.0.0
- * @return string[]
  * */
 [
     "Mxd7bc30ce058b7052cabe09780643a8a6cb88a27e",
