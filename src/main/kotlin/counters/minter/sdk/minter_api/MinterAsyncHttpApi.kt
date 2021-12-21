@@ -3,6 +3,7 @@ package counters.minter.sdk.minter_api
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter.*
 import counters.minter.sdk.minter.MinterRaw.*
+import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.http.OkHttpApi
 import counters.minter.sdk.minter_api.http.HttpOptions
@@ -174,7 +175,7 @@ OkHttpApi(httpOptions),
         }
     }
 
-    fun getLimitOrdersOfPoolJson(sellCoin: Long, buyCoin: Long, limit: Int?, height: Long?, timeout: Long?, result: (result: JSONObject?) -> Unit) {
+    fun getLimitOrdersOfPoolJson(sellCoin: Long, buyCoin: Long, limit: Int?, height: Long?, timeout: Long?=null, result: (result: JSONObject?) -> Unit) {
         val params = arrayListOf<Pair<String, String>>()
         height?.let { params.add("height" to height.toString()) }
         limit?.let { params.add("limit" to limit.toString()) }
@@ -220,6 +221,34 @@ OkHttpApi(httpOptions),
         getEventsJson(height,search,timeout) {
             if (it != null) {
                 result(parseEvents.getRaw(it, height))
+            } else {
+                result(null)
+            }
+        }
+    }
+
+    fun getAddressJson(address: String, height: Long? = null, delegated: Boolean? = null, timeout: Long?=null, result: (result: JSONObject?) -> Unit ) {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to height.toString()) }
+        delegated?.let {
+            if (delegated) params.add("delegated" to "true") else params.add("delegated" to "false")
+        }
+        this.asyncGet(HttpMethod.ADDRESS.patch + "/" + address, params, timeout)
+        {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    result(it)
+                } else {
+                    result(null)
+                }
+            } ?: run { result(null) }
+        }
+    }
+
+    fun getAddress(address: String, height: Long? = null, delegated: Boolean? = null, timeout: Long?=null, result: (result: AddressRaw?) -> Unit) {
+        getAddressJson(address, height,delegated,timeout) {
+            if (it != null) {
+                result(parseWallet.getRaw(it, address))
             } else {
                 result(null)
             }

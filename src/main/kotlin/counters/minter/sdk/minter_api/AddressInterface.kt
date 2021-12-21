@@ -53,9 +53,7 @@ interface AddressInterface: AddressRequestInterface {
 
     fun getAddress(address: String, height: Long? = null, delegated: Boolean = false, deadline: Long? = null): AddressRaw? {
         getAddressGrpc(address, height,delegated, deadline)?.let {
-            println(it)
-            TODO()
-//            return convertAddress.get(it, height)
+            return convertAddress.get(it, address)
         } ?: run {
             return null
         }
@@ -63,9 +61,7 @@ interface AddressInterface: AddressRequestInterface {
 
     fun getAddress(address: String, height: Long? = null, delegated: Boolean = false, deadline: Long? = null, result: ((AddressRaw?) -> Unit)) {
         getAddressGrpc(address, height,delegated, deadline) {
-            println(it)
-            TODO()
-//            it?.let { result(convertAddress.get(it, height)) } ?: run { result(null) }
+            it?.let { result(convertAddress.get(it, address)) } ?: run { result(null) }
         }
     }
 

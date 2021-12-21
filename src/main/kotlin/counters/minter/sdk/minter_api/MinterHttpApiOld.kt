@@ -3,6 +3,7 @@ package counters.minter.sdk.minter_api
 import counters.minter.sdk.minter.*
 import counters.minter.sdk.minter.enum.QueryTags
 import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.http.FuelHttpApi
 import counters.minter.sdk.minter_api.http.HttpOptions
@@ -361,9 +362,26 @@ class MinterHttpApiOld(
         }
         return null
     }
-/*    fun getCoinRaw(symbol: String, height: Long = 0): counter.sdk.Minter.Coin? {
-        return getCoin(symbol, height)
-    }*/
+
+    /*    fun getCoinRaw(symbol: String, height: Long = 0): counter.sdk.Minter.Coin? {
+            return getCoin(symbol, height)
+        }*/
+
+    fun getAddressJson(address: String, height: Long? = null, delegated: Boolean? = null, timeout: Long?=null): JSONObject? {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to height.toString()) }
+        delegated?.let {
+            if (delegated) params.add("delegated" to "true") else params.add("delegated" to "false")
+        }
+        return getJSONObject(get(HttpMethod.ADDRESS.patch + "/" + address, params, timeout))
+    }
+
+    fun getAddressRaw(address: String, height: Long? = null, delegated: Boolean? = null, timeout: Long?=null): AddressRaw? {
+        getAddressJson(address, height, delegated, timeout)?.let {
+            return parseWallet.getRaw(it, address)
+        }
+        return null
+    }
 
     fun getAddress(address: String, height: Long = 0, delegated: Boolean = false): Minter.Wallet? {
         val delegated_str = if (delegated) "true" else "false"

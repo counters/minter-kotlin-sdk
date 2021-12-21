@@ -254,12 +254,9 @@ class MinterApi(
 
     fun getAddress(address: String, height: Long? = null, delegated: Boolean = false, deadline: Long? = null): AddressRaw? {
         if (minterHttpApi != null) {
-            val newHeight = height?: 0
-            TODO()
-//            return minterHttpApi!!.getAddress(address, newHeight, delegated)
+            return minterHttpApi!!.getAddressRaw(address, height, delegated, deadline)
         } else {
-//            TODO()
-            return minterGrpcApi!!.getAddress(address, height, delegated)
+            return minterGrpcApi!!.getAddress(address, height, delegated, deadline)
         }
     }
 
@@ -268,6 +265,14 @@ class MinterApi(
             return it.getAddress(address, height, delegated, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getAddress(address, height, delegated, deadline)
+        }
+    }
+
+    fun getAddress(address: String, height: Long? = null, delegated: Boolean = false, deadline: Long? = null, result: ((result: AddressRaw?) -> Unit)) {
+        minterAsyncHttpApi?.let {
+            it.getAddress(address, height, delegated, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.getAddress(address, height, delegated, deadline, result)
         }
     }
 

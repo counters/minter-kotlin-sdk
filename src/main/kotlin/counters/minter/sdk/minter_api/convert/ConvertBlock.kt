@@ -28,7 +28,7 @@ class ConvertBlock {
         return MinterRaw.BlockRaw(
             height = response.height,
             time = datetime,
-            num_txs = response.transactionsCount,
+            num_txs = response.transactionCount.toInt(),
 //            total_txs = -1,
             reward = minterMatch.getAmount(response.blockReward),
             size = response.size,

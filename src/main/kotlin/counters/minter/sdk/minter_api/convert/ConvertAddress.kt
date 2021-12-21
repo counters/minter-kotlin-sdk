@@ -13,9 +13,7 @@ class ConvertAddress: MinterMatch() {
 //        fun get(data: SellSwapPoolData, tags: MutableMap<String, String>) = get(data.coinsList, tags)
 
         fun get(response: AddressResponse, address: String): AddressRaw {
-            getListBalance(response.balanceList)
-
-
+//            getListBalance(response.balanceList)
             return AddressRaw(
                 address = address,
                 count_txs = response.transactionCount,
