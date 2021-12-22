@@ -149,8 +149,15 @@ class ParseEvent: MinterMatch() {
                     val array = arrayListOf<Commission>()
 //                    println(value)
                     value.keySet().forEach { key ->
+//                        println(key)
                         CommissionKey.fromStr(key)?.let {
-                            val _amount = getAmount(value.getString(key))
+                            val _amount = if (it == CommissionKey.coin) {
+                                value.getDouble(key)
+                            } else {
+                                if (value.getString(key) == "") 0.0
+                                else
+                                    getAmount(value.getString(key))
+                            }
                             array.add(Commission(it, _amount))
                         } ?: run {
                             val message = "Error: \$CommissionKey.fromStr(\"$key\")"

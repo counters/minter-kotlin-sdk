@@ -69,7 +69,9 @@ class ConvertEvents : MinterMatch() {
             } else if (type == EventType.UpdateCommissions) {
                 val array = arrayListOf<Commission>()
                 structValue.fieldsMap.forEach { key, value ->
-                    val amount = getAmount(value.stringValue)
+//                    println("$key, $value")
+                    val amount = if (value.stringValue=="") 0.0 else
+                    getAmount(value.stringValue)
                     CommissionKey.fromStr(key)?.let {
                         array.add(Commission(it, amount))
                     } ?: run {
