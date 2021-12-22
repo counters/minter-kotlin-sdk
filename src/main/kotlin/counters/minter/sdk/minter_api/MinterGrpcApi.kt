@@ -42,6 +42,7 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
         this.grpcOptions = grpcOptions
 
         val channelBuilder = ManagedChannelBuilder.forAddress(grpcOptions.hostname, grpcOptions.port)
+            .maxInboundMessageSize(9999999)
         if (grpcOptions.ssl_contest != null) {
 //                channelBuilder.useTransportSecurity(grpcOptions.ssl_contest)
 //                channelBuilder.sslContext(grpcOptions.ssl_contest)
