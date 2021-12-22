@@ -9,7 +9,7 @@ object EventType {
     val Jail = Data("Jail", 4,"minter/JailEvent")
     val UpdateCommissions = Data("UpdateCommissions", 5,"minter/UpdateCommissionsEvent")
     val UpdateNetwork = Data("UpdateNetwork", 6,"minter/UpdateNetworkEvent")
-    val RemoveCandidate = Data("UpdateNetwork", 7,"minter/RemoveCandidateEvent")
+    val RemoveCandidate = Data("RemoveCandidate", 7,"minter/RemoveCandidateEvent")
     val StakeKick = Data("StakeKick", 8,"minter/StakeKickEvent")
 
     val NoName = Data("NoName", 0,"")

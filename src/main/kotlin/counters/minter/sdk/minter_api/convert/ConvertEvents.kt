@@ -79,6 +79,8 @@ class ConvertEvents : MinterMatch() {
                     }
                 }
                 option = listOf(array)
+            }  else if (type == EventType.RemoveCandidate) {
+                node = structValue.getFieldsOrThrow("candidate_pub_key").stringValue
             } else {
                 println(it)
                 TODO()
