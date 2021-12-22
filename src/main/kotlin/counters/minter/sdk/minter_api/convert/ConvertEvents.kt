@@ -81,6 +81,9 @@ class ConvertEvents : MinterMatch() {
                 option = listOf(array)
             }  else if (type == EventType.RemoveCandidate) {
                 node = structValue.getFieldsOrThrow("candidate_pub_key").stringValue
+            }   else if (type == EventType.Jail) {
+                node = structValue.getFieldsOrThrow("validator_pub_key").stringValue
+                option = structValue.getFieldsOrThrow("jailed_until").stringValue.toLong()
             } else {
                 println(it)
                 TODO()
