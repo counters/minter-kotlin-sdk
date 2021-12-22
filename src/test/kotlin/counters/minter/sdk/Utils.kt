@@ -2,6 +2,7 @@ package counters.minter.sdk
 
 import com.google.common.io.Resources.getResource
 import counters.minter.sdk.minter.enum.TransactionTypes
+import counters.minter.sdk.minter.utils.EventType
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.random.Random
@@ -11,6 +12,7 @@ class Utils(val network: Network) {
 
     enum class Network(val str: String) {
         Mainnet4("minter-mainnet-4"),
+        Taconet13("v2.6.0-testnet13"),
     }
 
     enum class SUBJECT(val str: String) {
@@ -18,6 +20,7 @@ class Utils(val network: Network) {
         NumismatistsAddresses("NumismatistsAddresses.js"),
         TransactionsBlocks("TransactionsBlocks.js"),
         FailedTransactionsBlocks("FailedTransactionsBlocks.js"),
+        Events("Events.js"),
     }
 
     fun getFailedTransactions(type: TransactionTypes? = null, num: Int? = null, random: Boolean = false): List<String> {
@@ -42,13 +45,18 @@ class Utils(val network: Network) {
     fun getExtremeDelegators(num: Int? = null, random: Boolean = false) = subject(SUBJECT.ExtremeDelegators, num, random)
     fun getNumismatistsAddresses(num: Int? = null, random: Boolean = false) = subject(SUBJECT.NumismatistsAddresses, num, random)
 
-    private fun subject(subject: SUBJECT, num: Int? = null, random: Boolean = false, tag: String? = "hash", type: TransactionTypes? = null): List<String> {
+    fun getEvents(eventType: EventType.Data? = null, num: Int? = null, random: Boolean = false) = subject(subject = SUBJECT.Events, num = num, random = random, eventType = eventType)
+
+
+    private fun subject(subject: SUBJECT, num: Int? = null, random: Boolean = false, tag: String? = "hash", type: TransactionTypes? = null, eventType: EventType.Data? = null): List<String> {
         val json = getJSONArray(subject)
         val jsonArray = if (subject == SUBJECT.ExtremeDelegators || subject == SUBJECT.NumismatistsAddresses) json
         else if ((subject == SUBJECT.TransactionsBlocks || subject == SUBJECT.FailedTransactionsBlocks) && tag!=null && type!=null ) getTransactionsBlocks(json, tag, type)
+        else if ((subject == SUBJECT.Events ) ) getEventsJson(json, eventType)
         else TODO()
         return prepareJson(jsonArray, num, random)
     }
+
 
     private fun prepareJson(jsonArray: JSONArray, num: Int? = null, random: Boolean = false): List<String> {
         val array = arrayListOf<String>()
@@ -57,9 +65,9 @@ class Utils(val network: Network) {
         } else {
             jsonArray.count()
         }
-        if (random) {
-            val until = jsonArray.count() - 1
-            if (until<1) return array
+        val until = jsonArray.count() - 1
+        if (random && until>0) {
+//            if (until<0) return array
             repeat(_num) {
                 Random.nextInt(0, until).let {
                     array.add(jsonArray[it] as String)
@@ -80,6 +88,12 @@ class Utils(val network: Network) {
         return list[random]
     }
 
+    private fun randomTypeEvent(): EventType.Data {
+//        val list = TransactionTypes.values()
+//        val random = Random.nextInt(0, (list.count() - 1))
+        return EventType.Reward
+    }
+
     private fun getTransactionsBlocks(jsonArray: JSONArray, tag: String, type: TransactionTypes? = null): JSONArray {
         val _type = type ?: randomType()
         jsonArray.forEach {
@@ -90,6 +104,18 @@ class Utils(val network: Network) {
         }
         return JSONArray()
     }
+
+    private fun getEventsJson(jsonArray: JSONArray, eventType: EventType.Data? =null): JSONArray {
+        val _type = eventType ?: randomTypeEvent()
+        jsonArray.forEach {
+            it as JSONObject
+            if (it.getString("type") == _type.raw) {
+                return it.getJSONArray("height")
+            }
+        }
+        return JSONArray()
+    }
+
 
     private fun filterJSONArray(jsonArray: JSONArray, type: String): JSONArray {
         val newJson = JSONArray()
@@ -113,5 +139,7 @@ class Utils(val network: Network) {
     private fun filter(text: String, quotes: Pair<String, String>): String {
         return text.substring(text.indexOf(quotes.first), text.lastIndexOf(quotes.second) + 1)
     }
+
+
 
 }
