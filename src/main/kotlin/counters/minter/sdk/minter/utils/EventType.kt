@@ -11,8 +11,19 @@ object EventType {
     val UpdateNetwork = Data("UpdateNetwork", 6,"minter/UpdateNetworkEvent")
     val RemoveCandidate = Data("UpdateNetwork", 7,"minter/RemoveCandidateEvent")
     val StakeKick = Data("StakeKick", 8,"minter/StakeKickEvent")
-//    val UpdateCommissions = Data("UpdateCommissions", 9,"minter/UpdateCommissionsEvent")
+
     val NoName = Data("NoName", 0,"")
+
+    val events = listOf(
+        Reward,
+        Slash,
+        Unbond,
+        Jail,
+        UpdateCommissions,
+        UpdateNetwork,
+        RemoveCandidate,
+        StakeKick,
+    )
 
     fun get(raw: String): Data {
         return when (raw) {

@@ -303,7 +303,15 @@ class ConvertTransaction : MinterMatch() {
                 data.allFields.forEach { field ->
                     val key = field.key.toString().split(".").last()
                     commissionKey.fromStr(key)?.let {
-                        array.add(Commission(it, getAmount(field.value.toString())))
+                        val value2 = if (it == CommissionKey.coin) {
+//                            println("${field.value::class.qualifiedName}")
+                            val coinGrpc = field.value as Coin
+                            coin2 = CoinObjClass.CoinObj(coinGrpc.id, coinGrpc.symbol)
+                            coinGrpc.id.toDouble()
+                        } else {
+                            getAmount(field.value.toString())
+                        }
+                        array.add(Commission(it, value2))
                         successNum++
                     }
                 }
@@ -327,7 +335,7 @@ class ConvertTransaction : MinterMatch() {
                 optList = MinterRaw.PoolRaw(
                     tags["tx.pool_id"]!!.toInt(),
                     coin,
-                    coin2,
+                    coin2!!,
                     amount,
                     optDouble,
                     getAmount(tags["tx.liquidity"]!!),
@@ -347,7 +355,7 @@ class ConvertTransaction : MinterMatch() {
                     id = tags["tx.order_id"]!!.toLong(),
                     coinSell = coin,
                     wantSell = amount,
-                    coinBuy = coin2,
+                    coinBuy = coin2!!,
                     wantBuy = optDouble,
                     price = optDouble / amount,
                     owner = from,

@@ -7,7 +7,7 @@ enum class CommissionKey(val key: String) {
     buy_bancor("buy_bancor"),
     buy_pool_base("buy_pool_base"),
     buy_pool_delta("buy_pool_delta"),
-//    coin("coin"),
+    coin("coin"),
     create_coin("create_coin"),
     create_multisig("create_multisig"),
     create_swap_pool("create_swap_pool"),

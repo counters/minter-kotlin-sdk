@@ -515,11 +515,21 @@ class ParseTransaction {
                     val array = arrayListOf<Commission>()
                     var successNum = 0
                     CommissionKey.values().forEach {
-                        data.getString(it.key)?.let { value ->
+                        val value2 = if (it == CommissionKey.coin) {
+                            coin2 = CoinObjClass.fromJson(data.getJSONObject(it.key))
+                            coin2!!.id.toDouble()
+//                            data.get(it.key)
+//                            coin = CoinObjClass.CoinObj(field.value["id"]
+                        } else {
+                            minterMatch.getAmount(data.getString(it.key))
+                        }
+                        array.add(Commission(it, value2))
+                        successNum++
+                     /*   data.getString(it.key)?.let { value ->
 //                                if (successNum==44) return@forEach
                             array.add(Commission(it, minterMatch.getAmount(value)))
                             successNum++
-                        }
+                        }*/
                     }
 //                        println("$successNum ${CommissionKey.values().count()}")
                     getData?.invoke(array, type)

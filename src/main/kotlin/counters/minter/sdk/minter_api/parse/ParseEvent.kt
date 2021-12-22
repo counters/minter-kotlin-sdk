@@ -45,10 +45,8 @@ class ParseEvent: MinterMatch() {
         val array = ArrayList<MinterRaw.EventRaw>()
 
 
-        val eventList = get(result, height,/* {
-            coin = it
-            0 // Coin
-        }, */{
+        val eventList = get(result, height,
+            {
             wallet = it
             0L //getWallet
         }, {
@@ -71,29 +69,7 @@ class ParseEvent: MinterMatch() {
             )
             array.add(eventRaw)
         }, getCoinByIdRaw )
-
-/*        if (eventList != null) {
-            val array = ArrayList<MinterRaw.EventRaw>()
-            eventList.forEach {
-                var role: String? = null
-                if (it.role!=null){
-                    role = EventRole.get(it.role!!).name
-                }
-                val eventRaw = MinterRaw.EventRaw(
-                    height = height,
-                    node = node,
-                    wallet = wallet,
-                    coin = coin,
-                    type = EventType.get(it.type).name,
-                    amount = it.amount,
-                    role = role
-                )
-                array.add(eventRaw)
-            }
-            return array
-        }*/
-
-        return if (eventList == null)
+            return if (eventList == null)
             null
         else array
     }
@@ -177,26 +153,12 @@ class ParseEvent: MinterMatch() {
                             val _amount = getAmount(value.getString(key))
                             array.add(Commission(it, _amount))
                         } ?: run {
-                            val message = "Error: ${CommissionKey.fromStr(key)}"
+                            val message = "Error: \$CommissionKey.fromStr(\"$key\")"
                             logger.error { message }
                             throw Exception(message)
                         }
                     }
                     option = listOf(array)
-      /*              CommissionKey.values().forEach {
-
-                    }
-                    structValue.fieldsMap.forEach { key, value ->
-                        val amount = getAmount(value.stringValue)
-                        CommissionKey.fromStr(key)?.let {
-                            array.add(Commission(it, amount))
-                        } ?: run {
-                            val message = "Error: ${CommissionKey.fromStr(key)}"
-                            logger.error { message }
-                            throw Exception(message)
-                        }
-                        option = listOf(array)
-                    }*/
                 }
 
                 val event = Minter.Event(
