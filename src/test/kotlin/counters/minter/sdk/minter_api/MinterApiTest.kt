@@ -1,6 +1,8 @@
 package counters.minter.sdk.minter_api
 
 import Config
+import counters.minter.grpc.client.StatusResponse
+import counters.minter.sdk.Utils
 import counters.minter.sdk.lib.LibTransactionTypes
 import counters.minter.sdk.minter.enum.QueryTags
 import counters.minter.sdk.minter.enum.TransactionTypes
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
+import java.util.concurrent.Semaphore
 import kotlin.random.Random
 
 internal class MinterApiTest {
@@ -63,8 +66,8 @@ internal class MinterApiTest {
         runBlocking {
             3279235L.let { height ->
 //            minterGrpcApi.getStatus()?.height.let { height ->
-                val expected = async { minterHttpApi.getBlockCoroutines(height = height, failed_txs = true) }
-                val actual = async { minterGrpcApi.getBlockCoroutines(height = height, failed_txs = true) }
+                val expected = async { minterHttpApi.getBlockCoroutines(height = height/*, failed_txs = true*/) }
+                val actual = async { minterGrpcApi.getBlockCoroutines(height = height/*, failed_txs = true*/) }
 //                val actualValue = actual.await()
                 assertNotEquals(null, actual.await())
                 assertEquals(expected.await(), actual.await())
@@ -124,6 +127,33 @@ internal class MinterApiTest {
     }
 
     @Test
+    fun getAllTypesFailedTransactionCoroutines() {
+        runBlocking {
+//        val type = TransactionTypes.TypeSend
+            TransactionTypes.values().forEach { type ->
+//                val type = TransactionTypes.TypeBuyCoin
+//            LibTransactionTypes.mapTypeTrs[type]?.last()?.let {
+                Utils(Config.network).getFailedTransactions(type, 100, true).forEach {
+//                LibTransactionTypes.mapTypeTrs[type]?.forEach {
+//                    println(it)
+                    val expected = async { minterHttpApi.getTransactionCoroutines(it) }
+                    val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
+                    expected.await()?.let {
+                        if (type == TransactionTypes.VOTE_COMMISSION) {
+                            assertVOTE_COMMISSION(it, actual.await())
+                        } else {
+                            assertEquals(it, actual.await())
+                        }
+                    } ?: run {
+                        assertEquals(null, actual.await())
+                    }
+
+                }
+            }
+        }
+    }
+
+    @Test
     fun getTransactionCoroutines2() {
         runBlocking {
             val type = TransactionTypes.TypeSend
@@ -164,13 +194,13 @@ internal class MinterApiTest {
     @Test
     fun getAddressCoroutines() {
         runBlocking {
-//            transactionsByType(TransactionTypes.TypeDeclareCandidacy)?.first()?.from?.let {
-            "Mx170efb7414ba43bfbcd6aac831abc289de916635".let {
-                println(it)
+            transactionsByType(TransactionTypes.TypeDeclareCandidacy)?.first()?.from?.let {
+//            "Mx170efb7414ba43bfbcd6aac831abc289de916635".let {
+//                println(it)
                 minterHttpApi.getAddressCoroutines(it, 0, true)?.let { address ->
-                    println(address.bip_value)
+//                    println(address.bip_value)
                     minterGrpcApi.getAddressCoroutines(it, 0, true)?.let {
-                        println(it.bip_value)
+//                        println(it.bip_value)
                         assertAddress(address, it)
                         return@runBlocking
                     } ?: run {
@@ -219,14 +249,16 @@ internal class MinterApiTest {
     }
 
 
-    //    @Test
+    @Test
     fun getAddress() {
-        transactionsByType(TransactionTypes.TypeDeclareCandidacy)?.first()?.let {
-            println(it.from)
-            minterHttpApi.getAddress(it.from)?.let { address ->
-                println(address)
-                minterGrpcApi.getStatus()?.let {
-                    assertEquals(address, it)
+//        "Mx170efb7414ba43bfbcd6aac831abc289de916635".let {
+        transactionsByType(TransactionTypes.TypeDeclareCandidacy)?.first()?.from?.let {
+//            println(it)
+            minterHttpApi.getAddress(it, null, true)?.let { address ->
+//                println(address)
+                assertNotEquals(null, address)
+                minterGrpcApi.getAddress(it, null, true)?.let {
+                    assertAddress(address, it)
                     return
                 } ?: run {
                     assert(false)
@@ -234,6 +266,33 @@ internal class MinterApiTest {
             }
         }
         assert(false)
+    }
+    @Test
+    fun syncAddress() {
+        "Mx170efb7414ba43bfbcd6aac831abc289de916635".let {
+            var httpResponse: AddressRaw? = null
+            var grpcResponse: AddressRaw? = null
+            val semaphore = Semaphore(1)
+            semaphore.acquireUninterruptibly()
+            minterHttpApi.getAddress(it) {
+                println(it)
+                httpResponse = it
+//                assertNotEquals(null, statusResponse)
+                semaphore.release()
+            }
+            semaphore.acquireUninterruptibly()
+            minterGrpcApi.getAddress(it) {
+                println(it)
+                grpcResponse=it
+                semaphore.release()
+            }
+            semaphore.acquire()
+            if (httpResponse==null || grpcResponse==null ) {
+                assert(false)
+            } else {
+                assertAddress(grpcResponse!!, httpResponse!!)
+            }
+        }
     }
 
     @Test
