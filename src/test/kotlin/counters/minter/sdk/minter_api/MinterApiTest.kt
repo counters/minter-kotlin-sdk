@@ -7,9 +7,11 @@ import counters.minter.sdk.lib.LibTransactionTypes
 import counters.minter.sdk.minter.enum.QueryTags
 import counters.minter.sdk.minter.enum.TransactionTypes
 import counters.minter.sdk.minter.Minter
+import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.Commission
 import counters.minter.sdk.minter.models.TransactionRaw
+import counters.minter.sdk.minter.utils.EventType
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
@@ -64,8 +66,8 @@ internal class MinterApiTest {
     @Test
     fun getBlockCoroutines() {
         runBlocking {
-            3279235L.let { height ->
-//            minterGrpcApi.getStatus()?.height.let { height ->
+//            3279235L.let { height ->
+            minterGrpcApi.getStatus()?.height?.let { height ->
                 val expected = async { minterHttpApi.getBlockCoroutines(height = height/*, failed_txs = true*/) }
                 val actual = async { minterGrpcApi.getBlockCoroutines(height = height/*, failed_txs = true*/) }
 //                val actualValue = actual.await()
@@ -77,7 +79,7 @@ internal class MinterApiTest {
         }
     }
 
-    @Test
+//    @Test
     fun getOneTypeTransaction() {
         val type = TransactionTypes.REMOVE_LIMIT_ORDER
         LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
@@ -104,11 +106,11 @@ internal class MinterApiTest {
     @Test
     fun getAllTypesTransactionCoroutines() {
         runBlocking {
-//        val type = TransactionTypes.TypeSend
             TransactionTypes.values().forEach { type ->
-//                val type = TransactionTypes.TypeBuyCoin
 //            LibTransactionTypes.mapTypeTrs[type]?.last()?.let {
-                LibTransactionTypes.mapTypeTrs[type]?.forEach {
+//                LibTransactionTypes.mapTypeTrs[type]?.forEach {
+                    Utils(Config.network).getTransactions(type, 10, true).forEach {
+//                        println("$type: $it")
                     val expected = async { minterHttpApi.getTransactionCoroutines(it) }
                     val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
                     expected.await()?.let {
@@ -117,6 +119,10 @@ internal class MinterApiTest {
                         } else {
                             assertEquals(it, actual.await())
                         }
+                       /* if (type == TransactionTypes.VOTE_COMMISSION) {
+                            println(it)
+                            println(actual.await())
+                        }*/
                     } ?: run {
                         assertEquals(null, actual.await())
                     }
@@ -129,13 +135,11 @@ internal class MinterApiTest {
     @Test
     fun getAllTypesFailedTransactionCoroutines() {
         runBlocking {
-//        val type = TransactionTypes.TypeSend
             TransactionTypes.values().forEach { type ->
-//                val type = TransactionTypes.TypeBuyCoin
 //            LibTransactionTypes.mapTypeTrs[type]?.last()?.let {
-                Utils(Config.network).getFailedTransactions(type, 100, true).forEach {
+                Utils(Config.network).getFailedTransactions(type, 10, true).forEach {
 //                LibTransactionTypes.mapTypeTrs[type]?.forEach {
-//                    println(it)
+                    println("$type: $it")
                     val expected = async { minterHttpApi.getTransactionCoroutines(it) }
                     val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
                     expected.await()?.let {
@@ -158,9 +162,9 @@ internal class MinterApiTest {
         runBlocking {
             val type = TransactionTypes.TypeSend
             LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
-                val index = Random.nextInt(1, count).dec()
-                "Mt1b1ba5298ce9771b58ec9bc252b9a18fc6eb301dfca585c64c44b8a63f7089f1".let {
-//                LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {
+                val index = Random.nextInt(1, count-1).dec()
+//                "Mt1b1ba5298ce9771b58ec9bc252b9a18fc6eb301dfca585c64c44b8a63f7089f1".let {
+                LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {
                     val expected = async { minterHttpApi.getTransactionCoroutines(it) }
                     val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
 //                    val actualValue = actual.await()
@@ -228,8 +232,8 @@ internal class MinterApiTest {
     private fun assertAddressBalance(expected: List<Minter.Balance>, actual: List<Minter.Balance>, message: String = "") {
         expected.forEach { expectedVal ->
             actual.firstOrNull { it.coin == expectedVal.coin }?.let { actualVal ->
-                assertEquals(expectedVal.value, actualVal.value, 0.000001, "$message: ${expectedVal.coin}!=${actualVal.coin}")
-                assertEquals(expectedVal.bipValue, actualVal.bipValue, 0.000001)
+                assertEquals(expectedVal.value, actualVal.value, 0.001, "$message: ${expectedVal.coin}!=${actualVal.coin}")
+                assertEquals(expectedVal.bipValue, actualVal.bipValue, 0.001)
             } ?: run {
 
                 assert(false) { "$message: not find coin ${expectedVal.coin} in $actual" }
@@ -293,6 +297,60 @@ internal class MinterApiTest {
                 assertAddress(grpcResponse!!, httpResponse!!)
             }
         }
+    }
+
+    @Test
+    fun getEventsCoroutines() {
+        runBlocking {
+            EventType.events.forEach { type ->
+                Utils(Config.network).getEvents(type, 1, true).forEach {
+                    val height = it.toLong()
+                    println("$type: $it")
+                    minterHttpApi.getEventCoroutines(height)?.let { events ->
+//                    println(events.bip_value)
+                        minterGrpcApi.getEventCoroutines(height)?.let {
+                            assertEquals(events.count(), it.count())
+                            return@forEach
+                        } ?: run {
+                            assert(false)
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    @Test
+    fun getEvents() {
+            EventType.events.forEach { type ->
+                Utils(Config.network).getEvents(type, 1, true).forEach {
+                    val height = it.toLong()
+//                    println("$type: $it")
+                    minterHttpApi.getEvent(height).let { events ->
+//                    println(events)
+                        minterGrpcApi.getEvent(height)?.let {
+                            assertEquals(events?.count(), it.count())
+                            return@forEach
+                        } ?: run {
+                            assert(false)
+                        }
+                    }
+                }
+
+            }
+    }
+
+    private fun assertEvents(expected: List<MinterRaw.EventRaw>, actual: List<MinterRaw.EventRaw>) {
+/*        expected.forEach { expectedVal ->
+            actual.firstOrNull { it.coin == expectedVal.coin }?.let { actualVal ->
+                assertEquals(expectedVal.value, actualVal.value, 0.000001, "$message: ${expectedVal.coin}!=${actualVal.coin}")
+                assertEquals(expectedVal.bipValue, actualVal.bipValue, 0.000001)
+            } ?: run {
+
+                assert(false) { "$message: not find coin ${expectedVal.coin} in $actual" }
+            }
+        }*/
     }
 
     @Test
