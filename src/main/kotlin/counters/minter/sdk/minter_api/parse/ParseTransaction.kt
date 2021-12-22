@@ -70,7 +70,7 @@ class ParseTransaction {
             },
             fun(jsonObject: JSONObject, type: Int) {
                 if (type == TransactionTypes.BUY_SWAP_POOL.int || type == TransactionTypes.SELL_SWAP_POOL.int || type == TransactionTypes.SELL_ALL_SWAP_POOL.int) {
-                   if (jsonObject.getInt("code")==0) optList = parsePoolExchange.getTxPools(jsonObject) as ArrayList<Any>
+                    if (jsonObject.getInt("code") == 0) optList = parsePoolExchange.getTxPools(jsonObject) as ArrayList<Any>
                 }
                 if (!jsonObject.isNull("payload")) payloadByte = jsonObject.getString("payload")
                 if (payloadByte == "") payloadByte = null
@@ -294,10 +294,11 @@ class ParseTransaction {
                         CoinObjClass.CoinObj(coin_to_buy.getString("id").toLong(), coin_to_buy.getString("symbol"))
                     this.getCoin(coin.id, coin.symbol, getCoin)
                     this.getCoin(coin2.id, coin2.symbol, getCoin2)
-                    stake = tags!!.getString("tx.sell_amount")
-                    amount = minterMatch.getAmount(stake)
-                    optDouble = minterMatch.getAmount(tags.getString("tx.return"))
-                    /*tags	tx.sell_amount*/
+                    if (code==0) {
+                        stake = tags!!.getString("tx.sell_amount")
+                        amount = minterMatch.getAmount(stake)
+                        optDouble = minterMatch.getAmount(tags.getString("tx.return"))
+                    }
                 } else if (type == counters.minter.sdk.minter.TransactionTypes.TypeBuyCoin) {
                     val coin_to_sell = data.getJSONObject("coin_to_sell")
                     val coin_to_buy = data.getJSONObject("coin_to_buy")
@@ -311,7 +312,9 @@ class ParseTransaction {
                     coin2 = this.getCoin(coin2.id, coin2.symbol, getCoin2)
                     stake = data.getString("value_to_buy")
                     amount = minterMatch.getAmount(stake)
-                    optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
+                    if (code == 0) {
+                        optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
+                    }
                 } else if (type == counters.minter.sdk.minter.TransactionTypes.TypeSellCoin) {
                     val coin_to_sell = data.getJSONObject("coin_to_sell")
                     val coin_to_buy = data.getJSONObject("coin_to_buy")
@@ -325,7 +328,9 @@ class ParseTransaction {
                     this.getCoin(coin2.id, coin2.symbol, getCoin2)
                     stake = data.getString("value_to_sell")
                     amount = minterMatch.getAmount(stake)
-                    optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
+                    if (code == 0) {
+                        optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
+                    }
                 } else if (type == counters.minter.sdk.minter.TransactionTypes.TypeEditCandidate) {
                     val nodeStr = data.getString("pub_key")
                     node = getNode(nodeStr)
@@ -339,8 +344,9 @@ class ParseTransaction {
                     getData?.invoke(optList, type)
 
                 } else if (type == counters.minter.sdk.minter.TransactionTypes.TypeRedeemCheck) {
-                    to = getToWallet("Mx" + result.getJSONObject("tags").getString("tx.to"))
-//                        coin = this.getCoin(result.getJSONObject("tags").getString("tx.coin"), getCoin) // TODO Найти транзакцию с чеком
+                    if (code==0) {
+                        to = getToWallet("Mx" + result.getJSONObject("tags").getString("tx.to"))
+                    }
                 } else if (type == counters.minter.sdk.minter.TransactionTypes.TypeSetHaltBlock) {
                     node = getNode(data.getString("pub_key"))
                     val haltHeight = data.getLong("height")
@@ -361,21 +367,23 @@ class ParseTransaction {
                     node = getNode(data.getString("pub_key"))
                     optString = data.getString("new_pub_key")
                 } else if (type == TransactionTypes.BUY_SWAP_POOL.int) {
-                    val coin_to_sell = tags!!.getLong("tx.coin_to_sell")
-                    val coin_to_buy = tags.getLong("tx.coin_to_buy")
-                    coin = coinObjMap[coin_to_buy]!!
-                    coin2 = coinObjMap[coin_to_sell]!!
-                    getCoin(coin.id, coin.symbol)
-                    getCoin2(coin2.id, coin2.symbol)
-//                        coin = this.getCoin(coin.id, coin.symbol, getCoin)
-//                        coin2 = this.getCoin(coin2.id, coin2.symbol, getCoin2)
                     stake = data.getString("value_to_buy")
                     amount = minterMatch.getAmount(stake)
-                    optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
                     optString = data.getString("maximum_value_to_sell")
 
+                    if (code == 0) {
+                        val coin_to_sell = tags!!.getLong("tx.coin_to_sell")
+                        val coin_to_buy = tags.getLong("tx.coin_to_buy")
+                        coin = coinObjMap[coin_to_buy]!!
+                        coin2 = coinObjMap[coin_to_sell]!!
+                        getCoin(coin.id, coin.symbol)
+                        getCoin2(coin2.id, coin2.symbol)
+                        optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
+                    }
+
+
                 } else if (type == TransactionTypes.SELL_SWAP_POOL.int) {
-                    if (code==0) {
+                    if (code == 0) {
                         val coin_to_sell = tags.getLong("tx.coin_to_sell")
                         val coin_to_buy = tags.getLong("tx.coin_to_buy")
                         coin = coinObjMap[coin_to_sell]!!
@@ -388,22 +396,19 @@ class ParseTransaction {
                     amount = minterMatch.getAmount(stake)
                     optString = data.getString("minimum_value_to_buy")
                 } else if (type == TransactionTypes.SELL_ALL_SWAP_POOL.int) {
-                    val coin_to_sell = tags.getLong("tx.coin_to_sell")
-                    val coin_to_buy = tags.getLong("tx.coin_to_buy")
-                    coin = coinObjMap[coin_to_sell]!!
-                    coin2 = coinObjMap[coin_to_buy]!!
-                    getCoin(coin.id, coin.symbol)
-                    getCoin2(coin2.id, coin2.symbol)
-//                        coin = this.getCoin(coin.id, coin.symbol, getCoin)
-//                        coin2 = this.getCoin(coin2.id, coin2.symbol, getCoin2)
-                    stake = tags!!.getString("tx.sell_amount")
-//                        commission = minterMatch.getAmount(tags!!.getString("tx.commission_amount"))
-//                        commission = minterMatch.getAmount(tags!!.getString("tx.commission_in_base_coin"))
-                    amount = minterMatch.getAmount(stake)
-                    optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
+                    if (code == 0) {
+                        val coin_to_sell = tags.getLong("tx.coin_to_sell")
+                        val coin_to_buy = tags.getLong("tx.coin_to_buy")
+                        coin = coinObjMap[coin_to_sell]!!
+                        coin2 = coinObjMap[coin_to_buy]!!
+                        getCoin(coin.id, coin.symbol)
+                        getCoin2(coin2.id, coin2.symbol)
+                        stake = tags!!.getString("tx.sell_amount")
+                        amount = minterMatch.getAmount(stake)
+                        optDouble = minterMatch.getAmount(tags!!.getString("tx.return"))
+                    }
                     optString = data.getString("minimum_value_to_buy")
                 } else if (type == TransactionTypes.ADD_LIMIT_ORDER.int) {
-
                     val coin_to_sell = data.getJSONObject("coin_to_sell")
                     val coin_to_buy = data.getJSONObject("coin_to_buy")
                     coin = CoinObjClass.fromJson(coin_to_sell)
@@ -453,7 +458,9 @@ class ParseTransaction {
 
                     stake = data.getString("volume0")
                     amount = minterMatch.getAmount(stake)
-                    optDouble = minterMatch.getAmount(tags.getString("tx.volume1"))
+                    if (code == 0) {
+                        optDouble = minterMatch.getAmount(tags.getString("tx.volume1"))
+                    }
 // TODO add DataAddLiquidity
                 } else if (type == TransactionTypes.REMOVE_LIQUIDITY.int) {
                     coin = CoinObjClass.fromJson(data.getJSONObject("coin0"))
@@ -461,9 +468,11 @@ class ParseTransaction {
                     getCoin(coin!!.id, coin!!.symbol)
                     getCoin2(coin2!!.id, coin2!!.symbol)
 
-                    stake = tags.getString("tx.volume0")
-                    amount = minterMatch.getAmount(stake)
-                    optDouble = minterMatch.getAmount(tags.getString("tx.volume1"))
+                    if (code == 0) {
+                        stake = tags.getString("tx.volume0")
+                        amount = minterMatch.getAmount(stake)
+                        optDouble = minterMatch.getAmount(tags.getString("tx.volume1"))
+                    }
 // TODO add DataAddLiquidity
                 } else if (type == TransactionTypes.EDIT_CANDIDATE_COMMISSION.int) {
                     node = getNode(data.getString("pub_key"))

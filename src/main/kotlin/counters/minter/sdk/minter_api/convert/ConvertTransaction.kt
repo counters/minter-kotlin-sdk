@@ -48,21 +48,27 @@ class ConvertTransaction : MinterMatch() {
                 coin = CoinObjClass.CoinObj(data.coinToSell.id, data.coinToSell.symbol)
                 coin2 = CoinObjClass.CoinObj(data.coinToBuy.id, data.coinToBuy.symbol)
                 stake = data.valueToSell
-                optDouble = getAmount(tags["tx.return"]!!)
+                if (code==0) {
+                    optDouble = getAmount(tags["tx.return"]!!)
+                }
             }
             TransactionTypes.TypeSellAllCoin.int -> {
                 val data = transaction.data.unpack(SellAllCoinData::class.java)
                 coin = CoinObjClass.CoinObj(data.coinToSell.id, data.coinToSell.symbol)
                 coin2 = CoinObjClass.CoinObj(data.coinToBuy.id, data.coinToBuy.symbol)
-                stake = tags["tx.sell_amount"]!!
-                optDouble = getAmount(tags["tx.return"]!!)
+                if (code==0) {
+                    stake = tags["tx.sell_amount"]!!
+                    optDouble = getAmount(tags["tx.return"]!!)
+                }
             }
             TransactionTypes.TypeBuyCoin.int -> {
                 val data = transaction.data.unpack(BuyCoinData::class.java)
                 coin = CoinObjClass.CoinObj(data.coinToBuy.id, data.coinToBuy.symbol)
                 coin2 = CoinObjClass.CoinObj(data.coinToSell.id, data.coinToSell.symbol)
                 stake = data.valueToBuy
-                optDouble = getAmount(tags["tx.return"]!!)
+                if (code==0) {
+                    optDouble = getAmount(tags["tx.return"]!!)
+                }
             }
             TransactionTypes.TypeCreateCoin.int -> {
                 val data = transaction.data.unpack(CreateCoinData::class.java)
@@ -93,8 +99,10 @@ class ConvertTransaction : MinterMatch() {
 //                val data = transaction.data.unpack(RedeemCheckData::class.java)
 //                val byteArrayCheck = Base64.getDecoder().decode(data.rawCheck) //TODO(decode amount and coin)
 //                println(byteArrayCheck.toString() )
-                to = "Mx" + tags["tx.to"]
-                from = "Mx" + tags["tx.from"]
+                if (code==0) {
+                    to = "Mx" + tags["tx.to"]
+                    from = "Mx" + tags["tx.from"]
+                }
             }
             TransactionTypes.TypeSetCandidateOnline.int -> {
                 val data = transaction.data.unpack(SetCandidateOnData::class.java)
@@ -168,7 +176,9 @@ class ConvertTransaction : MinterMatch() {
                 coin = CoinObjClass.CoinObj(data.coin0.id, data.coin0.symbol)
                 coin2 = CoinObjClass.CoinObj(data.coin1.id, data.coin1.symbol)
                 stake = data.volume0
-                optDouble = getAmount(tags["tx.volume1"]!!)
+                if (code==0) {
+                    optDouble = getAmount(tags["tx.volume1"]!!)
+                }
                 // TODO add DataAddLiquidity
             }
             TransactionTypes.REMOVE_LIQUIDITY.int -> {
@@ -176,7 +186,9 @@ class ConvertTransaction : MinterMatch() {
                 coin = CoinObjClass.CoinObj(data.coin0.id, data.coin0.symbol)
                 coin2 = CoinObjClass.CoinObj(data.coin1.id, data.coin1.symbol)
                 stake = tags["tx.volume0"]
-                optDouble = getAmount(tags["tx.volume1"]!!)
+                if (code==0) {
+                    optDouble = getAmount(tags["tx.volume1"]!!)
+                }
                 // TODO add DataAddLiquidity
             }
             TransactionTypes.SELL_SWAP_POOL.int -> {
