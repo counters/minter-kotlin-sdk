@@ -9,6 +9,7 @@ enum class HttpMethod(val patch: String) {
     STATUS("status"),
     ESTIMATE_COIN_BUY("estimate_coin_buy"),
     ESTIMATE_COIN_SELL("estimate_coin_sell"),
+    ESTIMATE_COIN_SELL_ALL("estimate_coin_sell_all"),
     EVENTS("events"),
     TRANSACTION("transaction"),
 

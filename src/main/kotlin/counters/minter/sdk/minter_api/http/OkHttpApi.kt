@@ -44,7 +44,6 @@ open class OkHttpApi(httpOptions: HttpOptions ) {
     fun asyncGet(
         patch: String,
         params: List<Pair<String, String>>? = null,
-//        params: Map<String, String>? = null,
         timeout: Long? = null,
         error: ((result: String) -> Unit)? = null,
         result: ((result: String?) -> Unit)
@@ -56,7 +55,7 @@ open class OkHttpApi(httpOptions: HttpOptions ) {
         val httpBuilder = httpUrl.newBuilder()
         params?.forEach { httpBuilder.addQueryParameter(it.first, it.second) }
         requestBuilder.url(httpUrl).get()
-        logger.debug { "request: ${requestBuilder.build()}" }
+//        logger.info { "request: ${requestBuilder.build()}" }
         return asyncOkHttp(requestBuilder.build(), timeout, error, result)
     }
 

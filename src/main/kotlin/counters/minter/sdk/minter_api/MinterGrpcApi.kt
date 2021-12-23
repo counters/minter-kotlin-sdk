@@ -1,7 +1,6 @@
 package counters.minter.sdk.minter_api
 
-import counters.minter.grpc.client.*
-import counters.minter.sdk.minter.MinterRaw
+import counters.minter.grpc.client.ApiServiceGrpc
 import counters.minter.sdk.minter_api.convert.Convert
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import io.grpc.ManagedChannel
@@ -19,7 +18,10 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     LimitOrdersInterface,
     LimitOrderInterface,
     EventInterface,
-    AddressInterface
+    AddressInterface,
+    EstimateCoinSellInterface,
+    EstimateCoinSellAllInterface,
+    EstimateCoinBuyInterface
 {
     private var channel: ManagedChannel? = null
     private var grpcOptions: GrpcOptions? = null
@@ -35,6 +37,9 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     override val convertLimitOrder = convert.limitOrder
     override val convertEvents = convert.events
     override val convertAddress = convert.address
+    override val convertEstimateCoinSell = convert.estimateCoinSell
+//    override val convertEstimateCoinSellAll = convert.estimateCoinSellAll
+//    override val convertEstimateCoinBuy = convert.estimateCoinBuy
 
     override val logger = KotlinLogging.logger {}
 
@@ -59,5 +64,6 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     fun shutdown(): Unit {
         channel?.shutdown()
     }
+
 
 }

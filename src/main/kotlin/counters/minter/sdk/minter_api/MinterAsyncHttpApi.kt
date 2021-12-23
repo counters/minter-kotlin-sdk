@@ -1,12 +1,16 @@
 package counters.minter.sdk.minter_api
 
+import counters.minter.sdk.minter.Coin
 import counters.minter.sdk.minter.LimitOrderRaw
-import counters.minter.sdk.minter.Minter.*
-import counters.minter.sdk.minter.MinterRaw.*
+import counters.minter.sdk.minter.Minter.Status
+import counters.minter.sdk.minter.MinterMatch
+import counters.minter.sdk.minter.MinterRaw.BlockRaw
+import counters.minter.sdk.minter.MinterRaw.EventRaw
+import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
-import counters.minter.sdk.minter_api.http.OkHttpApi
 import counters.minter.sdk.minter_api.http.HttpOptions
+import counters.minter.sdk.minter_api.http.OkHttpApi
 import counters.minter.sdk.minter_api.parse.*
 import mu.KotlinLogging
 import org.json.JSONObject
@@ -27,6 +31,8 @@ OkHttpApi(httpOptions),
     private val parseEvents = ParseEvent()
     private val parseTransaction = ParseTransaction()
     private val parseSwapPoolRaw = ParseSwapPoolRaw()
+
+    private val minterMatch = MinterMatch()
 
     private val parseLimitOrder = ParseLimitOrder()
 
@@ -249,6 +255,57 @@ OkHttpApi(httpOptions),
         getAddressJson(address, height,delegated,timeout) {
             if (it != null) {
                 result(parseWallet.getRaw(it, address))
+            } else {
+                result(null)
+            }
+        }
+    }
+
+    fun getEstimateCoinSellJson(coinToSell: Long,
+                                valueToSell: Double,
+                                coinToBuy: Long = 0,
+                                height: Long? = null,
+                                coin_id_commission: Long? = null,
+                                swap_from: SwapFromTypes? = null,
+                                route: List<Long>? = null,
+                                timeout: Long? = null,
+                                result: (result: JSONObject?) -> Unit
+    ) {
+        val params = arrayListOf<Pair<String, String>>(
+            "coin_id_to_sell" to coinToSell.toString(),
+            "value_to_sell" to minterMatch.getPip(valueToSell),
+            "coin_id_to_buy" to coinToBuy.toString(),
+        )
+        coin_id_commission?.let { params.add("coin_id_commission" to it.toString()) }
+        swap_from?.let { params.add("swap_from" to it.value) }
+        route?.forEach { params.add("route" to it.toString()) }
+        height?.let { params.add("height" to it.toString()) }
+        this.asyncGet(HttpMethod.ESTIMATE_COIN_SELL.patch + altUrlHttpGet(params), null, timeout)
+        {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    result(it)
+                } else {
+                    result(null)
+                }
+            } ?: run { result(null) }
+        }
+    }
+
+    fun estimateCoinSell(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        timeout: Long? = null,
+        result: (result: Coin.EstimateCoin?) -> Unit
+    ) {
+        getEstimateCoinSellJson(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, timeout) {
+            if (it != null) {
+                result(parseEstimateCoinSell.get(it))
             } else {
                 result(null)
             }

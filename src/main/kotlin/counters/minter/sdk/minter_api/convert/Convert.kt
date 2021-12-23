@@ -8,4 +8,7 @@ class Convert: ConvertStatusOld, ConvertTransactionOld {
     val limitOrder = ConvertLimitOrder()
     val events = ConvertEvents()
     val address = ConvertAddress()
+    val estimateCoinSell = ConvertEstimateCoinSell()
+    val estimateCoinSellAll = ConvertEstimateCoinSellAll()
+    val estimateCoinBuy = ConvertEstimateCoinBuy()
 }

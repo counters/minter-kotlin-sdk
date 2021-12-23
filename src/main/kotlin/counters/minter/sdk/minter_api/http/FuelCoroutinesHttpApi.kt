@@ -31,9 +31,13 @@ open class FuelCoroutinesHttpApi(httpOptions: HttpOptions ): FuelRequest {
         try {
 //            return getRequest(this.nodeUrl + "/" + patch, params, timeout).awaitString()
             val (request, response, result) = getRequest(this.nodeUrl + "/" + patch, params, timeout).awaitStringResponseResult()
-//            response.statusCode
+            val statusCode= response.statusCode
             result.fold(
-                { data -> return data },
+                { data ->
+                    if (statusCode == 200)
+                        return data
+                    else error?.invoke(data)
+                },
                 { error ->
                     println("An error of type ${error.exception} happened: ${error.message}")
                 }

@@ -1,10 +1,14 @@
 package counters.minter.sdk.minter_api
 
 import counters.minter.grpc.client.BlockField
-import counters.minter.sdk.minter.enum.QueryTags
+import counters.minter.sdk.minter.Coin
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter
-import counters.minter.sdk.minter.MinterRaw.*
+import counters.minter.sdk.minter.MinterMatch
+import counters.minter.sdk.minter.MinterRaw.BlockRaw
+import counters.minter.sdk.minter.MinterRaw.EventRaw
+import counters.minter.sdk.minter.enum.QueryTags
+import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
@@ -14,7 +18,7 @@ import mu.KotlinLogging
 
 class MinterApi(
     grpcOptions: GrpcOptions? = null, httpOptions: HttpOptions? = null
-) {
+): MinterMatch() {
     private val logger = KotlinLogging.logger {}
     private var minterHttpApi: MinterHttpApiOld? = null
     private var minterAsyncHttpApi: MinterAsyncHttpApi? = null
@@ -273,6 +277,61 @@ class MinterApi(
             it.getAddress(address, height, delegated, deadline, result)
         } ?: run {
             minterGrpcApi!!.getAddress(address, height, delegated, deadline, result)
+        }
+    }
+
+
+    suspend fun estimateCoinSellCoroutines(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null,
+//        notFoundCoin: ((notFount: Boolean) -> Unit)? = null
+    ): Coin.EstimateCoin? {
+        minterCoroutinesHttpApi?.let {
+            return it.estimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)
+        } ?: run {
+            return minterGrpcApiCoroutines!!.estimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)
+        }
+    }
+
+    fun estimateCoinSell(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null,
+//        notFoundCoin: ((notFount: Boolean) -> Unit)? = null
+    ): Coin.EstimateCoin? {
+        if (minterHttpApi != null) {
+            return minterHttpApi!!.estimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route)
+        } else {
+            return minterGrpcApi!!.estimateCoinSell(coinToSell, getPip(valueToSell), coinToBuy, height, coin_id_commission, swap_from, route, deadline)
+        }
+    }
+
+    fun estimateCoinSell(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null,
+        result: ((result: Coin.EstimateCoin?) -> Unit)
+    ) {
+        minterAsyncHttpApi?.let {
+            it.estimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.estimateCoinSell(coinToSell, getPip(valueToSell), coinToBuy, height, coin_id_commission, swap_from, route, deadline, result)
         }
     }
 

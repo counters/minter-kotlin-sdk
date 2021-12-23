@@ -1,11 +1,10 @@
 package counters.minter.sdk.minter_api
 
-import counters.minter.grpc.client.*
-import counters.minter.sdk.minter.Minter
-import counters.minter.sdk.minter.MinterRaw
+import counters.minter.grpc.client.AddressRequest
+import counters.minter.grpc.client.AddressResponse
+import counters.minter.grpc.client.ApiServiceGrpc
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter_api.convert.ConvertAddress
-import counters.minter.sdk.minter_api.convert.ConvertEvents
 import io.grpc.StatusRuntimeException
 import mu.KLogger
 import java.util.concurrent.TimeUnit

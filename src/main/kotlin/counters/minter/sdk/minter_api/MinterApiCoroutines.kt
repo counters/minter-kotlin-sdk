@@ -2,15 +2,12 @@ package counters.minter.sdk.minter_api
 
 import com.google.protobuf.Empty
 import counters.minter.grpc.client.*
-import counters.minter.sdk.minter.LimitOrderRaw
-import counters.minter.sdk.minter.Minter
-import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.*
+import counters.minter.sdk.minter.Coin
+import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.convert.Convert
-import counters.minter.sdk.minter_api.convert.ConvertAddress
-import counters.minter.sdk.minter_api.convert.ConvertEvents
-import counters.minter.sdk.minter_api.convert.ConvertLimitOrder
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
@@ -23,12 +20,17 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     LimitOrdersRequestInterface,
     LimitOrdersOfPoolRequestInterface,
     EventsRequestInterface,
-    AddressRequestInterface {
+    AddressRequestInterface,
+    EstimateCoinSellRequestInterface,
+    EstimateCoinSellAllRequestInterface,
+    EstimateCoinBuyRequestInterface {
 
     //    private var callOptions: CallOptions = CallOptions.DEFAULT
     private lateinit var stub: ApiServiceGrpcKt.ApiServiceCoroutineStub
     private var channel: ManagedChannel? = null
     private var grpcOptions: GrpcOptions
+
+    private val minterMatch = MinterMatch()
 
     private val convert = Convert()
     private val logger = KotlinLogging.logger {}
@@ -38,6 +40,9 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
 
     private val convertEvents = convert.events
     private val convertAddress = convert.address
+    private val convertEstimateCoinSell = convert.estimateCoinSell
+    private val convertEstimateCoinSellAll = convert.estimateCoinSellAll
+    private val convertEstimateCoinBuy = convert.estimateCoinBuy
 
 
     init {
@@ -222,12 +227,50 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
             null
         }
     }
+
     suspend fun getAddressGrpc(address: String, height: Long? = null, delegated: Boolean? = null, deadline: Long? = null) =
         getAddressGrpc(getRequestAddress(address, height, delegated), deadline)
 
     suspend fun getAddress(address: String, height: Long? = null, delegated: Boolean? = null, deadline: Long? = null): AddressRaw? {
         getAddressGrpc(address, height, delegated, deadline).let {
             it?.let { return convertAddress.get(it, address) } ?: run { return null }
+        }
+    }
+
+    suspend fun estimateCoinSellGrpc(request: EstimateCoinSellRequest, deadline: Long? = null): EstimateCoinSellResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.estimateCoinSell(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun estimateCoinSellGrpc(
+        coinToSell: Long,
+        valueToSell: String,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null
+    ) = estimateCoinSellGrpc(getRequestEstimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route), deadline)
+
+    suspend fun estimateCoinSell(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null,
+        notFoundCoin: ((notFount: Boolean) -> Unit)? = null
+    ): Coin.EstimateCoin? {
+        estimateCoinSellGrpc(coinToSell, minterMatch.getPip(valueToSell), coinToBuy, height, coin_id_commission, swap_from, route, deadline).let {
+            it?.let { return convertEstimateCoinSell.get(it) } ?: run { return null }
         }
     }
 
