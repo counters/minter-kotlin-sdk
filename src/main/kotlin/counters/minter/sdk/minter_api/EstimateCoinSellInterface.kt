@@ -10,7 +10,7 @@ import io.grpc.StatusRuntimeException
 import mu.KLogger
 import java.util.concurrent.TimeUnit
 
-interface EstimateCoinSellInterface: EstimateCoinSellRequestInterface  {
+interface EstimateCoinSellInterface : EstimateCoinSellRequestInterface {
 
     var asyncClient: ApiServiceGrpc.ApiServiceStub
     var blockingClient: ApiServiceGrpc.ApiServiceBlockingStub
@@ -19,7 +19,7 @@ interface EstimateCoinSellInterface: EstimateCoinSellRequestInterface  {
 
     val logger: KLogger
 
-      fun getEstimateCoinSellGrpc(request: EstimateCoinSellRequest, deadline: Long?): EstimateCoinSellResponse? {
+    fun getEstimateCoinSellGrpc(request: EstimateCoinSellRequest, deadline: Long?): EstimateCoinSellResponse? {
         try {
             blockingClient.estimateCoinSell(request)?.let {
                 return it
@@ -71,8 +71,6 @@ interface EstimateCoinSellInterface: EstimateCoinSellRequestInterface  {
     ) = getEstimateCoinSellGrpc(getRequestEstimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route), deadline, result)
 
 
-
-
     fun estimateCoinSell(
         coinToSell: Long,
         valueToSell: String,
@@ -90,6 +88,7 @@ interface EstimateCoinSellInterface: EstimateCoinSellRequestInterface  {
             return null
         }
     }
+
     fun estimateCoinSell(
         coinToSell: Long,
         valueToSell: String,

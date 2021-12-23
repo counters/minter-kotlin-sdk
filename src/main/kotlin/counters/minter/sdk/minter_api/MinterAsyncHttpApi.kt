@@ -16,7 +16,7 @@ import mu.KotlinLogging
 import org.json.JSONObject
 
 class MinterAsyncHttpApi(httpOptions: HttpOptions) :
-OkHttpApi(httpOptions),
+    OkHttpApi(httpOptions),
 //    KHttpApi(httpOptions),
     AltUrlHttpGetInterface,
     StringJSON {
@@ -181,7 +181,7 @@ OkHttpApi(httpOptions),
         }
     }
 
-    fun getLimitOrdersOfPoolJson(sellCoin: Long, buyCoin: Long, limit: Int?, height: Long?, timeout: Long?=null, result: (result: JSONObject?) -> Unit) {
+    fun getLimitOrdersOfPoolJson(sellCoin: Long, buyCoin: Long, limit: Int?, height: Long?, timeout: Long? = null, result: (result: JSONObject?) -> Unit) {
         val params = arrayListOf<Pair<String, String>>()
         height?.let { params.add("height" to height.toString()) }
         limit?.let { params.add("limit" to limit.toString()) }
@@ -208,7 +208,7 @@ OkHttpApi(httpOptions),
         }
     }
 
-    fun getEventsJson(height: Long, search: List<String>? = null, timeout: Long? = null, result: (result: JSONObject?) -> Unit ) {
+    fun getEventsJson(height: Long, search: List<String>? = null, timeout: Long? = null, result: (result: JSONObject?) -> Unit) {
         val params = arrayListOf<Pair<String, String>>()
         search?.forEach { params.add("search" to it) }
         this.asyncGet(HttpMethod.EVENTS.patch + "/" + height + altUrlHttpGet(params), null, timeout)
@@ -224,7 +224,7 @@ OkHttpApi(httpOptions),
     }
 
     fun getEvents(height: Long, search: List<String>? = null, timeout: Long? = null, result: (result: List<EventRaw>?) -> Unit) {
-        getEventsJson(height,search,timeout) {
+        getEventsJson(height, search, timeout) {
             if (it != null) {
                 result(parseEvents.getRaw(it, height))
             } else {
@@ -233,7 +233,7 @@ OkHttpApi(httpOptions),
         }
     }
 
-    fun getAddressJson(address: String, height: Long? = null, delegated: Boolean? = null, timeout: Long?=null, result: (result: JSONObject?) -> Unit ) {
+    fun getAddressJson(address: String, height: Long? = null, delegated: Boolean? = null, timeout: Long? = null, result: (result: JSONObject?) -> Unit) {
         val params = arrayListOf<Pair<String, String>>()
         height?.let { params.add("height" to height.toString()) }
         delegated?.let {
@@ -251,8 +251,8 @@ OkHttpApi(httpOptions),
         }
     }
 
-    fun getAddress(address: String, height: Long? = null, delegated: Boolean? = null, timeout: Long?=null, result: (result: AddressRaw?) -> Unit) {
-        getAddressJson(address, height,delegated,timeout) {
+    fun getAddress(address: String, height: Long? = null, delegated: Boolean? = null, timeout: Long? = null, result: (result: AddressRaw?) -> Unit) {
+        getAddressJson(address, height, delegated, timeout) {
             if (it != null) {
                 result(parseWallet.getRaw(it, address))
             } else {
@@ -261,15 +261,16 @@ OkHttpApi(httpOptions),
         }
     }
 
-    fun getEstimateCoinSellJson(coinToSell: Long,
-                                valueToSell: Double,
-                                coinToBuy: Long = 0,
-                                height: Long? = null,
-                                coin_id_commission: Long? = null,
-                                swap_from: SwapFromTypes? = null,
-                                route: List<Long>? = null,
-                                timeout: Long? = null,
-                                result: (result: JSONObject?) -> Unit
+    fun getEstimateCoinSellJson(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        timeout: Long? = null,
+        result: (result: JSONObject?) -> Unit
     ) {
         val params = arrayListOf<Pair<String, String>>(
             "coin_id_to_sell" to coinToSell.toString(),
@@ -312,6 +313,57 @@ OkHttpApi(httpOptions),
         }
     }
 
-    companion object {
+    fun getEstimateCoinSellAllJson(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        gas_price: Int? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        timeout: Long? = null,
+        result: (result: JSONObject?) -> Unit
+    ) {
+        val params = arrayListOf<Pair<String, String>>(
+            "coin_id_to_sell" to coinToSell.toString(),
+            "value_to_sell" to minterMatch.getPip(valueToSell),
+            "coin_id_to_buy" to coinToBuy.toString(),
+        )
+        gas_price?.let { params.add("gas_price" to it.toString()) }
+        swap_from?.let { params.add("swap_from" to it.value) }
+        route?.forEach { params.add("route" to it.toString()) }
+        height?.let { params.add("height" to it.toString()) }
+        this.asyncGet(HttpMethod.ESTIMATE_COIN_SELL_ALL.patch + altUrlHttpGet(params), null, timeout)
+        {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    result(it)
+                } else {
+                    result(null)
+                }
+            } ?: run { result(null) }
+        }
     }
+
+    fun estimateCoinSellAll(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        gasPrice: Int? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        timeout: Long? = null,
+        result: (result: Coin.EstimateCoin?) -> Unit
+    ) {
+        getEstimateCoinSellAllJson(coinToSell, valueToSell, coinToBuy, height, gasPrice, swap_from, route, timeout) {
+            if (it != null) {
+                result(parseEstimateCoinSell.get(it))
+            } else {
+                result(null)
+            }
+        }
+    }
+
+//    companion object {}
 }

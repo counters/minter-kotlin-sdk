@@ -3,8 +3,11 @@ package counters.minter.sdk.minter_api
 import counters.minter.grpc.client.EstimateCoinSellRequest
 import counters.minter.grpc.client.SwapFrom
 import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter_api.convert.ConvertSwapFrom
 
 interface EstimateCoinSellRequestInterface {
+
+    val convertSwapFrom: ConvertSwapFrom
 
     private fun getSwapFrom(swap_from: SwapFromTypes): SwapFrom {
         return SwapFrom.valueOf(swap_from.name)

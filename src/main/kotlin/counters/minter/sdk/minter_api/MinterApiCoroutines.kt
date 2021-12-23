@@ -8,6 +8,7 @@ import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.convert.Convert
+import counters.minter.sdk.minter_api.convert.ConvertSwapFrom
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
@@ -44,6 +45,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     private val convertEstimateCoinSellAll = convert.estimateCoinSellAll
     private val convertEstimateCoinBuy = convert.estimateCoinBuy
 
+    override val convertSwapFrom = ConvertSwapFrom()
 
     init {
         this.grpcOptions = grpcOptions ?: GrpcOptions()
@@ -266,11 +268,49 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         coin_id_commission: Long? = null,
         swap_from: SwapFromTypes? = null,
         route: List<Long>? = null,
-        deadline: Long? = null,
-        notFoundCoin: ((notFount: Boolean) -> Unit)? = null
+        deadline: Long? = null
     ): Coin.EstimateCoin? {
         estimateCoinSellGrpc(coinToSell, minterMatch.getPip(valueToSell), coinToBuy, height, coin_id_commission, swap_from, route, deadline).let {
             it?.let { return convertEstimateCoinSell.get(it) } ?: run { return null }
+        }
+    }
+
+
+    suspend fun estimateCoinSellAllGrpc(request: EstimateCoinSellAllRequest, deadline: Long? = null): EstimateCoinSellAllResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.estimateCoinSellAll(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun estimateCoinSellAllGrpc(
+        coinToSell: Long,
+        valueToSell: String,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        gas_price: Int? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null
+    ) = estimateCoinSellAllGrpc(getRequestEstimateCoinSellAll(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route), deadline)
+
+
+
+    suspend fun estimateCoinSellAll(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        gas_price: Int? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null
+    ): Coin.EstimateCoin? {
+        estimateCoinSellAllGrpc(coinToSell, minterMatch.getPip(valueToSell), coinToBuy, height, gas_price, swap_from, route, deadline).let {
+            it?.let { return convertEstimateCoinSellAll.get(it) } ?: run { return null }
         }
     }
 

@@ -2,6 +2,7 @@ package counters.minter.sdk.minter_api
 
 import counters.minter.grpc.client.ApiServiceGrpc
 import counters.minter.sdk.minter_api.convert.Convert
+import counters.minter.sdk.minter_api.convert.ConvertSwapFrom
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
@@ -28,6 +29,7 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     override lateinit var asyncClient: ApiServiceGrpc.ApiServiceStub
     override lateinit var blockingClient: ApiServiceGrpc.ApiServiceBlockingStub
 
+    override val convertSwapFrom = ConvertSwapFrom()
     private val convert = Convert()
 
     override val convertStatus = convert.status
@@ -38,8 +40,8 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     override val convertEvents = convert.events
     override val convertAddress = convert.address
     override val convertEstimateCoinSell = convert.estimateCoinSell
-//    override val convertEstimateCoinSellAll = convert.estimateCoinSellAll
-//    override val convertEstimateCoinBuy = convert.estimateCoinBuy
+    override val convertEstimateCoinSellAll = convert.estimateCoinSellAll
+    override val convertEstimateCoinBuy = convert.estimateCoinBuy
 
     override val logger = KotlinLogging.logger {}
 

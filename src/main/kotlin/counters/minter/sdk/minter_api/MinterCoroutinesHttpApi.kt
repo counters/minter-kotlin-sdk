@@ -318,5 +318,55 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
         }
     }
 
+    suspend fun estimateCoinSellAllJson(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        gas_price: Int? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        timeout: Long? = null,
+//        notFoundCoin: ((notFount: Boolean) -> Unit)? = null
+    ): JSONObject? {
+        val params = arrayListOf<Pair<String, String>>(
+            "coin_id_to_sell" to coinToSell.toString(),
+            "value_to_sell" to minterMatch.getPip(valueToSell),
+            "coin_id_to_buy" to coinToBuy.toString(),
+        )
+        gas_price?.let { params.add("gas_price" to it.toString()) }
+        swap_from?.let { params.add("swap_from" to it.value) }
+        route?.forEach { params.add("route" to it.toString()) }
+        height?.let { params.add("height" to it.toString()) }
+        this.get(HttpMethod.ESTIMATE_COIN_SELL_ALL.patch + altUrlHttpGet(params), null, timeout).let {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    return it
+                } else {
+                    return null
+                }
+            } ?: run { return null }
+        }
+    }
+
+    suspend fun estimateCoinSellAll(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        gas_price: Int? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        timeout: Long? = null
+    ): Coin.EstimateCoin? {
+        estimateCoinSellAllJson(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route, timeout).let {
+            if (it != null) {
+                return parseEstimateCoinSell.get(it)
+            } else {
+                return null
+            }
+        }
+    }
+
 //    companion object {}
 }

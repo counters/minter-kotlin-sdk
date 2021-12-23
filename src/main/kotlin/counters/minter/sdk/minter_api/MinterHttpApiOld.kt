@@ -598,7 +598,7 @@ class MinterHttpApiOld(
         if (coinToBuy != null) params["coin_id_to_buy"] = coinToBuy
         if (height != null) params["height"] = height.toString()
 
-        if (coin_id_commission != null) params["coin_id_commission"] = coin_id_commission.toString()
+        if (coin_id_commission != null) params["gas_price"] = coin_id_commission.toString()
         if (swap_from != null) params["swap_from"] = swap_from
         var addPathForURL = ""
 

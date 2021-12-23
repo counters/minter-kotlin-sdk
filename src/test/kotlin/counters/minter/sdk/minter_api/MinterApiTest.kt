@@ -447,6 +447,92 @@ internal class MinterApiTest {
     }
 
     @Test
+    fun estimateCoinSellAll() {
+        minterHttpApi.getStatus()?.let {
+            val coinToSell: Long = 1902
+            val valueToSell: Double = 1.0
+            val coinToBuy: Long = 0
+            val height: Long? = it.height
+            val gas_price: Int? = null
+            val swap_from: SwapFromTypes? = null
+            val route: List<Long>? = null
+            val deadline: Long? = null
+            minterHttpApi.estimateCoinSellAll(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route, deadline/*, notFoundCoin*/)?.let { estimateCoinSell ->
+//                println("HTTP: $estimateCoinSell")
+                minterGrpcApi.estimateCoinSellAll(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route, deadline/*, notFoundCoin*/).let {
+//                    println("gRPC: $it")
+                    assertEquals(estimateCoinSell, it)
+                    return
+                }
+            } ?: run {
+                assert(false)
+            }
+        }
+        assert(false)
+    }
+
+    @Test
+    fun asyncEstimateCoinSellAll() {
+        minterHttpApi.getStatus()?.let {
+            val coinToSell: Long = 1902
+            val valueToSell: Double = 1.0
+            val coinToBuy: Long = 0
+            val height: Long? = it.height
+            val gas_price: Int? = null
+            val swap_from: SwapFromTypes? = null
+            val route: List<Long>? = null
+            val deadline: Long? = null
+            var httpResponse: Coin.EstimateCoin? = null
+            var grpcResponse: Coin.EstimateCoin? = null
+            val semaphore = Semaphore(1)
+            semaphore.acquireUninterruptibly()
+            minterHttpApi.estimateCoinSellAll(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route, deadline) {
+//                println("HTTP: $it")
+                httpResponse = it
+                semaphore.release()
+            }
+            semaphore.acquireUninterruptibly()
+            minterGrpcApi.estimateCoinSellAll(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route, deadline) {
+//                println("gRPC: $it")
+                grpcResponse = it
+                semaphore.release()
+            }
+            semaphore.acquire()
+            if (httpResponse == null || grpcResponse == null) {
+                assert(false)
+            } else {
+                assertEquals(grpcResponse!!, httpResponse!!)
+            }
+        }
+    }
+
+    @Test
+    fun estimateCoinSellAllCoroutines() {
+        runBlocking {
+            minterHttpApi.getStatus()?.let {
+                val coinToSell: Long = 1902
+                val valueToSell: Double = 1.0
+                val coinToBuy: Long = 0
+                val height: Long? = it.height
+                val gas_price: Int? = null
+                val swap_from: SwapFromTypes? = null
+                val route: List<Long>? = null
+//                val notFoundCoin: ((notFount: Boolean) -> Unit)? = null
+                val deadline: Long? = null
+                val expected =
+                    async { minterHttpApi.estimateCoinSellAllCoroutines(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route, deadline/*, notFoundCoin*/) }
+                val actual =
+                    async { minterGrpcApi.estimateCoinSellAllCoroutines(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route, deadline/*, notFoundCoin*/) }
+//println("${expected.await()} ${actual.await()}")
+                assertNotEquals(null, actual.await())
+                assertEquals(expected.await(), actual.await())
+                return@runBlocking
+            }
+            assert(false)
+        }
+    }
+
+    @Test
     fun getTransactions() {
     }
 

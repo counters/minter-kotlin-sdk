@@ -18,7 +18,7 @@ import mu.KotlinLogging
 
 class MinterApi(
     grpcOptions: GrpcOptions? = null, httpOptions: HttpOptions? = null
-): MinterMatch() {
+) : MinterMatch() {
     private val logger = KotlinLogging.logger {}
     private var minterHttpApi: MinterHttpApiOld? = null
     private var minterAsyncHttpApi: MinterAsyncHttpApi? = null
@@ -332,6 +332,58 @@ class MinterApi(
             it.estimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline, result)
         } ?: run {
             minterGrpcApi!!.estimateCoinSell(coinToSell, getPip(valueToSell), coinToBuy, height, coin_id_commission, swap_from, route, deadline, result)
+        }
+    }
+
+    fun estimateCoinSellAll(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        gas_price: Int? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null
+    ): Coin.EstimateCoin? {
+        if (minterHttpApi != null) {
+            return minterHttpApi!!.estimateCoinIdSellAll(coinToSell, valueToSell, coinToBuy, height, gas_price?.toLong(), swap_from, route)
+        } else {
+            return minterGrpcApi!!.estimateCoinSellAll(coinToSell, getPip(valueToSell), coinToBuy, height, gas_price, swap_from, route, deadline)
+        }
+    }
+
+    fun estimateCoinSellAll(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        gas_price: Int? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null,
+        result: ((result: Coin.EstimateCoin?) -> Unit)
+    ) {
+        minterAsyncHttpApi?.let {
+            it.estimateCoinSellAll(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.estimateCoinSellAll(coinToSell, getPip(valueToSell), coinToBuy, height, gas_price, swap_from, route, deadline, result)
+        }
+    }
+
+    suspend fun estimateCoinSellAllCoroutines(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        gas_price: Int? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null
+    ): Coin.EstimateCoin? {
+        minterCoroutinesHttpApi?.let {
+            return it.estimateCoinSellAll(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route, deadline)
+        } ?: run {
+            return minterGrpcApiCoroutines!!.estimateCoinSellAll(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route, deadline)
         }
     }
 
