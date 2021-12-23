@@ -85,7 +85,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
 
     suspend fun getStatus(deadline: Long? = null): Minter.Status? {
         getStatusGrpc(deadline)?.let {
-            return convert.getStatus(it)
+            return convert.status.get(it)
         } ?: run {
             return null
         }
