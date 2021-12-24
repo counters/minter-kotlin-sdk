@@ -1,6 +1,8 @@
 package counters.minter.sdk.minter_api.convert
 
-import counters.minter.grpc.client.*
+import counters.minter.grpc.client.AddressBalance
+import counters.minter.grpc.client.AddressDelegatedBalance
+import counters.minter.grpc.client.AddressResponse
 import counters.minter.sdk.minter.CoinObjClass
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterMatch
@@ -19,7 +21,7 @@ class ConvertAddress: MinterMatch() {
                 count_txs = response.transactionCount,
                 balance = getListBalance(response.balanceList),
                 delegated = getListDelegated(response.delegatedList),
-                total = getListBalance(response.balanceList),
+                total = getListBalance(response.totalList),
                 bip_value = getAmount(response.bipValue),
                 multisig = null
             )

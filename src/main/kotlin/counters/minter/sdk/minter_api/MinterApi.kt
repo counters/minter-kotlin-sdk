@@ -442,22 +442,4 @@ class MinterApi(
         }
     }
 
-    suspend fun estimateCoinSellCoroutinestmp(
-        coinToSell: Long,
-        valueToSell: Double,
-        coinToBuy: Long = 0,
-        height: Long? = null,
-        coin_id_commission: Long? = null,
-        swap_from: SwapFromTypes? = null,
-        route: List<Long>? = null,
-        deadline: Long? = null,
-//        notFoundCoin: ((notFount: Boolean) -> Unit)? = null
-    ): Coin.EstimateCoin? {
-        minterCoroutinesHttpApi?.let {
-            return it.estimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)
-        } ?: run {
-            return minterGrpcApiCoroutines!!.estimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)
-        }
-    }
-
 }

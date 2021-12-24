@@ -491,7 +491,6 @@ class MinterHttpApiOld(
     }
 
     @Deprecated(level = DeprecationLevel.WARNING, message = "not full support")
-
     fun estimateCoinIdBuy(
         coinToBuy: Long,
         valueToBuy: String,
