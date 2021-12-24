@@ -30,6 +30,7 @@ open class FuelHttpApi(httpOptions: HttpOptions) : FuelRequest {
         try {
             val (request, response, result) = getRequest(this.nodeUrl + "/" + patch, params, timeout).responseString()
 //            response.statusCode
+//            println(request)
             result.fold(
                 { data -> return data },
                 { error ->

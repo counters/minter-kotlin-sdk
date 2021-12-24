@@ -387,4 +387,77 @@ class MinterApi(
         }
     }
 
+    fun estimateCoinBuy(
+        coinToBuy: Long,
+        valueToBuy: Double,
+        coinToSell: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null
+    ): Coin.EstimateCoin? {
+        if (minterHttpApi != null) {
+            return minterHttpApi!!.estimateCoinIdBuy(coinToBuy, getPip(valueToBuy), coinToSell, height ?: 0/*, coin_id_commission, swap_from, route*/)
+        } else {
+            return minterGrpcApi!!.estimateCoinBuy(coinToBuy, getPip(valueToBuy), coinToSell, height, coin_id_commission, swap_from, route, deadline)
+        }
+
+    }
+
+    fun estimateCoinBuy(
+        coinToBuy: Long,
+        valueToBuy: Double,
+        coinToSell: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null,
+        result: (result: Coin.EstimateCoin?) -> Unit
+    ) {
+        minterAsyncHttpApi?.let {
+            it.estimateCoinBuy(coinToBuy, valueToBuy, coinToSell, height, coin_id_commission, swap_from, route, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.estimateCoinBuy(coinToBuy, getPip(valueToBuy), coinToSell, height, coin_id_commission, swap_from, route, deadline, result)
+        }
+    }
+
+    suspend fun estimateCoinBuyCoroutines(
+        coinToBuy: Long,
+        valueToBuy: Double,
+        coinToSell: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null,
+    ): Coin.EstimateCoin? {
+        minterCoroutinesHttpApi?.let {
+            return it.estimateCoinBuy(coinToBuy, valueToBuy, coinToSell, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)
+        } ?: run {
+//            return null
+//            TODO()
+            return minterGrpcApiCoroutines!!.estimateCoinBuy(coinToBuy, getPip(valueToBuy), coinToSell, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)
+        }
+    }
+
+    suspend fun estimateCoinSellCoroutinestmp(
+        coinToSell: Long,
+        valueToSell: Double,
+        coinToBuy: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null,
+//        notFoundCoin: ((notFount: Boolean) -> Unit)? = null
+    ): Coin.EstimateCoin? {
+        minterCoroutinesHttpApi?.let {
+            return it.estimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)
+        } ?: run {
+            return minterGrpcApiCoroutines!!.estimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)
+        }
+    }
+
 }

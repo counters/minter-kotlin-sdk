@@ -315,6 +315,44 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     }
 
 
+    suspend fun estimateCoinBuyGrpc(request: EstimateCoinBuyRequest, deadline: Long? = null): EstimateCoinBuyResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.estimateCoinBuy(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun estimateCoinBuyGrpc(
+        coinToBuy: Long,
+        valueToBuy: String,
+        coinToSell: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null
+    ) = estimateCoinBuyGrpc(getRequestEstimateCoinBuy(coinToBuy, valueToBuy, coinToSell, height, coin_id_commission, swap_from, route), deadline)
+
+
+    suspend fun estimateCoinBuy(
+        coinToBuy: Long,
+        valueToBuy: String,
+        coinToSell: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        deadline: Long? = null
+    ): Coin.EstimateCoin? {//minterMatch.getPip(
+        estimateCoinBuyGrpc(coinToBuy, valueToBuy, coinToSell, height, coin_id_commission, swap_from, route, deadline).let {
+            it?.let { return convertEstimateCoinBuy.get(it) } ?: run { return null }
+        }
+    }
+
+
 /*    fun asyncBlockGrpc(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null, result: ((result: BlockResponse?) -> Unit)) {
         val requestBuilder = BlockRequest.newBuilder().setHeight(height)
         fields?.let {

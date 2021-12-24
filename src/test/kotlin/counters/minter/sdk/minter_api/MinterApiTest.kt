@@ -372,7 +372,7 @@ internal class MinterApiTest {
 //            val notFoundCoin: ((notFount: Boolean) -> Unit)? = null
             val deadline: Long? = null
             minterHttpApi.estimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)?.let { estimateCoinSell ->
-//                println("HTTP: $it")
+//                println("HTTP: $estimateCoinSell")
                 minterGrpcApi.estimateCoinSell(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/).let {
 //                    println(it)
                     assertEquals(estimateCoinSell, it)
@@ -431,13 +431,97 @@ internal class MinterApiTest {
                 val coin_id_commission: Long? = null
                 val swap_from: SwapFromTypes? = null
                 val route: List<Long>? = null
-//                val notFoundCoin: ((notFount: Boolean) -> Unit)? = null
                 val deadline: Long? = null
                 val expected =
                     async { minterHttpApi.estimateCoinSellCoroutines(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/) }
                 val actual =
                     async { minterGrpcApi.estimateCoinSellCoroutines(coinToSell, valueToSell, coinToBuy, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/) }
 
+                assertNotEquals(null, actual.await())
+                assertEquals(expected.await(), actual.await())
+                return@runBlocking
+            }
+            assert(false)
+        }
+    }
+
+    @Test
+    fun estimateCoinBuy() {
+        minterHttpApi.getStatus()?.let {
+            val coinToSell: Long = 0
+            val value_to_buy: Double = 1.0
+            val coinToBuy: Long = 1902
+            val height: Long? = it.height
+            val coin_id_commission: Long? = null
+            val swap_from: SwapFromTypes? = null
+            val route: List<Long>? = null
+            val deadline: Long? = null
+            minterHttpApi.estimateCoinBuy(coinToBuy, value_to_buy, coinToSell, height, coin_id_commission, swap_from, route, deadline)?.let { estimateCoin ->
+//                println("HTTP: $estimateCoin")
+                minterGrpcApi.estimateCoinBuy(coinToBuy, value_to_buy, coinToSell, height, coin_id_commission, swap_from, route, deadline).let {
+//                    println(it)
+                    assertEquals(estimateCoin, it)
+                    return
+                }
+            } ?: run {
+                assert(false)
+            }
+        }
+        assert(false)
+    }
+
+    @Test
+    fun asyncEstimateCoinBuy() {
+        minterHttpApi.getStatus()?.let {
+            val coinToSell: Long = 0
+            val value_to_buy: Double = 1.0
+            val coinToBuy: Long = 1902
+            val height: Long? = it.height
+            val coin_id_commission: Long? = null
+            val swap_from: SwapFromTypes? = null
+            val route: List<Long>? = null
+            val deadline: Long? = null
+            var httpResponse: Coin.EstimateCoin? = null
+            var grpcResponse: Coin.EstimateCoin? = null
+            val semaphore = Semaphore(1)
+            semaphore.acquireUninterruptibly()
+            minterHttpApi.estimateCoinBuy(coinToBuy, value_to_buy, coinToSell, height, coin_id_commission, swap_from, route, deadline) {
+//                println("HTTP: $it")
+                httpResponse = it
+                semaphore.release()
+            }
+            semaphore.acquireUninterruptibly()
+            minterGrpcApi.estimateCoinBuy(coinToBuy, value_to_buy, coinToSell, height, coin_id_commission, swap_from, route, deadline) {
+//                println("gRPC: $it")
+                grpcResponse = it
+                semaphore.release()
+            }
+            semaphore.acquire()
+            if (httpResponse == null || grpcResponse == null) {
+                assert(false)
+            } else {
+                assertEquals(grpcResponse!!, httpResponse!!)
+            }
+        }
+    }
+
+    @Test
+    fun estimateCoinBuyCoroutines() {
+        runBlocking {
+            minterHttpApi.getStatus()?.let {
+                val coinToSell: Long = 0
+                val value_to_buy: Double = 1.0
+                val coinToBuy: Long = 1902
+                val height: Long? = it.height
+                val coin_id_commission: Long? = null
+                val swap_from: SwapFromTypes? = null
+                val route: List<Long>? = null
+                val deadline: Long? = null
+                val expected =
+                    async { minterHttpApi.estimateCoinBuyCoroutines(coinToBuy, value_to_buy, coinToSell, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/) }
+                val actual =
+                    async { minterGrpcApi.estimateCoinBuyCoroutines(coinToBuy, value_to_buy, coinToSell, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/) }
+//                println("${expected.await()} ${actual.await()}")
                 assertNotEquals(null, actual.await())
                 assertEquals(expected.await(), actual.await())
                 return@runBlocking

@@ -415,6 +415,7 @@ class MinterHttpApiOld(
         return null
     }
 
+    @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
     fun estimateCoinBuy(
         coinToSell: String,
         valueToBuy: Double,
@@ -425,6 +426,7 @@ class MinterHttpApiOld(
         return this.estimateCoinBuy(coinToSell, minterMatch.getPip(valueToBuy), coinToBuy, height)
     }
 
+    @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
     fun estimateCoinBuy(
         coinToSell: Long,
         valueToBuy: Double,
@@ -432,7 +434,7 @@ class MinterHttpApiOld(
         height: Long = 0,
         notFoundCoin: ((notFount: Boolean) -> Unit)? = null
     ): Coin.EstimateCoinBuy? {
-        return this.estimateCoinIdBuy(coinToSell.toString(), minterMatch.getPip(valueToBuy), coinToBuy.toString(), height)
+        return this.estimateCoinIdBuyOld(coinToSell.toString(), minterMatch.getPip(valueToBuy), coinToBuy.toString(), height)
     }
 
     @Deprecated(level = DeprecationLevel.WARNING, message = "not support for tokens")
@@ -457,13 +459,14 @@ class MinterHttpApiOld(
                 result = jsonObj.getJSONObject("result")
             }
 
-            if (result != null) return parseEstimateCoinBuy.get(result)
+            if (result != null) return parseEstimateCoinBuy.getOld(result)
         }
 //        println("Error getBlock($height)")
         return null
     }
 
-    fun estimateCoinIdBuy(
+    @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
+    fun estimateCoinIdBuyOld(
         coinToSell: String,
         valueToBuy: String,
         coinToBuy: String,
@@ -482,10 +485,46 @@ class MinterHttpApiOld(
             if (jsonObj.isNull("error")) {
                 result = jsonObj
             }
+            if (result != null) return parseEstimateCoinBuy.getOld(result)
+        }
+        return null
+    }
+
+    @Deprecated(level = DeprecationLevel.WARNING, message = "not full support")
+
+    fun estimateCoinIdBuy(
+        coinToBuy: Long,
+        valueToBuy: String,
+        coinToSell: Long,
+        height: Long = 0,
+        notFoundCoin: ((notFount: Boolean) -> Unit)? = null
+    ): Coin.EstimateCoin? {
+        val jsonObj = this.getJson(HttpMethod.ESTIMATE_COIN_BUY.patch,
+            mapOf(
+                "coin_id_to_sell" to coinToSell.toString(), "value_to_buy" to valueToBuy,
+                "coin_id_to_buy" to coinToBuy.toString(), "height" to height.toString()
+            ), null, {
+                if (this.notFoundCoin(it)) notFoundCoin?.invoke(true)
+            })
+        if (jsonObj != null) {
+            var result: JSONObject? = null
+            if (jsonObj.isNull("error")) {
+                result = jsonObj
+            }
             if (result != null) return parseEstimateCoinBuy.get(result)
         }
         return null
     }
+
+/*    @Deprecated(level = DeprecationLevel.WARNING, message = "not full support")
+    fun estimateCoinIdBuy(
+        coinToBuy: String,
+        valueToBuy: String,
+        coinToSell: String,
+        height: Long = 0,
+        notFoundCoin: ((notFount: Boolean) -> Unit)? = null
+    )= estimateCoinIdBuy(coinToBuy, minterMatch.getPip(valueToSell),coinToSell,  height, notFoundCoin)
+    */
 
     @Deprecated(level = DeprecationLevel.WARNING, message = "not support for tokens")
     fun estimateCoinSell(

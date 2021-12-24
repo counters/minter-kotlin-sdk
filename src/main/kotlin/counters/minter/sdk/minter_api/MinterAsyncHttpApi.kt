@@ -365,5 +365,58 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
         }
     }
 
+
+    fun getEstimateCoinBuyJson(
+        coinToBuy: Long,
+        valueToBuy: Double,
+        coinToSell: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        timeout: Long? = null,
+        result: (result: JSONObject?) -> Unit
+    ) {
+        val params = arrayListOf<Pair<String, String>>(
+            "coin_id_to_sell" to coinToSell.toString(),
+            "value_to_buy" to minterMatch.getPip(valueToBuy),
+            "coin_id_to_buy" to coinToBuy.toString(),
+        )
+        coin_id_commission?.let { params.add("coin_id_commission" to it.toString()) }
+        swap_from?.let { params.add("swap_from" to it.value) }
+        route?.forEach { params.add("route" to it.toString()) }
+        height?.let { params.add("height" to it.toString()) }
+        this.asyncGet(HttpMethod.ESTIMATE_COIN_BUY.patch + altUrlHttpGet(params), null, timeout)
+        {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    result(it)
+                } else {
+                    result(null)
+                }
+            } ?: run { result(null) }
+        }
+    }
+
+    fun estimateCoinBuy(
+        coinToBuy: Long,
+        valueToBuy: Double,
+        coinToSell: Long = 0,
+        height: Long? = null,
+        coin_id_commission: Long? = null,
+        swap_from: SwapFromTypes? = null,
+        route: List<Long>? = null,
+        timeout: Long? = null,
+        result: (result: Coin.EstimateCoin?) -> Unit
+    ) {
+        getEstimateCoinBuyJson(coinToBuy, valueToBuy, coinToSell, height, coin_id_commission, swap_from, route, timeout) {
+            if (it != null) {
+                result(parseEstimateCoinBuy.get(it))
+            } else {
+                result(null)
+            }
+        }
+    }
+
 //    companion object {}
 }
