@@ -29,9 +29,9 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.16")
     implementation("org.slf4j", "slf4j-simple", "1.7.30")
 
-    implementation( group="org.json", name="json", version= "20200518")
-    testCompile("org.slf4j", "slf4j-simple", "1.7.26")
-    implementation ("joda-time:joda-time:2.10.13")
+    implementation(group = "org.json", name = "json", version = "20200518")
+    testImplementation("org.slf4j", "slf4j-simple", "1.7.26")
+    implementation("joda-time:joda-time:2.10.13")
 
     implementation(fileTree("libs"))
 

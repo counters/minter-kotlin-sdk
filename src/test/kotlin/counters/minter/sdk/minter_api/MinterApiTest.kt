@@ -200,21 +200,54 @@ internal class MinterApiTest {
     @Test
     fun getAddressCoroutines() {
         runBlocking {
-            transactionsByType(TransactionTypes.TypeDeclareCandidacy)?.first()?.from?.let {
+            minterGrpcApi.getStatusCoroutines()?.let {
+                val height = it.height - 1
+//                transactionsByType(TransactionTypes.TypeDeclareCandidacy)?.first()?.from?.let {
 //            "Mx170efb7414ba43bfbcd6aac831abc289de916635".let {
+//            "Mx0903ab168597a7c86ad0d4b72424b3632be0af1b".let {
+                Utils(Config.network).getExtremeDelegators(10, false).forEach {
 //                println(it)
-                minterHttpApi.getAddressCoroutines(it, 0, true)?.let { address ->
+                    minterHttpApi.getAddressCoroutines(it, height, true)?.let { address ->
 //                    println(address.bip_value)
-                    minterGrpcApi.getAddressCoroutines(it, 0, true)?.let {
+//                        delay(10000)
+                        minterGrpcApi.getAddressCoroutines(it, height, true)?.let {
 //                        println(it.bip_value)
-                        assertAddress(address, it)
-                        return@runBlocking
-                    } ?: run {
-                        assert(false)
+                            assertAddress(address, it)
+                            return@runBlocking
+                        } ?: run {
+                            assert(false)
+                        }
                     }
                 }
+                assert(false)
             }
-            assert(false)
+        }
+    }
+
+    @Test
+    fun getAddressCoroutinesGrpc() {
+        runBlocking {
+            minterGrpcApi.getStatusCoroutines()?.let {
+                val height = it.height - 1
+//                transactionsByType(TransactionTypes.TypeDeclareCandidacy)?.first()?.from?.let {
+//            "Mx170efb7414ba43bfbcd6aac831abc289de916635".let {
+//            "Mx0903ab168597a7c86ad0d4b72424b3632be0af1b".let {
+                Utils(Config.network).getExtremeDelegators(10, false).forEach {
+//                println(it)
+                    minterHttpApi.getAddressCoroutines(it, height, true)?.let { address ->
+//                    println(address.bip_value)
+//                        delay(60000)
+                        minterGrpcApi.getAddressCoroutines(it, height, true)?.let {
+//                        println(it.bip_value)
+                            assertAddress(address, it)
+                            return@runBlocking
+                        } ?: run {
+                            assert(false)
+                        }
+                    }
+                }
+                assert(false)
+            }
         }
     }
 
@@ -260,7 +293,7 @@ internal class MinterApiTest {
 //        "Mx170efb7414ba43bfbcd6aac831abc289de916635".let {
         transactionsByType(TransactionTypes.TypeDeclareCandidacy)?.first()?.from?.let {
 //            println(it)
-            minterHttpApi.getAddress(it, null, true)?.let { address ->
+            minterHttpApi.getAddress(address = it, height = null, delegated = true)?.let { address ->
 //                println(address)
                 assertNotEquals(null, address)
                 minterGrpcApi.getAddress(it, null, true)?.let {
@@ -282,14 +315,14 @@ internal class MinterApiTest {
             val semaphore = Semaphore(1)
             semaphore.acquireUninterruptibly()
             minterHttpApi.getAddress(it) {
-                println(it)
+//                println(it)
                 httpResponse = it
 //                assertNotEquals(null, statusResponse)
                 semaphore.release()
             }
             semaphore.acquireUninterruptibly()
             minterGrpcApi.getAddress(it) {
-                println(it)
+//                println(it)
                 grpcResponse = it
                 semaphore.release()
             }
@@ -616,8 +649,33 @@ internal class MinterApiTest {
         }
     }
 
-    @Test
-    fun getTransactions() {
+    //    @Test
+    fun streamSubscribe() {
+        var httpResponse: Minter.Status? = null
+        var grpcResponse: Minter.Status? = null
+
+        val semaphore = Semaphore(1)
+        semaphore.acquireUninterruptibly()
+        minterHttpApi.streamSubscribeStatus() {
+            println("HTTP: $it")
+            if (httpResponse == null) {
+                httpResponse = it
+            } else {
+                semaphore.release()
+            }
+        }
+        /*      semaphore.acquireUninterruptibly()
+              minterGrpcApi.streamSubscribeStatus() {
+                      println("gRPC: $it")
+                  grpcResponse = it
+                  semaphore.release()
+              }*/
+        semaphore.acquire()
+        if (httpResponse == null || grpcResponse == null) {
+            assert(false)
+        } else {
+            assertEquals(grpcResponse!!, httpResponse!!)
+        }
     }
 
     @Test
