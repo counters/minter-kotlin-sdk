@@ -428,29 +428,30 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
         }
     }
 
-    fun ________streamSubscribeJson(query: Subscribe, timeout: Long? = null, result: (result: JSONObject?) -> Unit): WebSocket {
-        val params = arrayListOf<Pair<String, String>>("query" to query.str)
-        return webSocketOkHttp.socket(HttpMethod.SUBSCRIBE.patch, params) {
-            result(getJSONObject(it))
-        }
-    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun streamSubscribeJson(query: String, timeout: Long? = null): Flow<JSONObject?>/* = flow*/ = callbackFlow {
+    fun streamSubscribeJson(query: String, timeout: Long? = null): Flow<JSONObject?> = callbackFlow {
         val params = arrayListOf("query" to query)
-        val messagesListener = object : (String) -> Unit {
-            override fun invoke(result: String) {
-//                TODO("Not yet implemented")
-                println("raw2 ${getJSONObject(result)?.let { it1 -> parseSubscribe.status(it1) }}")
-                trySend(getJSONObject(result)).isSuccess
-            }
-
-        }
 //        webSocketOkHttp.socket(HttpMethod.SUBSCRIBE.patch, params, null, messagesListener)
-        webSocketOkHttp.socket(HttpMethod.SUBSCRIBE.patch, params) {
-//            println("raw ${getJSONObject(it)?.let { it1 -> parseSubscribe.status(it1) }}")
-            trySend(getJSONObject(it)).isSuccess
+        var socket: WebSocket? = null
+        socket = webSocketOkHttp.socket(HttpMethod.SUBSCRIBE.patch, params, timeout) {
+            getJSONObject(it)?.let {
+                if (!it.isNull("result")) {
+                    trySend(it).isSuccess
+                } else {
+                    trySend(null).isClosed
+                    close()
+                    webSocketOkHttp.close(socket)
+                }
+            } ?: run {
+                logger.error { "Error: socket return" }
+                trySend(null).isClosed
+                close()
+                webSocketOkHttp.close(socket)
+            }
         }
+//        webSocketOkHttp.close(socket)
+//        awaitClose {  }
         awaitClose { cancel() }
     }
 

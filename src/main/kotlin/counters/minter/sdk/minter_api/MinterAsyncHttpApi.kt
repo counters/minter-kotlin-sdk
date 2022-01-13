@@ -46,6 +46,11 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
 
     private val webSocketOkHttp = WebSocketOkHttp(httpOptions)
 
+    fun shutdown() {
+//        webSocketOkHttp.close()
+    }
+
+
     fun getStatusJson(timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
         this.asyncGet(HttpMethod.STATUS.patch, null, timeout) {
             it?.let { result(getJSONObject(it)) }
@@ -71,32 +76,6 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
                     result(null)
                 }
             } ?: run { result(null) }
-        }
-    }
-
-    fun test_getBlockJson(height: Long, timeout: Long? = null): JSONObject? {
-        this.syncGet(HttpMethod.BLOCK.patch + "/" + height, null, timeout).let {
-//            logger.info { "this.httpGet(*): ${it}" }
-            getJSONObject(it)?.let {
-//                logger.info { "this.httpGet(*): JSON ${it}" }
-                if (it.isNull("error")) {
-                    return it
-                } else {
-                    return null
-                }
-            } ?: run { return null }
-        }
-    }
-
-    fun test_getBlock(height: Long, timeout: Long? = null): BlockRaw? {
-        test_getBlockJson(height, timeout).let {
-//            logger.info { "getBlockJson($height, $timeout) : $it" }
-            if (it != null) {
-//                logger.info { "getBlockJson($height, $timeout) : ${parseBlock.getRaw(it)}" }
-                return parseBlock.getRaw(it)
-            } else {
-                return null
-            }
         }
     }
 

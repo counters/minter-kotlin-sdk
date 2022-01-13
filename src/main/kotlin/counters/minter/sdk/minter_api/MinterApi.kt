@@ -107,14 +107,14 @@ class MinterApi(
         }
     }
 
-    @Deprecated(level = DeprecationLevel.ERROR, message = "for test")
+/*    @Deprecated(level = DeprecationLevel.ERROR, message = "for test")
     suspend fun test_getBlockCoroutines(height: Long, fields: List<BlockField>? = null, failed_txs: Boolean? = null, deadline: Long? = null): BlockRaw? {
         minterAsyncHttpApi?.let {
             return it.test_getBlock(height, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getBlock(height, fields, failed_txs, deadline)
         }
-    }
+    }*/
 
     fun getTransaction(hash: String, deadline: Long? = null): TransactionRaw? {
         if (minterHttpApi != null) {
@@ -473,31 +473,6 @@ class MinterApi(
             it.streamSubscribeStatus(deadline).collect {
                 emit(it)
             }
-/*//            runBlocking {
-//            emit(null)
-            val semaphore = Semaphore(0)
-//                flow<Minter.Status?> {
-            val sum: (Int, Int) -> Int = { a, b -> a + b }
-            val sum2 = fun(x: Int, y: Int): Int = x + y
-            val callback: (Minter.Status?) -> Unit = {
-                println(it)
-//                    emit(it)
-            }
-            runBlocking {
-                flow {
-                    emit(null)
-                    minterAsyncHttpApi?.streamSubscribe(Subscribe.TmEventNewBlock, deadline) {
-                        println(it)
-//                        emit(it)
-//                return@streamSubscribe flowOf(it)
-//                streamSubscribeStatusCoroutines(null)
-                        if (it == null) semaphore.release()
-                        semaphore.release()
-                    }
-                }
-            }
-            semaphore.acquire()
-//            }*/
         } ?: run {
 //            return minterGrpcApiCoroutines!!.streamSubscribeStatus(deadline)
             minterGrpcApiCoroutines!!.streamSubscribeStatus(deadline).collect {

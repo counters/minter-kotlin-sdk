@@ -28,8 +28,8 @@ class WebSocketOkHttp(httpOptions: HttpOptions) {
 
     class State {
         lateinit var initialiser: () -> WebSocket
-        val MAX_NUM = 5  // Maximum number of reconnections
-        val MILLIS = 5000L  // Reconnection interval, milliseconds
+        val maxNumReconnect = 5  // Maximum number of reconnections
+        val intervalReconnect = 5000L  // Reconnection interval, milliseconds
         lateinit var client: OkHttpClient
         lateinit var webSocket: WebSocket
         var isConnect = false
@@ -47,21 +47,22 @@ class WebSocketOkHttp(httpOptions: HttpOptions) {
 
     fun close(webSocket: WebSocket?) {
 //        webSocket?.cancel()
+        logger.warn { "webSocket?.close(1001, \"closes the connection\")" }
         webSocket?.close(1001, "closes the connection")
     }
 
     private fun reconnect(state: State) {
         logger.warn { "reconnect ${state.connectNum}" }
-        if (state.connectNum <= state.MAX_NUM) {
+        if (state.connectNum <= state.maxNumReconnect) {
             try {
-                runBlocking { delay(state.MILLIS) }
+                runBlocking { delay(state.intervalReconnect) }
                 state.initialiser.invoke()
                 state.connectNum++
             } catch (e: InterruptedException) {
                 e.printStackTrace()
             }
         } else {
-            logger.warn { "reconnect over ${state.MAX_NUM}" }
+            logger.warn { "reconnect over ${state.maxNumReconnect}" }
 //            Log.i(TAG, "reconnect over $MAX_NUM,please check url or network")
         }
     }
@@ -90,7 +91,7 @@ class WebSocketOkHttp(httpOptions: HttpOptions) {
         requestBuilder.url(httpBuilder.build())
         logger.debug { "request: ${requestBuilder.build()}" }
 
-        val request = requestBuilder/*.url(nodeUrl+ patch)*/.build()
+        val request = requestBuilder.build()
         state.initialiser = {
             client.newWebSocket(request, object : WebSocketListener() {
                 override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
@@ -109,7 +110,8 @@ class WebSocketOkHttp(httpOptions: HttpOptions) {
                     super.onFailure(webSocket, t, response)
                     state.isConnect = false
                     logger.warn { "onFailure()" }
-                    reconnect(state)
+//                    reconnect(state)
+//                    close(state.webSocket)
                 }
 
                 override fun onMessage(webSocket: WebSocket, text: String) {
@@ -122,7 +124,7 @@ class WebSocketOkHttp(httpOptions: HttpOptions) {
                     state.webSocket = webSocket
                     state.isConnect = response.code == 101
                     if (!state.isConnect) {
-                        reconnect(state)
+//                        reconnect(state)
                     } else {
                         logger.debug { "connect success" }
                     }

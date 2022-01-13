@@ -1,25 +1,34 @@
 package counters.minter.sdk.minter_api.parse
 
 import counters.minter.sdk.minter.Minter
+import mu.KotlinLogging
 import org.joda.time.DateTime
 import org.json.JSONObject
 
 class ParseSubscribe {
+    private val logger = KotlinLogging.logger {}
+
     fun status(result: JSONObject): Minter.Status? {
-        val header = result.getJSONObject("result").getJSONObject("data").getJSONObject("block").getJSONObject("header")
+        if (!result.isNull("result")) {
 
-        val height = header.getLong("height")
-        val network = header.getString("chain_id")
-        val strTime = header.getString("time")
-        val datetime = DateTime(strTime)
+            val header = result.getJSONObject("result").getJSONObject("data").getJSONObject("block").getJSONObject("header")
 
-        val initialHeight = -1L
+            val height = header.getLong("height")
+            val network = header.getString("chain_id")
+            val strTime = header.getString("time")
+            val datetime = DateTime(strTime)
 
-        return Minter.Status(
-            height,
-            datetime,
-            network,
-            initialHeight,
-        )
+            val initialHeight = -1L
+
+            return Minter.Status(
+                height,
+                datetime,
+                network,
+                initialHeight,
+            )
+        } else {
+            logger.warn { "Error $result" }
+            return null
+        }
     }
 }

@@ -365,13 +365,16 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         } catch (e: StatusException) {
             logger.warn { "StatusException: $e" }
             flowOf<SubscribeResponse?>(null)
-        }
+        }/* catch (e: Exception) {
+            logger.warn { "!!! Exception: $e" }
+            flowOf<SubscribeResponse?>(null)
+        }*/
     }
 
     fun streamSubscribeGrpc(query: String, deadline: Long? = null) = streamSubscribeGrpc(getRequestSubscribe(query), deadline)
     fun streamSubscribeGrpc(query: Subscribe, deadline: Long? = null) = streamSubscribeGrpc(getRequestSubscribe(query.str), deadline)
 
-    fun streamSubscribeStatus(deadline: Long? = null): Flow<Minter.Status?> = flow {
+    fun streamSubscribeStatus(deadline: Long? = null) = flow {
         streamSubscribeGrpc(Subscribe.TmEventNewBlock, deadline).collect {
             it?.let { emit(convertSubscribe.status(it)) } ?: run { emit(null) }
         }
