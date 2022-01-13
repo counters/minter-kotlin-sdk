@@ -11,7 +11,7 @@ import org.json.JSONObject
 class ParseBlock {
     val minterMatch = MinterMatch()
 
-    val parseTransaction = ParseTransaction()
+    private val parseTransaction = ParseTransaction()
 
     enum class Method {
         BLOCK,

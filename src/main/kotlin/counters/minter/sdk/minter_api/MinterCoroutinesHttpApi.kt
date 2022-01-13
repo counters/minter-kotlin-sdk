@@ -8,13 +8,23 @@ import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw.BlockRaw
 import counters.minter.sdk.minter.MinterRaw.EventRaw
 import counters.minter.sdk.minter.enum.BlockField
+import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.http.FuelCoroutinesHttpApi
 import counters.minter.sdk.minter_api.http.HttpOptions
+import counters.minter.sdk.minter_api.http.WebSocketOkHttp
 import counters.minter.sdk.minter_api.parse.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
+import okhttp3.WebSocket
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -24,8 +34,7 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
     FuelCoroutinesHttpApi(httpOptions),
 //    KHttpApi(httpOptions),
     AltUrlHttpGetInterface,
-    CollectionConvert
-{
+    CollectionConvert {
 
     private val parseBlock = ParseBlock()
     private val parseNode = ParseNode()
@@ -37,6 +46,8 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
     private val parseEvents = ParseEvent()
     private val parseTransaction = ParseTransaction()
     private val parseSwapPoolRaw = ParseSwapPoolRaw()
+    private val parseSubscribe = ParseSubscribe()
+
 
     private val parseLimitOrder = ParseLimitOrder()
 
@@ -44,7 +55,7 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
 
     private val logger = KotlinLogging.logger {}
 
-//    override var timeout: Int? =null
+    private val webSocketOkHttp = WebSocketOkHttp(httpOptions)
 
     suspend fun getStatusJson(timeout: Long? = null): JSONObject? {
         return getJSONObject(this.get(HttpMethod.STATUS.patch, null, timeout))
@@ -245,7 +256,7 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
     suspend fun getAddressJson(address: String, height: Long? = null, delegated: Boolean? = null, timeout: Long? = null): JSONObject? {
         val params = arrayListOf<Pair<String, String>>()
         height?.let { params.add("height" to height.toString()) }
-        delegated?.let { if (it) params.add("delegated" to "true")  }
+        delegated?.let { if (it) params.add("delegated" to "true") }
         this.get(HttpMethod.ADDRESS.patch + "/" + address, params, timeout).let {
             getJSONObject(it)?.let {
                 if (it.isNull("error")) {
@@ -414,6 +425,40 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
             } else {
                 return null
             }
+        }
+    }
+
+    fun ________streamSubscribeJson(query: Subscribe, timeout: Long? = null, result: (result: JSONObject?) -> Unit): WebSocket {
+        val params = arrayListOf<Pair<String, String>>("query" to query.str)
+        return webSocketOkHttp.socket(HttpMethod.SUBSCRIBE.patch, params) {
+            result(getJSONObject(it))
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun streamSubscribeJson(query: String, timeout: Long? = null): Flow<JSONObject?>/* = flow*/ = callbackFlow {
+        val params = arrayListOf("query" to query)
+        val messagesListener = object : (String) -> Unit {
+            override fun invoke(result: String) {
+//                TODO("Not yet implemented")
+                println("raw2 ${getJSONObject(result)?.let { it1 -> parseSubscribe.status(it1) }}")
+                trySend(getJSONObject(result)).isSuccess
+            }
+
+        }
+//        webSocketOkHttp.socket(HttpMethod.SUBSCRIBE.patch, params, null, messagesListener)
+        webSocketOkHttp.socket(HttpMethod.SUBSCRIBE.patch, params) {
+//            println("raw ${getJSONObject(it)?.let { it1 -> parseSubscribe.status(it1) }}")
+            trySend(getJSONObject(it)).isSuccess
+        }
+        awaitClose { cancel() }
+    }
+
+    private fun streamSubscribeJson(query: Subscribe, timeout: Long? = null) = streamSubscribeJson(query.str, timeout)
+
+    fun streamSubscribeStatus(timeout: Long? = null): Flow<Status?> = flow {
+        streamSubscribeJson(Subscribe.TmEventNewBlock, timeout).collect {
+            if (it != null) emit(parseSubscribe.status(it)) else emit(null)
         }
     }
 

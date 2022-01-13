@@ -14,6 +14,9 @@ import counters.minter.sdk.minter.models.Commission
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter.utils.EventType
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -649,32 +652,67 @@ internal class MinterApiTest {
         }
     }
 
-    //    @Test
+    @Test
+    fun streamSubscribeStatusCoroutines() {
+        runBlocking {
+            var httpResponse: Minter.Status? = null
+            var grpcResponse: Minter.Status? = null
+
+            val jobHttp = launch {
+                minterHttpApi.streamSubscribeStatusCoroutines().take(2).collect {
+                    httpResponse = it
+//                    println("HTTP: $it")
+//                    this.cancel()
+                }
+            }
+            val jobGrpc = launch {
+                minterGrpcApi.streamSubscribeStatusCoroutines().take(2).collect {
+                    grpcResponse = it
+//                    println("gRPC: $it")
+//                    this.cancel()
+                }
+            }
+            jobHttp.join()
+            jobGrpc.join()
+            grpcResponse?.let {
+                assertEquals(httpResponse, grpcResponse)
+            } ?: run {
+                assert(false)
+            }
+        }
+    }
+
+    @Test
     fun streamSubscribe() {
         var httpResponse: Minter.Status? = null
         var grpcResponse: Minter.Status? = null
 
-        val semaphore = Semaphore(1)
+        val semaphore = Semaphore(2)
         semaphore.acquireUninterruptibly()
-        minterHttpApi.streamSubscribeStatus() {
+        println("minterHttpApi.streamSubscribeStatus")
+        minterHttpApi.streamSubscribeStatus {
             println("HTTP: $it")
-            if (httpResponse == null) {
-                httpResponse = it
-            } else {
+            if (httpResponse != null) {
                 semaphore.release()
             }
+            httpResponse = it
         }
-        /*      semaphore.acquireUninterruptibly()
-              minterGrpcApi.streamSubscribeStatus() {
-                      println("gRPC: $it")
-                  grpcResponse = it
-                  semaphore.release()
-              }*/
+        semaphore.acquireUninterruptibly()
+        println("minterGrpcApi.streamSubscribeStatus")
+        minterGrpcApi.streamSubscribeStatus {
+            println("gRPC: $it")
+            if (grpcResponse != null) {
+                semaphore.release()
+            }
+            grpcResponse = it
+//            grpcResponse = it
+//            semaphore.release()
+        }
         semaphore.acquire()
-        if (httpResponse == null || grpcResponse == null) {
+        grpcResponse?.let {
+            assertEquals(httpResponse?.network, grpcResponse?.network)
+        } ?: run {
             assert(false)
-        } else {
-            assertEquals(grpcResponse!!, httpResponse!!)
         }
     }
 

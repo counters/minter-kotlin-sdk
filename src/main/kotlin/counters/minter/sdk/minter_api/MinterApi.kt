@@ -8,12 +8,16 @@ import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw.BlockRaw
 import counters.minter.sdk.minter.MinterRaw.EventRaw
 import counters.minter.sdk.minter.enum.QueryTags
+import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import counters.minter.sdk.minter_api.http.HttpOptions
 import io.grpc.ManagedChannelBuilder
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 
 class MinterApi(
@@ -439,6 +443,74 @@ class MinterApi(
 //            return null
 //            TODO()
             return minterGrpcApiCoroutines!!.estimateCoinBuy(coinToBuy, getPip(valueToBuy), coinToSell, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)
+        }
+    }
+
+    private fun streamSubscribe(query: Subscribe, deadline: Long? = null, result: (result: Minter.Status?) -> Unit) {
+        minterAsyncHttpApi?.let {
+            it.streamSubscribe(query, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.streamSubscribe(query, deadline, result)
+        }
+    }
+
+    private fun streamSubscribe(query: Subscribe, deadline: Long? = null): Minter.Status? {
+        var status: Minter.Status? = null
+        minterAsyncHttpApi?.let {
+            it.streamSubscribe(query, deadline) {
+                status = it
+            }
+        } ?: run {
+            minterGrpcApi!!.streamSubscribe(query, deadline) {
+                status = it
+            }
+        }
+        return status
+    }
+
+    suspend fun streamSubscribeStatusCoroutines(deadline: Long? = null): Flow<Minter.Status?> = flow {
+        minterCoroutinesHttpApi?.let {
+            it.streamSubscribeStatus(deadline).collect {
+                emit(it)
+            }
+/*//            runBlocking {
+//            emit(null)
+            val semaphore = Semaphore(0)
+//                flow<Minter.Status?> {
+            val sum: (Int, Int) -> Int = { a, b -> a + b }
+            val sum2 = fun(x: Int, y: Int): Int = x + y
+            val callback: (Minter.Status?) -> Unit = {
+                println(it)
+//                    emit(it)
+            }
+            runBlocking {
+                flow {
+                    emit(null)
+                    minterAsyncHttpApi?.streamSubscribe(Subscribe.TmEventNewBlock, deadline) {
+                        println(it)
+//                        emit(it)
+//                return@streamSubscribe flowOf(it)
+//                streamSubscribeStatusCoroutines(null)
+                        if (it == null) semaphore.release()
+                        semaphore.release()
+                    }
+                }
+            }
+            semaphore.acquire()
+//            }*/
+        } ?: run {
+//            return minterGrpcApiCoroutines!!.streamSubscribeStatus(deadline)
+            minterGrpcApiCoroutines!!.streamSubscribeStatus(deadline).collect {
+                emit(it)
+            }
+        }
+    }
+
+    fun streamSubscribeStatus(deadline: Long? = null, result: (result: Minter.Status?) -> Unit) {
+        minterAsyncHttpApi?.let {
+            it.streamSubscribe(Subscribe.TmEventNewBlock, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.streamSubscribe(Subscribe.TmEventNewBlock, deadline, result)
         }
     }
 

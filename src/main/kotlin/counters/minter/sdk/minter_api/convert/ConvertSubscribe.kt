@@ -28,10 +28,10 @@ object ConvertSubscribe {
             initial_height,
         )
     }
-    data class Status(
+/*    data class Status(
         val height: Long,
         val datetime: DateTime,
         val network: String,
         val initial_height: Long,
-    )
+    )*/
 }

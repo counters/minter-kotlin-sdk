@@ -4,6 +4,7 @@ import com.google.protobuf.Empty
 import counters.minter.grpc.client.*
 import counters.minter.sdk.minter.*
 import counters.minter.sdk.minter.Coin
+import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
@@ -13,6 +14,10 @@ import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.StatusException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import mu.KotlinLogging
 import java.util.concurrent.TimeUnit
 
@@ -24,7 +29,8 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     AddressRequestInterface,
     EstimateCoinSellRequestInterface,
     EstimateCoinSellAllRequestInterface,
-    EstimateCoinBuyRequestInterface {
+    EstimateCoinBuyRequestInterface,
+    SubscribeRequestInterface {
 
     //    private var callOptions: CallOptions = CallOptions.DEFAULT
     private lateinit var stub: ApiServiceGrpcKt.ApiServiceCoroutineStub
@@ -44,6 +50,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     private val convertEstimateCoinSell = convert.estimateCoinSell
     private val convertEstimateCoinSellAll = convert.estimateCoinSellAll
     private val convertEstimateCoinBuy = convert.estimateCoinBuy
+    private val convertSubscribe = convert.subscribe
 
     override val convertSwapFrom = ConvertSwapFrom()
 
@@ -298,7 +305,6 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     ) = estimateCoinSellAllGrpc(getRequestEstimateCoinSellAll(coinToSell, valueToSell, coinToBuy, height, gas_price, swap_from, route), deadline)
 
 
-
     suspend fun estimateCoinSellAll(
         coinToSell: Long,
         valueToSell: Double,
@@ -352,6 +358,24 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         }
     }
 
+    fun streamSubscribeGrpc(request: SubscribeRequest, deadline: Long? = null): Flow<SubscribeResponse?> {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.subscribe(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            flowOf<SubscribeResponse?>(null)
+        }
+    }
+
+    fun streamSubscribeGrpc(query: String, deadline: Long? = null) = streamSubscribeGrpc(getRequestSubscribe(query), deadline)
+    fun streamSubscribeGrpc(query: Subscribe, deadline: Long? = null) = streamSubscribeGrpc(getRequestSubscribe(query.str), deadline)
+
+    fun streamSubscribeStatus(deadline: Long? = null): Flow<Minter.Status?> = flow {
+        streamSubscribeGrpc(Subscribe.TmEventNewBlock, deadline).collect {
+            it?.let { emit(convertSubscribe.status(it)) } ?: run { emit(null) }
+        }
+    }
 
 /*    fun asyncBlockGrpc(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null, result: ((result: BlockResponse?) -> Unit)) {
         val requestBuilder = BlockRequest.newBuilder().setHeight(height)

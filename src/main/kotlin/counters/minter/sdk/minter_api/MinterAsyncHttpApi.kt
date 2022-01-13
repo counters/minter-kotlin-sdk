@@ -6,13 +6,15 @@ import counters.minter.sdk.minter.Minter.Status
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw.BlockRaw
 import counters.minter.sdk.minter.MinterRaw.EventRaw
+import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.http.HttpOptions
 import counters.minter.sdk.minter_api.http.OkHttpApi
+import counters.minter.sdk.minter_api.http.WebSocketOkHttp
 import counters.minter.sdk.minter_api.parse.*
-import mu.KotlinLogging
+import okhttp3.WebSocket
 import org.json.JSONObject
 
 class MinterAsyncHttpApi(httpOptions: HttpOptions) :
@@ -22,21 +24,27 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
     StringJSON {
 
     private val parseBlock = ParseBlock()
-    private val parseNode = ParseNode()
+
+    //    private val parseNode = ParseNode()
     private val parseWallet = ParseWallet()
-    private val parseCoin = ParseCoin()
+
+    //    private val parseCoin = ParseCoin()
     private val parseStatus = ParseStatus()
     private val parseEstimateCoinBuy = ParseEstimateCoinBuy()
     private val parseEstimateCoinSell = ParseEstimateCoinSell()
     private val parseEvents = ParseEvent()
     private val parseTransaction = ParseTransaction()
-    private val parseSwapPoolRaw = ParseSwapPoolRaw()
+
+    //    private val parseSwapPoolRaw = ParseSwapPoolRaw()
+    private val parseSubscribe = ParseSubscribe()
 
     private val minterMatch = MinterMatch()
 
     private val parseLimitOrder = ParseLimitOrder()
 
-    private val logger = KotlinLogging.logger {}
+//    private val logger = KotlinLogging.logger {}
+
+    private val webSocketOkHttp = WebSocketOkHttp(httpOptions)
 
     fun getStatusJson(timeout: Long? = null, result: ((result: JSONObject?) -> Unit)) {
         this.asyncGet(HttpMethod.STATUS.patch, null, timeout) {
@@ -412,6 +420,23 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
         getEstimateCoinBuyJson(coinToBuy, valueToBuy, coinToSell, height, coin_id_commission, swap_from, route, timeout) {
             if (it != null) {
                 result(parseEstimateCoinBuy.get(it))
+            } else {
+                result(null)
+            }
+        }
+    }
+
+    fun streamSubscribeJson(query: Subscribe, timeout: Long? = null, result: (result: JSONObject?) -> Unit): WebSocket {
+        val params = arrayListOf<Pair<String, String>>("query" to query.str)
+        return webSocketOkHttp.socket(HttpMethod.SUBSCRIBE.patch, params) {
+            result(getJSONObject(it))
+        }
+    }
+
+    fun streamSubscribe(query: Subscribe, timeout: Long? = null, result: (result: Status?) -> Unit): WebSocket {
+        return streamSubscribeJson(query, timeout) {
+            if (it != null) {
+                result(parseSubscribe.status(it))
             } else {
                 result(null)
             }

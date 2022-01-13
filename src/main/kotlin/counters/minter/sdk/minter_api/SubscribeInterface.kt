@@ -3,8 +3,8 @@ package counters.minter.sdk.minter_api
 import counters.minter.grpc.client.ApiServiceGrpc
 import counters.minter.grpc.client.SubscribeRequest
 import counters.minter.grpc.client.SubscribeResponse
-import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.Minter
+import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter_api.convert.ConvertSubscribe
 import io.grpc.stub.StreamObserver
 import mu.KLogger
@@ -46,15 +46,15 @@ interface SubscribeInterface {
             }
 
             override fun onCompleted() {
-                logger.info { "Async client. Stream completed." }
+                logger.debug { "Async client. Stream completed." }
                 result(null)
             }
         })
     }
 
-    fun streamSubscribeStatus(deadline: Long? = null, result: ((result: Minter.Status?) -> Unit)) {
-        val request = SubscribeRequest.newBuilder().setQuery(Subscribe.TmEventNewBlock.str).build()
-        return streamSubscribeGrpc(request, deadline) {
+    fun streamSubscribe(query: Subscribe, deadline: Long? = null, result: (result: Minter.Status?) -> Unit) {
+        val request = SubscribeRequest.newBuilder().setQuery(query.str).build()
+        streamSubscribeGrpc(request, deadline) {
             it?.let {
                 result(convertSubscribe.status(it))
             } ?: run {
@@ -63,14 +63,6 @@ interface SubscribeInterface {
         }
     }
 
-//    fun _subscribe(request: SubscribeRequest, responseObserver: StreamObserver<SubscribeResponse>?) {
-//        channel.newCall()
-//        ClientCalls.asyncServerStreamingCall(
-//            channel
-//                .newCall<SubscribeRequest, SubscribeResponse>(ApiServiceGrpc.METHOD_SUBSCRIBE, this.getCallOptions()),
-//            request,
-//            responseObserver
-//        )
-//    }
+    fun streamSubscribeStatus(deadline: Long? = null, result: ((result: Minter.Status?) -> Unit)) = streamSubscribe(Subscribe.TmEventNewBlock, deadline, result)
 
 }
