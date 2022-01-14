@@ -36,7 +36,7 @@ class MinterHttpApiOld(
     private val parseEstimateCoinSell = ParseEstimateCoinSell()
     private val parseEvents = ParseEvent()
     private val parseTransaction = ParseTransaction()
-    private val parseSwapPoolRaw = ParseSwapPoolRaw()
+    private val parseSwapPool = ParseSwapPool()
     private val parseLimitOrder = ParseLimitOrder()
 
     private val minterMatch = MinterMatch()
@@ -870,7 +870,7 @@ class MinterHttpApiOld(
         val params = if (height != null) mapOf("height" to height.toString()) else null
         this.getJson("swap_pool/$coin0/$coin1", params)?.let {
             if (it.isNull("error")) {
-                return parseSwapPoolRaw.get(it)
+                return parseSwapPool.get(it)
             }
         }
         return null
@@ -881,7 +881,7 @@ class MinterHttpApiOld(
         val params = if (height != null) mapOf("height" to height.toString()) else null
         this.getJson("swap_pool/$coin0/$coin1/$address", params)?.let {
             if (it.isNull("error")) {
-                return parseSwapPoolRaw.get(it)
+                return parseSwapPool.get(it)
             }
         }
         return null

@@ -674,6 +674,7 @@ internal class MinterApiTest {
             }
             jobHttp.join()
             jobGrpc.join()
+//            return@runBlocking
             grpcResponse?.let {
                 assertEquals(httpResponse, grpcResponse)
             } ?: run {
@@ -689,18 +690,18 @@ internal class MinterApiTest {
 
         val semaphore = Semaphore(2)
         semaphore.acquireUninterruptibly()
-        println("minterHttpApi.streamSubscribeStatus")
+//        println("minterHttpApi.streamSubscribeStatus")
         minterHttpApi.streamSubscribeStatus {
-            println("HTTP: $it")
+//            println("HTTP: $it")
             if (httpResponse != null) {
                 semaphore.release()
             }
             httpResponse = it
         }
         semaphore.acquireUninterruptibly()
-        println("minterGrpcApi.streamSubscribeStatus")
+//        println("minterGrpcApi.streamSubscribeStatus")
         minterGrpcApi.streamSubscribeStatus {
-            println("gRPC: $it")
+//            println("gRPC: $it")
             if (grpcResponse != null) {
                 semaphore.release()
             }
@@ -717,7 +718,101 @@ internal class MinterApiTest {
     }
 
     @Test
-    fun getLimitOrder() {
+    fun getSwapPool() {
+        runBlocking {
+            var httpResponse: MinterRaw.SwapPoolRaw? = null
+            var grpcResponse: MinterRaw.SwapPoolRaw? = null
+            val coin1: Long = 0
+            val coin2: Long = 1902
+            val height: Long? = null
+
+
+            val jobHttp = launch {
+                minterHttpApi.getSwapPool(coin1, coin2, height).let {
+                    httpResponse = it
+//                    println("HTTP: $it")
+                }
+            }
+            val jobGrpc = launch {
+                minterGrpcApi.getSwapPool(coin1, coin2, height).let {
+                    grpcResponse = it
+//                    println("gRPC: $it")
+                }
+            }
+            jobHttp.join()
+            jobGrpc.join()
+//            return@runBlocking
+            grpcResponse?.let {
+                assertEquals(httpResponse, grpcResponse)
+            } ?: run {
+                assert(false)
+            }
+        }
+    }
+
+    @Test
+    fun asyncSwapPool() {
+        var httpResponse: MinterRaw.SwapPoolRaw? = null
+        var grpcResponse: MinterRaw.SwapPoolRaw? = null
+        val coin1: Long = 0
+        val coin2: Long = 1902
+        val height: Long? = null
+        val semaphore = Semaphore(1)
+        semaphore.acquireUninterruptibly()
+        minterHttpApi.getSwapPool(coin1, coin2, height) {
+//            println("HTTP: $it")
+            httpResponse = it
+            semaphore.release()
+        }
+        semaphore.acquireUninterruptibly()
+        minterGrpcApi.getSwapPool(coin1, coin2, height) {
+//            println("gRPC: $it")
+            grpcResponse = it
+            semaphore.release()
+        }
+        semaphore.acquire()
+        if (httpResponse == null || grpcResponse == null) {
+            assert(false)
+        } else {
+            assertEquals(grpcResponse!!, httpResponse!!)
+        }
+    }
+
+    @Test
+    fun getSwapPoolCoroutines() {
+        runBlocking {
+            var httpResponse: MinterRaw.SwapPoolRaw? = null
+            var grpcResponse: MinterRaw.SwapPoolRaw? = null
+            val coin1: Long = 0
+            val coin2: Long = 1902
+            val height: Long? = null
+
+            val jobHttp = launch {
+                minterHttpApi.getSwapPoolCoroutines(coin1, coin2, height).let {
+                    httpResponse = it
+//                    println("HTTP: $it")
+//                    this.cancel()
+                }
+            }
+            val jobGrpc = launch {
+                minterGrpcApi.getSwapPoolCoroutines(coin1, coin2, height).let {
+                    grpcResponse = it
+//                    println("gRPC: $it")
+//                    this.cancel()
+                }
+            }
+            jobHttp.join()
+            jobGrpc.join()
+            grpcResponse?.let {
+                assertEquals(httpResponse, grpcResponse)
+            } ?: run {
+                assert(false)
+            }
+        }
+    }
+
+    @Test
+    fun getSwapPoolProvider() {
     }
 
     @Test

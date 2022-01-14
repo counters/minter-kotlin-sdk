@@ -1,10 +1,7 @@
 package counters.minter.sdk.minter_api
 
 import counters.minter.grpc.client.BlockField
-import counters.minter.sdk.minter.Coin
-import counters.minter.sdk.minter.LimitOrderRaw
-import counters.minter.sdk.minter.Minter
-import counters.minter.sdk.minter.MinterMatch
+import counters.minter.sdk.minter.*
 import counters.minter.sdk.minter.MinterRaw.BlockRaw
 import counters.minter.sdk.minter.MinterRaw.EventRaw
 import counters.minter.sdk.minter.enum.QueryTags
@@ -406,7 +403,6 @@ class MinterApi(
         } else {
             return minterGrpcApi!!.estimateCoinBuy(coinToBuy, getPip(valueToBuy), coinToSell, height, coin_id_commission, swap_from, route, deadline)
         }
-
     }
 
     fun estimateCoinBuy(
@@ -440,8 +436,6 @@ class MinterApi(
         minterCoroutinesHttpApi?.let {
             return it.estimateCoinBuy(coinToBuy, valueToBuy, coinToSell, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)
         } ?: run {
-//            return null
-//            TODO()
             return minterGrpcApiCoroutines!!.estimateCoinBuy(coinToBuy, getPip(valueToBuy), coinToSell, height, coin_id_commission, swap_from, route, deadline/*, notFoundCoin*/)
         }
     }
@@ -486,6 +480,30 @@ class MinterApi(
             it.streamSubscribe(Subscribe.TmEventNewBlock, deadline, result)
         } ?: run {
             minterGrpcApi!!.streamSubscribe(Subscribe.TmEventNewBlock, deadline, result)
+        }
+    }
+
+    fun getSwapPool(coin0: Long, coin1: Long, height: Long? = null, deadline: Long? = null): MinterRaw.SwapPoolRaw? {
+        if (minterHttpApi != null) {
+            return minterHttpApi!!.getSwapPool(coin0, coin1, height/*, deadline*/)
+        } else {
+            return minterGrpcApi!!.getSwapPool(coin0, coin1, height, deadline)
+        }
+    }
+
+    fun getSwapPool(coin0: Long, coin1: Long, height: Long? = null, deadline: Long? = null, result: (result: MinterRaw.SwapPoolRaw?) -> Unit) {
+        minterAsyncHttpApi?.let {
+            it.getSwapPool(coin0, coin1, height, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.getSwapPool(coin0, coin1, height, deadline, result)
+        }
+    }
+
+    suspend fun getSwapPoolCoroutines(coin0: Long, coin1: Long, height: Long? = null, deadline: Long? = null): MinterRaw.SwapPoolRaw? {
+        minterCoroutinesHttpApi?.let {
+            return it.getSwapPool(coin0, coin1, height, deadline)
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getSwapPool(coin0, coin1, height, deadline)
         }
     }
 

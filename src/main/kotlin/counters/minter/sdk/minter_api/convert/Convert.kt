@@ -11,4 +11,5 @@ class Convert {
     val estimateCoinSell = ConvertEstimateCoinSell()
     val estimateCoinSellAll = ConvertEstimateCoinSellAll()
     val estimateCoinBuy = ConvertEstimateCoinBuy()
+    val convertSwapPool = ConvertSwapPool()
 }

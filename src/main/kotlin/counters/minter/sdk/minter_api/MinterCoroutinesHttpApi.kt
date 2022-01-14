@@ -5,6 +5,7 @@ import counters.minter.sdk.minter.Coin
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter.Status
 import counters.minter.sdk.minter.MinterMatch
+import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter.MinterRaw.BlockRaw
 import counters.minter.sdk.minter.MinterRaw.EventRaw
 import counters.minter.sdk.minter.enum.BlockField
@@ -45,7 +46,7 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
     private val parseEstimateCoinSell = ParseEstimateCoinSell()
     private val parseEvents = ParseEvent()
     private val parseTransaction = ParseTransaction()
-    private val parseSwapPoolRaw = ParseSwapPoolRaw()
+    private val parseSwapPool = ParseSwapPool()
     private val parseSubscribe = ParseSubscribe()
 
 
@@ -460,6 +461,30 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
     fun streamSubscribeStatus(timeout: Long? = null): Flow<Status?> = flow {
         streamSubscribeJson(Subscribe.TmEventNewBlock, timeout).collect {
             if (it != null) emit(parseSubscribe.status(it)) else emit(null)
+        }
+    }
+
+    suspend fun getSwapPoolJson(coin0: Long, coin1: Long, height: Long? = null, timeout: Long? = null): JSONObject? {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to it.toString()) }
+        this.get(HttpMethod.SWAP_POOL.patch + "/" + coin0 + "/" + coin1, params, timeout).let {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    return it
+                } else {
+                    return null
+                }
+            } ?: run { return null }
+        }
+    }
+
+    suspend fun getSwapPool(coin0: Long, coin1: Long, height: Long? = null, timeout: Long? = null): MinterRaw.SwapPoolRaw? {
+        getSwapPoolJson(coin0, coin1, height, timeout).let {
+            if (it != null) {
+                return parseSwapPool.get(it)
+            } else {
+                return null
+            }
         }
     }
 

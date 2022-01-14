@@ -30,7 +30,9 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     EstimateCoinSellRequestInterface,
     EstimateCoinSellAllRequestInterface,
     EstimateCoinBuyRequestInterface,
-    SubscribeRequestInterface {
+    SubscribeRequestInterface,
+    SwapPoolRequestInterface,
+    SwapPoolProviderRequestInterface {
 
     //    private var callOptions: CallOptions = CallOptions.DEFAULT
     private lateinit var stub: ApiServiceGrpcKt.ApiServiceCoroutineStub
@@ -51,6 +53,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     private val convertEstimateCoinSellAll = convert.estimateCoinSellAll
     private val convertEstimateCoinBuy = convert.estimateCoinBuy
     private val convertSubscribe = convert.subscribe
+    private val convertSwapPool = convert.convertSwapPool
 
     override val convertSwapFrom = ConvertSwapFrom()
 
@@ -352,7 +355,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         swap_from: SwapFromTypes? = null,
         route: List<Long>? = null,
         deadline: Long? = null
-    ): Coin.EstimateCoin? {//minterMatch.getPip(
+    ): Coin.EstimateCoin? {
         estimateCoinBuyGrpc(coinToBuy, valueToBuy, coinToSell, height, coin_id_commission, swap_from, route, deadline).let {
             it?.let { return convertEstimateCoinBuy.get(it) } ?: run { return null }
         }
@@ -365,10 +368,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         } catch (e: StatusException) {
             logger.warn { "StatusException: $e" }
             flowOf<SubscribeResponse?>(null)
-        }/* catch (e: Exception) {
-            logger.warn { "!!! Exception: $e" }
-            flowOf<SubscribeResponse?>(null)
-        }*/
+        }
     }
 
     fun streamSubscribeGrpc(query: String, deadline: Long? = null) = streamSubscribeGrpc(getRequestSubscribe(query), deadline)
@@ -380,15 +380,23 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
         }
     }
 
-/*    fun asyncBlockGrpc(height: Long, fields: List<BlockField>?=null, failed_txs: Boolean?=null, deadline: Long? = null, result: ((result: BlockResponse?) -> Unit)) {
-        val requestBuilder = BlockRequest.newBuilder().setHeight(height)
-        fields?.let {
-            it.forEach { requestBuilder.addFields(it) }
-            if (!it.contains(BlockField.block_reward)) requestBuilder.addFields(BlockField.block_reward)
+    suspend fun getSwapPoolGrpc(request: SwapPoolRequest, deadline: Long? = null): SwapPoolResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.swapPool(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
         }
-        failed_txs?.let { requestBuilder.setFailedTxs(it) }
-        val request = requestBuilder.build()
-        asyncBlockGrpc(request, deadline, result)
-    }*/
+    }
+
+    suspend fun getSwapPoolGrpc(coin0: Long, coin1: Long, height: Long? = null, deadline: Long? = null) =
+        getSwapPoolGrpc(getRequestSwapPool(coin0, coin1, height), deadline)
+
+    suspend fun getSwapPool(coin0: Long, coin1: Long, height: Long? = null, deadline: Long? = null): MinterRaw.SwapPoolRaw? {
+        getSwapPoolGrpc(coin0, coin1, height, deadline).let {
+            it?.let { return convertSwapPool.get(it) } ?: run { return null }
+        }
+    }
 
 }

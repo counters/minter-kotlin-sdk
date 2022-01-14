@@ -22,7 +22,8 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     AddressInterface,
     EstimateCoinSellInterface,
     EstimateCoinSellAllInterface,
-    EstimateCoinBuyInterface
+    EstimateCoinBuyInterface,
+    SwapPoolInterface
 {
     private var channel: ManagedChannel? = null
     private var grpcOptions: GrpcOptions? = null
@@ -42,6 +43,8 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     override val convertEstimateCoinSell = convert.estimateCoinSell
     override val convertEstimateCoinSellAll = convert.estimateCoinSellAll
     override val convertEstimateCoinBuy = convert.estimateCoinBuy
+    override val convertSwapPool = convert.convertSwapPool
+
 
     override val logger = KotlinLogging.logger {}
 
@@ -66,5 +69,6 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
     fun shutdown(): Unit {
         channel?.shutdown()
     }
+
 
 }

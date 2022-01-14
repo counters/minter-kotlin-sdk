@@ -4,6 +4,7 @@ import counters.minter.sdk.minter.Coin
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.Minter.Status
 import counters.minter.sdk.minter.MinterMatch
+import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter.MinterRaw.BlockRaw
 import counters.minter.sdk.minter.MinterRaw.EventRaw
 import counters.minter.sdk.minter.enum.Subscribe
@@ -35,12 +36,13 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
     private val parseEvents = ParseEvent()
     private val parseTransaction = ParseTransaction()
 
-    //    private val parseSwapPoolRaw = ParseSwapPoolRaw()
+    //    private val parseSwapPool = ParseSwapPool()
     private val parseSubscribe = ParseSubscribe()
 
     private val minterMatch = MinterMatch()
 
     private val parseLimitOrder = ParseLimitOrder()
+    private val parseSwapPool = ParseSwapPool()
 
 //    private val logger = KotlinLogging.logger {}
 
@@ -416,6 +418,31 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
         return streamSubscribeJson(query, timeout) {
             if (it != null) {
                 result(parseSubscribe.status(it))
+            } else {
+                result(null)
+            }
+        }
+    }
+
+    fun getSwapPoolJson(coin0: Long, coin1: Long, height: Long? = null, timeout: Long? = null, result: (result: JSONObject?) -> Unit) {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to it.toString()) }
+        this.asyncGet(HttpMethod.SWAP_POOL.patch + "/" + coin0 + "/" + coin1, params, timeout)
+        {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    result(it)
+                } else {
+                    result(null)
+                }
+            } ?: run { result(null) }
+        }
+    }
+
+    fun getSwapPool(coin0: Long, coin1: Long, height: Long? = null, timeout: Long? = null, result: (result: MinterRaw.SwapPoolRaw?) -> Unit) {
+        getSwapPoolJson(coin0, coin1, height, timeout) {
+            if (it != null) {
+                result(parseSwapPool.get(it))
             } else {
                 result(null)
             }

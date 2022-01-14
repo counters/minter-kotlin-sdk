@@ -4,7 +4,7 @@ import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
 import org.json.JSONObject
 
-class ParseSwapPoolRaw {
+class ParseSwapPool {
 
     private val minterMatch = MinterMatch()
 
