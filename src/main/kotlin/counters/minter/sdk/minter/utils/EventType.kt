@@ -10,7 +10,8 @@ object EventType {
     val UpdateCommissions = Data("UpdateCommissions", 5,"minter/UpdateCommissionsEvent")
     val UpdateNetwork = Data("UpdateNetwork", 6,"minter/UpdateNetworkEvent")
     val RemoveCandidate = Data("RemoveCandidate", 7,"minter/RemoveCandidateEvent")
-    val StakeKick = Data("StakeKick", 8,"minter/StakeKickEvent")
+    val StakeKick = Data("StakeKick", 8, "minter/StakeKickEvent")
+    val OrderExpired = Data("OrderExpired", 9, "minter/OrderExpiredEvent")
 
     val NoName = Data("NoName", 0,"")
 
@@ -23,6 +24,7 @@ object EventType {
         UpdateNetwork,
         RemoveCandidate,
         StakeKick,
+        OrderExpired,
     )
 
     fun get(raw: String): Data {
@@ -35,6 +37,7 @@ object EventType {
             UpdateNetwork.raw -> UpdateNetwork
             RemoveCandidate.raw -> RemoveCandidate
             StakeKick.raw -> StakeKick
+            OrderExpired.raw -> OrderExpired
             else -> NoName
         }
     }
@@ -48,6 +51,7 @@ object EventType {
             UpdateNetwork.uid -> UpdateNetwork
             RemoveCandidate.uid -> RemoveCandidate
             StakeKick.uid -> StakeKick
+            OrderExpired.uid -> OrderExpired
             else -> NoName
         }
     }

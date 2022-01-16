@@ -2,9 +2,9 @@ package counters.minter.sdk.minter_api.convert
 
 import counters.minter.grpc.client.EventsResponse
 import counters.minter.sdk.minter.CoinObjClass
-import counters.minter.sdk.minter.enum.CommissionKey
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.enum.CommissionKey
 import counters.minter.sdk.minter.models.Commission
 import counters.minter.sdk.minter.utils.EventRole
 import counters.minter.sdk.minter.utils.EventType
@@ -19,9 +19,7 @@ class ConvertEvents : MinterMatch() {
 
     fun get(response: EventsResponse, height: Long): List<MinterRaw.EventRaw> {
         val array = arrayListOf<MinterRaw.EventRaw>()
-//        val array = ArrayList<MinterRaw.EventRaw>()
 
-//        var role: String? = null
         response.eventsList.forEach {
 
             var node: String? = null
@@ -42,34 +40,25 @@ class ConvertEvents : MinterMatch() {
             if (type == EventType.Reward) {
                 wallet = structValue.getFieldsOrThrow("address").stringValue
                 pipAmount = structValue.getFieldsOrThrow("amount").stringValue
-//                amount = getAmount(pipAmount)
-
                 rawRole = structValue.getFieldsOrThrow("role").stringValue
                 node = structValue.getFieldsOrThrow("validator_pub_key").stringValue
                 coinId = structValue.getFieldsOrThrow("for_coin").stringValue.toLong()
-//                coin = CoinObjClass.CoinObj(coinId, null)
             } else if (type == EventType.Unbond) {
                 wallet = structValue.getFieldsOrThrow("address").stringValue
                 pipAmount = structValue.getFieldsOrThrow("amount").stringValue
-//                amount = getAmount(pipAmount)
                 coinId = structValue.getFieldsOrThrow("coin").stringValue.toLong()
-//                coin = CoinObjClass.CoinObj(coinId, null)
                 node = structValue.getFieldsOrThrow("validator_pub_key").stringValue
             } else if (type == EventType.UpdateNetwork) {
                 val version = structValue.getFieldsOrThrow("version").stringValue
-                println("version: $version")
-//                println(it)
+//                println("version: $version")
             } else if (type == EventType.StakeKick) {
                 node = structValue.getFieldsOrThrow("validator_pub_key").stringValue
                 wallet = structValue.getFieldsOrThrow("address").stringValue
                 pipAmount = structValue.getFieldsOrThrow("amount").stringValue
                 coinId = structValue.getFieldsOrThrow("coin").stringValue.toLong()
-//                coin = CoinObjClass.CoinObj(coinId, null)
-//                println(it)
             } else if (type == EventType.UpdateCommissions) {
                 val array = arrayListOf<Commission>()
                 structValue.fieldsMap.forEach { key, value ->
-//                    println("$key, $value")
                     val amount = if (value.stringValue=="") 0.0 else
                     getAmount(value.stringValue)
                     CommissionKey.fromStr(key)?.let {
@@ -86,6 +75,13 @@ class ConvertEvents : MinterMatch() {
             }   else if (type == EventType.Jail) {
                 node = structValue.getFieldsOrThrow("validator_pub_key").stringValue
                 option = structValue.getFieldsOrThrow("jailed_until").stringValue.toLong()
+            } else if (type == EventType.OrderExpired) {
+//                println(it)
+                wallet = structValue.getFieldsOrThrow("address").stringValue
+                pipAmount = structValue.getFieldsOrThrow("amount").stringValue
+                coinId = structValue.getFieldsOrThrow("coin").stringValue.toLong()
+                option = structValue.getFieldsOrThrow("id").stringValue.toLong()
+
             } else {
                 println(it)
                 TODO()

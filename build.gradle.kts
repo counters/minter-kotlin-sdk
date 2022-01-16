@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "counters"
-version = "2.1.2"
+version = "2.1.4"
 
 val grpcKotlinVersion = "1.2.0"
 val coroutinesVersion = "1.5.2"
@@ -57,7 +57,7 @@ tasks.test {
     useJUnitPlatform()
 }
 
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
 }
 
