@@ -1,9 +1,10 @@
 package counters.minter.sdk.minter_api.parse
 
 import counters.minter.sdk.minter.CoinObjClass
-import counters.minter.sdk.minter.enum.TxPool
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.enum.TxPool
+import counters.minter.sdk.minter.models.OrderRaw
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -41,7 +42,7 @@ class ParsePoolExchange {
         return arrayTxPool*/
     }
 
-    fun getCoinChangeRaw(coinChangeRaw: List<TxPool>, height: Long, transaction: String, type: Int, wallet: String): List<MinterRaw.CoinChangeRaw>{
+    fun getCoinChangeRaw(coinChangeRaw: List<TxPool>, height: Long, transaction: String, type: Int, wallet: String): List<MinterRaw.CoinChangeRaw> {
         val arrayTxPool = arrayListOf<MinterRaw.CoinChangeRaw>()
         coinChangeRaw.forEach {
             val sell = it.value_in
@@ -63,21 +64,15 @@ class ParsePoolExchange {
         val data = result.getJSONObject("data")
 
         val coins = data.getJSONArray("coins")
-//        println(coins)
-//        val coinObj = arrayListOf<CoinObjClass.CoinObj>()
+
         val coinObjMap = mutableMapOf<Long, CoinObjClass.CoinObj>()
         coins?.forEach {
             CoinObjClass.fromJson(it as JSONObject)?.let { coin ->
-//                coinObj.add(coin)
                 coinObjMap.put(coin.id, coin)
             }
         }
-//        println(coinObjMap)
         val tx_pools_str = tags.getString("tx.pools")
-//        println(tx_pools_str)
         val tx_pools = JSONArray(tx_pools_str)
-//        println(tx_pools)
-
         val arrayTxPool = arrayListOf<TxPool>()
 
         tx_pools.forEach {
@@ -87,7 +82,32 @@ class ParsePoolExchange {
             val value_in = minterMatch.getAmount(it.getString("value_in"))
             val coin_out = it.getLong("coin_out")
             val value_out = minterMatch.getAmount(it.getString("value_out"))
-            val txPool = TxPool(pool_id, coinObjMap[coin_in]!!, value_in, coinObjMap[coin_out]!!, value_out)
+
+            var arrayOrderRaw: ArrayList<OrderRaw>? = null
+            if (!it.isNull("details")) {
+                it.getJSONObject("details").let { details ->
+                    if (!details.isNull("orders")) {
+                        arrayOrderRaw = arrayListOf()
+                        details.getJSONArray("orders").forEach { order ->
+                            order as JSONObject
+                            val orderRaw = OrderRaw(
+                                id = order.getLong("id"),
+                                buy = minterMatch.getAmount(order.getString("buy")),
+                                sell = minterMatch.getAmount(order.getString("sell")),
+                                seller = order.getString("seller"),
+                            )
+                            arrayOrderRaw!!.add(orderRaw)
+                        }
+                    }
+                }
+            }
+
+            val txPool = TxPool(
+                pool_id = pool_id, coin_in = coinObjMap[coin_in]!!, value_in = value_in,
+                coin_out = coinObjMap[coin_out]!!,
+                value_out = value_out,
+                orders = arrayOrderRaw
+            )
             arrayTxPool.add(txPool)
         }
 

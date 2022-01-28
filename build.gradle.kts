@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "counters"
-version = "2.1.4"
+version = "2.1.5"
 
 val grpcKotlinVersion = "1.2.0"
 val coroutinesVersion = "1.5.2"
@@ -24,9 +24,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 
-//    implementation("io.github.microutils:kotlin-logging:1.12.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    implementation("io.github.microutils:kotlin-logging-jvm:2.1.16")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
     implementation("org.slf4j", "slf4j-simple", "1.7.30")
 
     implementation(group = "org.json", name = "json", version = "20200518")
@@ -36,20 +35,18 @@ dependencies {
     implementation(fileTree("libs"))
 
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
-//    implementation("khttp:khttp:1.0.0")
 
     implementation("com.github.kittinunf.fuel:fuel:2.3.1")
-//    implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("com.github.kittinunf.fuel:fuel-coroutines:2.3.1")
 
     implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
 
-    implementation ("io.grpc:grpc-netty-shaded:1.42.1")
-    implementation ("io.grpc:grpc-protobuf:1.42.1")
-    implementation ("io.grpc:grpc-stub:1.42.1")
+    implementation("io.grpc:grpc-netty-shaded:1.43.2")
+    implementation("io.grpc:grpc-protobuf:1.43.2")
+    implementation("io.grpc:grpc-stub:1.43.2")
 
-    implementation("com.google.protobuf:protobuf-java:3.19.1")
-    implementation("com.google.protobuf:protobuf-kotlin:3.19.1")
+    implementation("com.google.protobuf:protobuf-java:3.19.3")
+    implementation("com.google.protobuf:protobuf-kotlin:3.19.3")
 
 }
 

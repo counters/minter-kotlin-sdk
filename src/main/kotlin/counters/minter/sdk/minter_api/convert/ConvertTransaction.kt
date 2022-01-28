@@ -200,7 +200,7 @@ class ConvertTransaction : MinterMatch() {
                 stake = data.valueToSell
                 optString = minimum_value_to_buy
                 val coinIdToSymbol = CoinIdToSymbol(data.coinsList)
-//                logger.error { "data: $transaction" }
+
                 if (code==0 && coin_to_sell != null && coin_to_buy != null && tx_return != null) {
                     coin = CoinObjClass.CoinObj(coin_to_sell, coinIdToSymbol[coin_to_sell])
                     coin2 = CoinObjClass.CoinObj(coin_to_buy, coinIdToSymbol[coin_to_buy])
