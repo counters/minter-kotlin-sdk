@@ -3,12 +3,12 @@
  *
  * @author Aleksey Kukhnovets (github.com/counters)
  * @license Apache-2.0
- * @version 1.0.1
+ * @version 1.0.2
  * */
 [
     {
         "type": "1",
-        "number": 720860,
+        "number": 61,
         "name": "type.googleapis.com/api_pb.SendData",
         "list": [
             {
@@ -55,7 +55,7 @@
     },
     {
         "type": "2",
-        "number": 51254,
+        "number": 33,
         "name": "type.googleapis.com/api_pb.SellCoinData",
         "list": [
             {
@@ -102,7 +102,7 @@
     },
     {
         "type": "3",
-        "number": 13553,
+        "number": 1,
         "name": "type.googleapis.com/api_pb.SellAllCoinData",
         "list": [
             {
@@ -113,7 +113,7 @@
     },
     {
         "type": "4",
-        "number": 18287,
+        "number": 4,
         "name": "type.googleapis.com/api_pb.BuyCoinData",
         "list": [
             {
@@ -135,20 +135,8 @@
         ]
     },
     {
-        "type": "5",
-        "number": 37,
-        "name": "type.googleapis.com/api_pb.CreateCoinData",
-        "list": []
-    },
-    {
-        "type": "6",
-        "number": 7,
-        "name": "type.googleapis.com/api_pb.DeclareCandidacyData",
-        "list": []
-    },
-    {
         "type": "7",
-        "number": 156305,
+        "number": 23,
         "name": "type.googleapis.com/api_pb.DelegateData",
         "list": [
             {
@@ -194,14 +182,8 @@
         ]
     },
     {
-        "type": "8",
-        "number": 9985,
-        "name": "type.googleapis.com/api_pb.UnbondData",
-        "list": []
-    },
-    {
         "type": "9",
-        "number": 3054,
+        "number": 77,
         "name": "type.googleapis.com/api_pb.RedeemCheckData",
         "list": [
             {
@@ -247,14 +229,8 @@
         ]
     },
     {
-        "type": "10",
-        "number": 475,
-        "name": "type.googleapis.com/api_pb.SetCandidateOnData",
-        "list": []
-    },
-    {
         "type": "11",
-        "number": 603,
+        "number": 8,
         "name": "type.googleapis.com/api_pb.SetCandidateOffData",
         "list": [
             {
@@ -292,14 +268,8 @@
         ]
     },
     {
-        "type": "12",
-        "number": 122,
-        "name": "type.googleapis.com/api_pb.CreateMultisigData",
-        "list": []
-    },
-    {
         "type": "13",
-        "number": 209293,
+        "number": 189,
         "name": "type.googleapis.com/api_pb.MultiSendData",
         "list": [
             {
@@ -345,38 +315,8 @@
         ]
     },
     {
-        "type": "14",
-        "number": 8,
-        "name": "type.googleapis.com/api_pb.EditCandidateData",
-        "list": []
-    },
-    {
-        "type": "15",
-        "number": 24,
-        "name": "type.googleapis.com/api_pb.SetHaltBlockData",
-        "list": []
-    },
-    {
-        "type": "16",
-        "number": 1,
-        "name": "type.googleapis.com/api_pb.RecreateCoinData",
-        "list": []
-    },
-    {
-        "type": "17",
-        "number": 44,
-        "name": "type.googleapis.com/api_pb.EditCoinOwnerData",
-        "list": []
-    },
-    {
-        "type": "18",
-        "number": 139,
-        "name": "type.googleapis.com/api_pb.EditMultisigData",
-        "list": []
-    },
-    {
         "type": "21",
-        "number": 85929,
+        "number": 143,
         "name": "type.googleapis.com/api_pb.AddLiquidityData",
         "list": [
             {
@@ -423,7 +363,7 @@
     },
     {
         "type": "22",
-        "number": 23199,
+        "number": 28,
         "name": "type.googleapis.com/api_pb.RemoveLiquidityData",
         "list": [
             {
@@ -470,54 +410,54 @@
     },
     {
         "type": "23",
-        "number": 3027907,
+        "number": 1813654,
         "name": "type.googleapis.com/api_pb.SellSwapPoolData",
         "list": [
             {
-                "hash": "Mta14da3a50d8c0c09bfb71a7981db5d723f43a83819f1415fcfa6ea1df23a87cd",
-                "height": "8775758"
+                "hash": "Mtf478cb344f204bf6b5ffd19dfc07b65a22757d9a2f060dea710e0ea1b6a93add",
+                "height": "8790712"
             },
             {
-                "hash": "Mta67d5e33d3a794a504799cc73a07cb4fdf6dacb51b87f57c0e324e23a39f9fc5",
-                "height": "8775758"
+                "hash": "Mt4619f851f9c51bbfbede9feeeaf269753517a66e083917083e6edd12f392f71c",
+                "height": "8790711"
             },
             {
-                "hash": "Mte36da2204750b6fe3ce19f17aff304767cc699de899d5e7891e718eb508e855c",
-                "height": "8775758"
+                "hash": "Mt377d4fdb17d45828a076e1b9404e15857fd28cc60e82f89ea9019142b742d4ac",
+                "height": "8790711"
             },
             {
-                "hash": "Mt953abaf0fe8268e1bdeae8a418c802f935bc35204166fec144ffd74602c4a73d",
-                "height": "8775758"
+                "hash": "Mte95ccdc951a094464d3c99544d9d52db2e10e6e32ae19840ad5a0adc9b7cba40",
+                "height": "8790243"
             },
             {
-                "hash": "Mt44648a15a03f22138ac93bee2c5c4c6786d6db0ffa996f6fa38a7c392ee92794",
-                "height": "8775758"
+                "hash": "Mt0ec7ad31cfcef2ec0db70cd746e42bc200a66f61f8bab204df680e79ad5fb6d5",
+                "height": "8790243"
             },
             {
-                "hash": "Mt75c1b1f0e174deee66c08d491ff129e908df1fd8246f1cde59737f41d24431cc",
-                "height": "8775758"
+                "hash": "Mt0ebcb0d1cfc9859895a829789c30cb530652d7464a23a6c6c2b5f92582b45775",
+                "height": "8790009"
             },
             {
-                "hash": "Mt6905c0260ea581d22cd41278071bdf02ba75259264f3f9b3a37dd7ea4b5c40ca",
-                "height": "8775758"
+                "hash": "Mtb17db28b6bffc9db1c483145d2a0ac56b9dbdd45bed6a11ff0fa2350bc86d142",
+                "height": "8787109"
             },
             {
-                "hash": "Mtc1349200ce9d4cbc8fd1e0f0bf7ff61d5bd9c77f26b63a4fa4ae8c4b7ff3fa41",
-                "height": "8775758"
+                "hash": "Mtfe4733ecb3511a4146b5fcd7bd6937edd8e2baea6c20335f292dc3b0ec7290d0",
+                "height": "8786864"
             },
             {
-                "hash": "Mt440fa7ca3adb405bee7f4da395244bef276c5ed3467d266e585756c010c70bae",
-                "height": "8775758"
+                "hash": "Mt3ac138ef3fe63b05dcfd1b2b30a838eb0ce4c15dfee9321f177665c5b051917a",
+                "height": "8786799"
             },
             {
-                "hash": "Mt27c0714dcd44d471f7ae81b8358eb7d716d3b7594bceaf5d61fbc6cfc0211957",
-                "height": "8775758"
+                "hash": "Mtca497d4ff08e09d6000a2903ab49913be1a4c6fe266559274ffa799dc5ec9321",
+                "height": "8786798"
             }
         ]
     },
     {
         "type": "24",
-        "number": 100829,
+        "number": 4852,
         "name": "type.googleapis.com/api_pb.BuySwapPoolData",
         "list": [
             {
@@ -564,7 +504,7 @@
     },
     {
         "type": "25",
-        "number": 33889,
+        "number": 644,
         "name": "type.googleapis.com/api_pb.SellAllSwapPoolData",
         "list": [
             {
@@ -610,56 +550,8 @@
         ]
     },
     {
-        "type": "26",
-        "number": 6,
-        "name": "type.googleapis.com/api_pb.EditCandidateCommission",
-        "list": []
-    },
-    {
-        "type": "28",
-        "number": 102,
-        "name": "type.googleapis.com/api_pb.MintTokenData",
-        "list": []
-    },
-    {
-        "type": "29",
-        "number": 121,
-        "name": "type.googleapis.com/api_pb.BurnTokenData",
-        "list": []
-    },
-    {
-        "type": "30",
-        "number": 502,
-        "name": "type.googleapis.com/api_pb.CreateTokenData",
-        "list": []
-    },
-    {
-        "type": "31",
-        "number": 30,
-        "name": "type.googleapis.com/api_pb.RecreateTokenData",
-        "list": []
-    },
-    {
-        "type": "32",
-        "number": 95,
-        "name": "type.googleapis.com/api_pb.VoteCommissionData",
-        "list": []
-    },
-    {
-        "type": "33",
-        "number": 52,
-        "name": "type.googleapis.com/api_pb.VoteUpdateData",
-        "list": []
-    },
-    {
-        "type": "34",
-        "number": 1216,
-        "name": "type.googleapis.com/api_pb.CreateSwapPoolData",
-        "list": []
-    },
-    {
         "type": "35",
-        "number": 3512,
+        "number": 2,
         "name": "type.googleapis.com/api_pb.AddLimitOrderData",
         "list": [
             {
@@ -674,7 +566,7 @@
     },
     {
         "type": "36",
-        "number": 1570,
+        "number": 2,
         "name": "type.googleapis.com/api_pb.RemoveLimitOrderData",
         "list": [
             {
