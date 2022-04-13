@@ -12,7 +12,9 @@ class Utils(val network: Network) {
 
     enum class Network(val str: String) {
         Mainnet4("minter-mainnet-4"),
+        Mainnet5("minter-mainnet-5"),
         Taconet13("v2.6.0-testnet13"),
+
     }
 
     enum class SUBJECT(val str: String) {
