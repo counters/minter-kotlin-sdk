@@ -76,7 +76,7 @@ class MinterRaw {
         val num_txs: Int,
 //        @Deprecated(level = DeprecationLevel.WARNING, message = "Deprecated")
 //        val total_txs: Int,
-        var reward: Double,
+        var reward: Double?,
         var size: Long,
         var proposer: String,
         var transaction: List<TransactionRaw>,

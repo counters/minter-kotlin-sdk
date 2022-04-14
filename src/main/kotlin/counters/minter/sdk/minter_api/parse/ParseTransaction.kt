@@ -7,15 +7,18 @@ import counters.minter.sdk.minter.models.Commission
 import counters.minter.sdk.minter.models.DataEditCandidate
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.convert.ConvertMultisig
+import mu.KotlinLogging
 import org.json.JSONObject
 
-class ParseTransaction {
+class ParseTransaction() {
     private var minterMatch = MinterMatch()
     private val parsePoolExchange = ParsePoolExchange()
 
+    private val logger = KotlinLogging.logger {}
     //    defaultCoin
     private val convertMultisig = ConvertMultisig
 
+    var exception = true
 
     fun getRaw(result: JSONObject): TransactionRaw? {
         val height = result.getLong("height")
@@ -556,8 +559,33 @@ class ParseTransaction {
                     optString = orderId
                     optDouble = orderId.toDouble()
                     getData?.invoke(orderId.toLong(), type)
+                } else if (type == TransactionTypes.MOVE_STAKE.int) {
+                    val amountStr = data.getString("value")
+                    node = getNode(data.getString("to_pub_key"))
+                    optString = data.getString("from_pub_key")
+                    coin = CoinObjClass.fromJson(data.getJSONObject("coin"))
+                    coin?.let { getCoin(it.id, it.symbol) }
+                    stake = amountStr
+                    amount = minterMatch.getAmount(amountStr)
+                    val unlock_block_id = tags.getLong("tx.unlock_block_id")
+                    getData?.invoke(unlock_block_id, type)
+                } else if (type == TransactionTypes.LOCK.int) {
+                    val due_block = data.getString("due_block")
+                    val amountStr = data.getString("value")
+                    coin = CoinObjClass.fromJson(data.getJSONObject("coin"))
+                    coin?.let { getCoin(it.id, it.symbol) }
+                    stake = amountStr
+                    amount = minterMatch.getAmount(amountStr)
+                    getData?.invoke(due_block, type)
+                } else if (type == TransactionTypes.LOCK_STAKE.int) {
+                    val unlock_block_id = tags.getLong("tx.unlock_block_id")
+                    getData?.invoke(unlock_block_id, type)
                 } else {
-                    throw Exception("unknown transaction type: $type")
+                    val messageError = "unknown transaction type: $type"
+                    logger.error { messageError }
+                    if (exception) {
+                        throw Exception(messageError)
+                    }
                 }
 
                 if (

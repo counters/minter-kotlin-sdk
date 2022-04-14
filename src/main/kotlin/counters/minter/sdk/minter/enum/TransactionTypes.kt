@@ -1,5 +1,8 @@
 package counters.minter.sdk.minter.enum
 
+/**
+ * https://github.com/MinterTeam/minter-go-node/blob/master/coreV2/transaction/transaction.go
+ */
 enum class TransactionTypes (val int: Int) {
     TypeSend(1),
     TypeSellCoin(2),
@@ -37,6 +40,8 @@ enum class TransactionTypes (val int: Int) {
     CREATE_SWAP_POOL(34),
     ADD_LIMIT_ORDER(35),
     REMOVE_LIMIT_ORDER(36),
+    LOCK_STAKE(37),
+    LOCK(38),
     ;
 
     fun toHex(): String {

@@ -18,6 +18,8 @@ class ConvertTransaction : MinterMatch() {
     private val convertTxPools = ConvertTxPools
     private val convertMultisig = ConvertMultisig
 
+    var exception = true
+
     fun get(transaction: TransactionResponse): TransactionRaw {
         val type = transaction.type.toInt()
         var to: String? = null
@@ -262,8 +264,21 @@ class ConvertTransaction : MinterMatch() {
                 optDouble = data_commission.toDouble()
             }
             TransactionTypes.MOVE_STAKE.int -> {
-                //            val data = transaction.data.unpack(SendData::class.java)
-                TODO()
+                val data = transaction.data.unpack(MoveStakeData::class.java)
+                node = data.toPubKey
+                optString = data.fromPubKey
+                coin = CoinObjClass.CoinObj(data.coin.id, data.coin.symbol)
+                stake = data.value
+                optList = tags["tx.unlock_block_id"]
+            /*    val amountStr = data.getString("value")
+                node = getNode(data.getString("to_pub_key"))
+                optString = data.getString("from_pub_key")
+                coin = CoinObjClass.fromJson(data.getJSONObject("coin"))
+                coin?.let { getCoin(it.id, it.symbol) }
+                stake = amountStr
+                amount = minterMatch.getAmount(amountStr)
+                val unlock_block_id = tags.getLong("tx.unlock_block_id")
+                getData?.invoke(unlock_block_id, type)*/
             }
             TransactionTypes.MINT_TOKEN.int -> {
                 val data = transaction.data.unpack(MintTokenData::class.java)
@@ -369,8 +384,24 @@ class ConvertTransaction : MinterMatch() {
                 optDouble = data.id.toDouble()
                 optList = data.id
             }
+            TransactionTypes.LOCK.int -> {
+                val data = transaction.data.unpack(LockData::class.java)
+                stake = data.value
+                coin = CoinObjClass.CoinObj(data.coin.id, data.coin.symbol)
+                optList = data.dueBlock
+            }
+            TransactionTypes.LOCK_STAKE.int -> {
+                val data = transaction.data.unpack(LockStakeData::class.java)
+//                stake = data.value
+//                coin = CoinObjClass.CoinObj(data.coin.id, data.coin.symbol)
+                optList = tags["tx.unlock_block_id"]!!.toLong()
+            }
             else -> {
-                throw Exception("unknown transaction type: $type")
+                val messageError = "unknown transaction type: $type"
+                logger.error { messageError }
+                if (exception) {
+                    throw Exception(messageError)
+                }
             }
         }
         if (amount == null) amount = if (stake != null) minterMatch.getAmount(stake) else null
