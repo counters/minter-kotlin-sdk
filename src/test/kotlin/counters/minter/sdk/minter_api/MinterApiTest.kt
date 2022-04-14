@@ -21,6 +21,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Semaphore
 import kotlin.random.Random
@@ -30,9 +31,16 @@ internal class MinterApiTest {
     private val minterHttpApi = MinterApi(null, Config.httpOptions)
     private val minterGrpcApi = MinterApi(Config.grpcOptions, null)
 
+    @BeforeEach
+    internal fun setUp() {
+        minterHttpApi.exception = Config.exception
+        minterGrpcApi.exception = Config.exception
+    }
+
     @AfterEach
     internal fun tearDown() {
         minterGrpcApi.shutdown()
+        minterHttpApi.shutdown()
     }
 
     @Test
@@ -157,7 +165,11 @@ internal class MinterApiTest {
                     expected.await()?.let {
                         if (type == TransactionTypes.VOTE_COMMISSION) {
                             assertVOTE_COMMISSION(it, actual.await())
-                        } else {
+                        } else if (expected.await()?.optData!=null && actual.await()?.optData!=null) {
+                            assertEquals(expected.await()!!.copy(optData = null), actual.await()!!.copy(optData = null))
+//                            assertEquals(expected.await()!!.copy(amount = null), actual.await()!!.copy(amount = null))
+//                        assertEquals(expected.await()?.amount!!, actual.await()?.amount!!, 0.0001)
+                        }  else {
                             assertEquals(it, actual.await())
                         }
                         /* if (type == TransactionTypes.VOTE_COMMISSION) {
@@ -178,13 +190,17 @@ internal class MinterApiTest {
         runBlocking {
             TransactionTypes.values().forEach { type ->
                 Utils(Config.network).getFailedTransactions(type, 10, true).forEach {
-                    println("$type: $it")
+//                    println("$type: $it")
                     val expected = async { minterHttpApi.getTransactionCoroutines(it) }
                     val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
                     expected.await()?.let {
                         if (type == TransactionTypes.VOTE_COMMISSION) {
                             assertVOTE_COMMISSION(it, actual.await())
-                        } else {
+                        } else if (expected.await()?.optData!=null && actual.await()?.optData!=null) {
+                            assertEquals(expected.await()!!.copy(optData = null), actual.await()!!.copy(optData = null))
+//                            assertEquals(expected.await()!!.copy(amount = null), actual.await()!!.copy(amount = null))
+//                        assertEquals(expected.await()?.amount!!, actual.await()?.amount!!, 0.0001)
+                        }  else {
                             assertEquals(it, actual.await())
                         }
                     } ?: run {
@@ -199,11 +215,13 @@ internal class MinterApiTest {
     @Test
     fun getOneTypeTransactionCoroutines() {
         runBlocking {
-            val type = TransactionTypes.TypeSend
-            LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
-                val index = Random.nextInt(1, count - 1).dec()
+            val type = TransactionTypes.LOCK_STAKE
+//            LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
+//                Utils(Config.network).getNumismatistsAddresses(10, true).forEach {
+//                val index = Random.nextInt(1, count - 1).dec()
 //                "Mt1b1ba5298ce9771b58ec9bc252b9a18fc6eb301dfca585c64c44b8a63f7089f1".let {
                 Utils(Config.network).getTransactions(type, 10, true).forEach {
+                    println(it)
 //                LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {
                     val expected = async { minterHttpApi.getTransactionCoroutines(it) }
                     val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
@@ -211,12 +229,17 @@ internal class MinterApiTest {
                     assertNotEquals(null, actual.await())
                     if (type == TransactionTypes.VOTE_COMMISSION) {
                         assertVOTE_COMMISSION(expected.await(), actual.await())
+                    } else if (expected.await()?.optData!=null && actual.await()?.optData!=null) {
+                        assertEquals(expected.await()!!.copy(optData = null), actual.await()!!.copy(optData = null))
+//                        assertEquals(expected.await()!!.copy(amount = null), actual.await()!!.copy(amount = null))
+//                        assertEquals(expected.await()?.amount!!, actual.await()?.amount!!, 0.0001)
+//                        assertEquals((expected.await()?.optData!! as Long),( actual.await()?.optData!! as Long))
                     } else {
                         assertEquals(expected.await(), actual.await())
                     }
                     return@runBlocking
                 }
-            }
+//            }
             assert(false)
         }
     }
@@ -329,7 +352,8 @@ internal class MinterApiTest {
     @Test
     fun getAddress() {
 //        "Mx170efb7414ba43bfbcd6aac831abc289de916635".let {
-        transactionsByType(TransactionTypes.TypeDeclareCandidacy)?.first()?.from?.let {
+//        transactionsByType(TransactionTypes.TypeDeclareCandidacy)?.first()?.from?.let {
+            Utils(Config.network).getNumismatistsAddresses(10, true).forEach {
 //            println(it)
             minterHttpApi.getAddress(address = it, height = null, delegated = true)?.let { address ->
 //                println(address)
@@ -884,7 +908,7 @@ internal class MinterApiTest {
 
     @Test
     fun getTransactionsRaw() {
-        val transactionType = TransactionTypes.TypeDeclareCandidacy
+        val transactionType = TransactionTypes.TypeSend
         assertEquals(transactionType.int, transactionsByType(transactionType)?.first()?.type)
     }
 

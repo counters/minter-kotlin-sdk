@@ -14,6 +14,7 @@ class Utils(val network: Network) {
         Mainnet4("minter-mainnet-4"),
         Mainnet5("minter-mainnet-5"),
         Taconet13("v2.6.0-testnet13"),
+        TestNet("minter3-testnet1"),
 
     }
 
