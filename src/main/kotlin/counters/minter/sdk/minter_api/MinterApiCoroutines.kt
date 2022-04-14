@@ -57,7 +57,19 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
 
     override val convertSwapFrom = ConvertSwapFrom()
 
+    var exception: Boolean = true
+        set(value) {
+            field = value
+            convert.transaction.exception = value
+            convert.block.exception = value
+            convertEvents.exception = value
+        }
+
     init {
+        convert.transaction.exception = exception
+        convert.block.exception = exception
+        convertEvents.exception = exception
+
         this.grpcOptions = grpcOptions ?: GrpcOptions()
         initClient()
     }

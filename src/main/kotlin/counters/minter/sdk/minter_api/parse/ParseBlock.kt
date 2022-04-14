@@ -13,6 +13,16 @@ class ParseBlock {
 
     private val parseTransaction = ParseTransaction()
 
+    var exception: Boolean = true
+        set(value) {
+            field = value
+            parseTransaction.exception = value
+        }
+
+    init {
+        parseTransaction.exception = exception
+    }
+
     enum class Method {
         BLOCK,
         NODE,

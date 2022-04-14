@@ -11,6 +11,16 @@ class ConvertBlock {
     private var minterMatch = MinterMatch()
     private val convertTransaction = ConvertTransaction()
 
+    var exception: Boolean = true
+        set(value) {
+            field = value
+            convertTransaction.exception = value
+        }
+
+    init {
+        convertTransaction.exception = exception
+    }
+
     fun get(response: BlockResponse): MinterRaw.BlockRaw {
 
         val transaction = arrayListOf<TransactionRaw>()
@@ -24,19 +34,18 @@ class ConvertBlock {
         response.validatorsList.forEach {
             validators.add(MinterRaw.SignedValidatorsRaw(it.publicKey, it.signed))
         }
+        val blockReward = if (response.hasBlockReward()) minterMatch.getAmount(response.blockReward.value) else null
 
         return MinterRaw.BlockRaw(
             height = response.height,
             time = datetime,
             num_txs = response.transactionCount.toInt(),
 //            total_txs = -1,
-            reward = minterMatch.getAmount(response.blockReward),
+            reward = blockReward,
             size = response.size,
             proposer = response.proposer,
             transaction = transaction,
             validators = validators,
-//            transaction_json = null,
-//        code = response.
         )
     }
 

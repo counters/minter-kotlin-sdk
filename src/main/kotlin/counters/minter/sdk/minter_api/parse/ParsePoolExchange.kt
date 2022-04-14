@@ -10,16 +10,9 @@ import org.json.JSONObject
 
 class ParsePoolExchange {
 
-    //    TxPool
+    @Deprecated("")
     private val minterMatch = MinterMatch()
 
-    /*    data class TxPool (
-            val pool_id: Int,
-            val coin_in: Long,
-            val value_in: Double,
-            val coin_out: Long,
-            val value_out: Double,
-        )*/
     fun get(result: JSONObject): List<MinterRaw.CoinChangeRaw> {
 
         val height = result.getLong("height")
@@ -29,30 +22,19 @@ class ParsePoolExchange {
 
         val txPools = getTxPools(result)
         return getCoinChangeRaw(txPools, height, transaction, type, wallet)
-
-/*        getTxPools(result)?.forEach {
-            val sell = it.value_in
-            val coins = it.coin_in
-            val buy = it.value_out
-            val coinb = it.coin_out
-            val pool = it.pool_id
-            val coinChangeRaw = MinterRaw.CoinChangeRaw(height, transaction, type, pool, wallet, sell, coins, buy, coinb)
-            arrayTxPool.add(coinChangeRaw)
-        }
-        return arrayTxPool*/
     }
 
-    fun getCoinChangeRaw(coinChangeRaw: List<TxPool>, height: Long, transaction: String, type: Int, wallet: String): List<MinterRaw.CoinChangeRaw> {
+    fun getCoinChangeRaw(listTxPool: List<TxPool>, height: Long, transaction: String, type: Int, wallet: String): List<MinterRaw.CoinChangeRaw> {
         val arrayTxPool = arrayListOf<MinterRaw.CoinChangeRaw>()
-        coinChangeRaw.forEach {
+        listTxPool.forEach {
             val sell = it.value_in
             val coins = it.coin_in
             val buy = it.value_out
             val coinb = it.coin_out
             val pool = it.pool_id
-            val _coinChangeRaw =
+            val coinChangeRaw =
                 MinterRaw.CoinChangeRaw(height, transaction, type, pool, wallet, sell, coins, buy, coinb)
-            arrayTxPool.add(_coinChangeRaw)
+            arrayTxPool.add(coinChangeRaw)
         }
         return arrayTxPool
     }

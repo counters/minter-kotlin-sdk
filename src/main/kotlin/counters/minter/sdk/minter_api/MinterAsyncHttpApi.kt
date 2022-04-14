@@ -48,6 +48,18 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
 
     private val webSocketOkHttp = WebSocketOkHttp(httpOptions)
 
+    var exception: Boolean = true
+        set(value) {
+            field = value
+            parseTransaction.exception = value
+            parseBlock.exception = value
+        }
+
+    init {
+        parseTransaction.exception = exception
+        parseBlock.exception = exception
+    }
+
     fun shutdown() {
 //        webSocketOkHttp.close()
     }

@@ -49,7 +49,6 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
     private val parseSwapPool = ParseSwapPool()
     private val parseSubscribe = ParseSubscribe()
 
-
     private val parseLimitOrder = ParseLimitOrder()
 
     private val minterMatch = MinterMatch()
@@ -57,6 +56,18 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
     private val logger = KotlinLogging.logger {}
 
     private val webSocketOkHttp = WebSocketOkHttp(httpOptions)
+
+    var exception: Boolean = true
+        set(value) {
+            field = value
+            parseTransaction.exception = value
+            parseBlock.exception = value
+        }
+
+    init {
+        parseTransaction.exception = exception
+        parseBlock.exception = exception
+    }
 
     suspend fun getStatusJson(timeout: Long? = null): JSONObject? {
         return getJSONObject(this.get(HttpMethod.STATUS.patch, null, timeout))

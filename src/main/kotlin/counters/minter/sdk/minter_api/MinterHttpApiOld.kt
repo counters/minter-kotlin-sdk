@@ -41,6 +41,17 @@ class MinterHttpApiOld(
 
     private val minterMatch = MinterMatch()
 
+    var exception: Boolean = true
+        set(value) {
+            field = value
+            parseTransaction.exception = value
+            parseBlock.exception = value
+        }
+
+    init {
+        parseTransaction.exception = exception
+        parseBlock.exception = exception
+    }
 //    private val timeout = timeout ?: khttp.DEFAULT_TIMEOUT
 
     //    get Events

@@ -48,8 +48,19 @@ class MinterGrpcApi(grpcOptions: GrpcOptions):
 
     override val logger = KotlinLogging.logger {}
 
+    var exception: Boolean = true
+        set(value) {
+            field = value
+            convert.transaction.exception = value
+            convert.block.exception = value
+            convertEvents.exception = value
+        }
+
     init {
-        this.grpcOptions = grpcOptions
+        convert.transaction.exception = exception
+        convert.block.exception = exception
+        convertEvents.exception = exception
+            this.grpcOptions = grpcOptions
 
         val channelBuilder = ManagedChannelBuilder.forAddress(grpcOptions.hostname, grpcOptions.port)
             .maxInboundMessageSize(9999999)

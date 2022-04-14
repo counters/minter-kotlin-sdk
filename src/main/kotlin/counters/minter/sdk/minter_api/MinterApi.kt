@@ -20,6 +20,16 @@ import mu.KotlinLogging
 class MinterApi(
     grpcOptions: GrpcOptions? = null, httpOptions: HttpOptions? = null
 ) : MinterMatch() {
+    var exception = true
+        set(value) {
+            field = value
+            minterHttpApi?.exception = value
+            minterAsyncHttpApi?.exception = value
+            minterCoroutinesHttpApi?.exception = value
+            minterGrpcApi?.exception = value
+            minterGrpcApiCoroutines?.exception = value
+        }
+
     private val logger = KotlinLogging.logger {}
     private var minterHttpApi: MinterHttpApiOld? = null
     private var minterAsyncHttpApi: MinterAsyncHttpApi? = null
