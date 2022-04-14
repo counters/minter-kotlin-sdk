@@ -6,13 +6,13 @@ Minter Blockchain Kotlin SDK [Minter.network](https://minter.network).
 ![Minter Blockchain Kotlin SDK](static/minter-kotlin-sdk-header.png "Minter Blockchain Kotlin SDK")
 
 
-| Class support    | MinterApi  | MinterAsyncHttpApi | MinterApiCoroutines  | MinterGrpcApi  |
-| ------- | :----- | :----- | :----- | :----- |
-| HTTP transport      | :heavy_check_mark: | :heavy_check_mark:  | :heavy_multiplication_x: | :heavy_multiplication_x: |
-| gRPC transport      | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_check_mark: | :heavy_check_mark: |
-| Kotlin data class in output | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| JSON in output | :heavy_check_mark: | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_multiplication_x: |
-| gRPC class in output         | :heavy_multiplication_x: | :heavy_multiplication_x: | :heavy_check_mark: | :heavy_check_mark: |
+| Class support    | MinterApi  | MinterAsyncHttpApi, MinterCoroutinesHttpApi | MinterApiCoroutines, MinterGrpcApi  |
+| ------- | :----- | ----- | :----- |
+| HTTP transport      | :heavy_check_mark: | :heavy_check_mark:  | :heavy_multiplication_x: |
+| gRPC transport      | :heavy_check_mark: | :heavy_multiplication_x: | :heavy_check_mark: |
+| Kotlin data class in output | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| JSON in output | :heavy_check_mark: | :heavy_check_mark: | :heavy_multiplication_x: |
+| gRPC class in output         | :heavy_multiplication_x: | :heavy_multiplication_x: | :heavy_check_mark: |
 
 #### Initializing the HTTP Api
 ```kotlin
