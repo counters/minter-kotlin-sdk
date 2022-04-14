@@ -17,6 +17,8 @@ class ConvertEvents : MinterMatch() {
 
     private val logger = KotlinLogging.logger {}
 
+    var exception: Boolean = true
+
     fun get(response: EventsResponse, height: Long): List<MinterRaw.EventRaw> {
         val array = arrayListOf<MinterRaw.EventRaw>()
 
@@ -82,9 +84,27 @@ class ConvertEvents : MinterMatch() {
                 coinId = structValue.getFieldsOrThrow("coin").stringValue.toLong()
                 option = structValue.getFieldsOrThrow("id").stringValue.toLong()
 
+            } else if (type == EventType.UnlockEvent ) {
+                wallet = structValue.getFieldsOrThrow("address").stringValue
+                pipAmount = structValue.getFieldsOrThrow("amount").stringValue
+                coinId = structValue.getFieldsOrThrow("coin").stringValue.toLong()
+            }  else if (type == EventType.UpdatedBlockRewardEvent ) {
+                option = getAmount(structValue.getFieldsOrThrow("value_locked_stake_rewards").stringValue)
+                pipAmount = structValue.getFieldsOrThrow("value").stringValue
+            }   else if (type == EventType.StakeMoveEvent ) {
+                wallet = structValue.getFieldsOrThrow("address").stringValue
+                pipAmount = structValue.getFieldsOrThrow("amount").stringValue
+                node = structValue.getFieldsOrThrow("to_candidate_pub_key").stringValue
+                option = structValue.getFieldsOrThrow("candidate_pub_key").stringValue
+                coinId = structValue.getFieldsOrThrow("coin").stringValue.toLong()
             } else {
-                println(it)
-                TODO()
+                val messageError = "unknown event type: $type in $height height"
+                logger.error { messageError }
+                logger.debug { it }
+                logger.info { "exception=$exception" }
+                if (exception) {
+                    throw Exception(messageError)
+                }
             }
 
             val amount = pipAmount?.let { getAmount(it) } ?: run { null }

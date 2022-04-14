@@ -40,7 +40,7 @@ class ParseEvent: MinterMatch() {
     ): List<MinterRaw.EventRaw>? {
 //        var coin: String? = null
         var wallet: String? = null
-        var node: String = ""
+        var node: String? = null
 
         val array = ArrayList<MinterRaw.EventRaw>()
 
@@ -98,7 +98,7 @@ class ParseEvent: MinterMatch() {
                 var option: Any? = null
 
 
-                val node = if (!value.isNull("validator_pub_key")) {
+                var node = if (!value.isNull("validator_pub_key")) {
                     getNode(value.getString("validator_pub_key"))
                 } else if (!value.isNull("candidate_pub_key")) {
                     getNode(value.getString("candidate_pub_key"))
@@ -134,12 +134,12 @@ class ParseEvent: MinterMatch() {
                     }
                 }
 
-                val wallet = if (!value.isNull("address")) {
+                var wallet = if (!value.isNull("address")) {
                     getWallet(value.getString("address"))
                 } else {
                     null
                 }
-                val amount = if (!value.isNull("amount")) {
+                var amount = if (!value.isNull("amount")) {
                     minterMatch.getAmount(value.getString("amount"))
                 } else {
                     null
@@ -166,6 +166,17 @@ class ParseEvent: MinterMatch() {
                         }
                     }
                     option = listOf(array)
+                } else if (type == EventType.UpdatedBlockRewardEvent) {
+                    amount = getAmount(value.getString("value"))
+                    option = getAmount(value.getString("value_locked_stake_rewards"))
+                } else if (type == EventType.StakeMoveEvent) {
+                    amount = getAmount(value.getString("amount"))
+                    val nodeRaw = value.getString("to_candidate_pub_key")
+                    node = getNode(nodeRaw)
+                    option = value.getString("candidate_pub_key")
+                    val walletRaw = value.getString("address")
+                    wallet = getWallet(walletRaw)
+                    coin = CoinObjClass.CoinObj(value.getLong("coin"), null)
                 }
 
                 val event = Minter.Event(

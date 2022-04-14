@@ -3,7 +3,7 @@
 ### About
 Minter Blockchain Kotlin SDK [Minter.network](https://minter.network).
 
-![Minter Blockchain Kotlin SDK](static/minter-kotlin-sdk-header.png "counter.minter_sdk.Minter Blockchain Kotlin SDK")
+![Minter Blockchain Kotlin SDK](static/minter-kotlin-sdk-header.png "Minter Blockchain Kotlin SDK")
 
 
 | Class support    | MinterApi  | MinterApiCoroutines  | MinterGrpcApi  |
