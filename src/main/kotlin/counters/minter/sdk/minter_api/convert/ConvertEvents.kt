@@ -84,14 +84,14 @@ class ConvertEvents : MinterMatch() {
                 coinId = structValue.getFieldsOrThrow("coin").stringValue.toLong()
                 option = structValue.getFieldsOrThrow("id").stringValue.toLong()
 
-            } else if (type == EventType.UnlockEvent ) {
+            } else if (type == EventType.Unlock ) {
                 wallet = structValue.getFieldsOrThrow("address").stringValue
                 pipAmount = structValue.getFieldsOrThrow("amount").stringValue
                 coinId = structValue.getFieldsOrThrow("coin").stringValue.toLong()
-            }  else if (type == EventType.UpdatedBlockRewardEvent ) {
+            }  else if (type == EventType.UpdatedBlockReward ) {
                 option = getAmount(structValue.getFieldsOrThrow("value_locked_stake_rewards").stringValue)
                 pipAmount = structValue.getFieldsOrThrow("value").stringValue
-            }   else if (type == EventType.StakeMoveEvent ) {
+            }   else if (type == EventType.StakeMove ) {
                 wallet = structValue.getFieldsOrThrow("address").stringValue
                 pipAmount = structValue.getFieldsOrThrow("amount").stringValue
                 node = structValue.getFieldsOrThrow("to_candidate_pub_key").stringValue

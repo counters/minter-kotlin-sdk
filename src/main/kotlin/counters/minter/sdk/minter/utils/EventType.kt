@@ -12,9 +12,9 @@ object EventType {
     val RemoveCandidate = Data("RemoveCandidate", 7, "minter/RemoveCandidateEvent")
     val StakeKick = Data("StakeKick", 8, "minter/StakeKickEvent")
     val OrderExpired = Data("OrderExpired", 9, "minter/OrderExpiredEvent")
-    val UnlockEvent = Data("UnlockEvent", 10, "minter/UnlockEvent") // add in v3.0.0
-    val UpdatedBlockRewardEvent = Data("UpdatedBlockRewardEvent", 11, "minter/UpdatedBlockRewardEvent") // add in v3.0.0
-    val StakeMoveEvent = Data("StakeMoveEvent", 12, "minter/StakeMoveEvent") // add in v3.0.0
+    val Unlock = Data("Unlock", 10, "minter/UnlockEvent") // add in v3.0.0
+    val UpdatedBlockReward = Data("UpdatedBlockReward", 11, "minter/UpdatedBlockRewardEvent") // add in v3.0.0
+    val StakeMove = Data("StakeMove", 12, "minter/StakeMoveEvent") // add in v3.0.0
 
     val NoName = Data("NoName", 0, "")
 
@@ -28,9 +28,9 @@ object EventType {
         RemoveCandidate,
         StakeKick,
         OrderExpired,
-        UnlockEvent,
-        UpdatedBlockRewardEvent,
-        StakeMoveEvent,
+        Unlock,
+        UpdatedBlockReward,
+        StakeMove,
     )
 
     fun get(raw: String): Data {
@@ -44,9 +44,9 @@ object EventType {
             RemoveCandidate.raw -> RemoveCandidate
             StakeKick.raw -> StakeKick
             OrderExpired.raw -> OrderExpired
-            UnlockEvent.raw -> UnlockEvent
-            UpdatedBlockRewardEvent.raw -> UpdatedBlockRewardEvent
-            StakeMoveEvent.raw -> StakeMoveEvent
+            Unlock.raw -> Unlock
+            UpdatedBlockReward.raw -> UpdatedBlockReward
+            StakeMove.raw -> StakeMove
             else -> NoName
         }
     }
@@ -62,9 +62,9 @@ object EventType {
             RemoveCandidate.uid -> RemoveCandidate
             StakeKick.uid -> StakeKick
             OrderExpired.uid -> OrderExpired
-            UnlockEvent.uid -> UnlockEvent
-            UpdatedBlockRewardEvent.uid -> UpdatedBlockRewardEvent
-            StakeMoveEvent.uid -> StakeMoveEvent
+            Unlock.uid -> Unlock
+            UpdatedBlockReward.uid -> UpdatedBlockReward
+            StakeMove.uid -> StakeMove
             else -> NoName
         }
     }

@@ -166,10 +166,10 @@ class ParseEvent: MinterMatch() {
                         }
                     }
                     option = listOf(array)
-                } else if (type == EventType.UpdatedBlockRewardEvent) {
+                } else if (type == EventType.UpdatedBlockReward) {
                     amount = getAmount(value.getString("value"))
                     option = getAmount(value.getString("value_locked_stake_rewards"))
-                } else if (type == EventType.StakeMoveEvent) {
+                } else if (type == EventType.StakeMove) {
                     amount = getAmount(value.getString("amount"))
                     val nodeRaw = value.getString("to_candidate_pub_key")
                     node = getNode(nodeRaw)
