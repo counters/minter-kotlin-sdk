@@ -1,6 +1,7 @@
 package counters.minter.sdk.minter_api.parse
 
 import counters.minter.sdk.minter.CoinObjClass
+import counters.minter.sdk.minter.DataMultisig
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.models.AddressRaw
@@ -21,6 +22,27 @@ class ParseWallet {
         val arrayDelegated = if (result.isNull("delegated")) null else getListDelegate(result.getJSONArray("delegated"))
         val arrayTotal = if (result.isNull("total")) null else getListBalance(result.getJSONArray("total"))
 
+        val multisig = if (result.isNull("multisig")) {
+            null
+        } else {
+            result.getJSONObject("multisig").let {
+                val addresses = mutableMapOf<String, Long>()
+                val arrWeights = it.getJSONArray("weights")
+                var weightsSum = 0L
+                it.getJSONArray("addresses").forEachIndexed { index, _address ->
+                    val weight = (arrWeights[index] as String).toLong()
+                    weightsSum += weight
+                    addresses.put(_address as String, weight)
+                }
+                DataMultisig(
+                    addresses = addresses,
+                    threshold = it.getLong("threshold"),
+                    weightsSum = weightsSum,
+                    multisig = address,
+                )
+            }
+        }
+
         if (arrayBalance != null && arrayTotal != null)
             return AddressRaw(
                 address,
@@ -29,7 +51,7 @@ class ParseWallet {
                 arrayDelegated,
                 arrayTotal,
                 minterMatch.getAmount(bip_value),
-                null
+                multisig
             )
         else
             return null
