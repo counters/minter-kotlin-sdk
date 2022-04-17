@@ -30,7 +30,8 @@ class ConvertAddress: MinterMatch() {
         }
 
     private fun getMultisig(multisig: Multisig, address: String): DataMultisig? {
-        val _multisig = if (!multisig.isInitialized) {
+//        println("multisig ${multisig.weightsCount} ${multisig.addressesCount}")
+        val _multisig = if (multisig.weightsCount==0) {
             null
         } else {
 //            result.getJSONObject("multisig").let {
