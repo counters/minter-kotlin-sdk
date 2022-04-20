@@ -117,7 +117,7 @@ class ConvertTransaction : MinterMatch() {
             }
             TransactionTypes.TypeCreateMultisig.int -> {
                 val data = transaction.data.unpack(CreateMultisigData::class.java)
-                val created_multisig = tags["tx.created_multisig"]!!
+                val created_multisig = "Mx"+tags["tx.created_multisig"]!!
                 optList = convertMultisig.get(data.addressesList, data.weightsList, data.threshold, created_multisig)
             }
             TransactionTypes.TypeEditMultisig.int -> {

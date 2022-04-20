@@ -215,13 +215,13 @@ internal class MinterApiTest {
     @Test
     fun getOneTypeTransactionCoroutines() {
         runBlocking {
-            val type = TransactionTypes.LOCK_STAKE
+            val type = TransactionTypes.TypeCreateMultisig
 //            LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
 //                Utils(Config.network).getNumismatistsAddresses(10, true).forEach {
 //                val index = Random.nextInt(1, count - 1).dec()
 //                "Mt1b1ba5298ce9771b58ec9bc252b9a18fc6eb301dfca585c64c44b8a63f7089f1".let {
                 Utils(Config.network).getTransactions(type, 10, true).forEach {
-                    println(it)
+//                    println(it)
 //                LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {
                     val expected = async { minterHttpApi.getTransactionCoroutines(it) }
                     val actual = async { minterGrpcApi.getTransactionCoroutines(it) }

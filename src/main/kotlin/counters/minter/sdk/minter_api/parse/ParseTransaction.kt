@@ -437,7 +437,7 @@ class ParseTransaction() {
                     getData?.invoke(limitOrderRaw, type)
 
                 } else if (type == TransactionTypes.TypeCreateMultisig.int) {
-                    val created_multisig = tags.getString("tx.created_multisig")
+                    val created_multisig = "Mx"+tags.getString("tx.created_multisig")
                     val optList = convertMultisig.get2(
                         data.getJSONArray("addresses").toList() as List<String>,
                         data.getJSONArray("weights").toList() as List<String>,
