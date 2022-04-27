@@ -6,7 +6,6 @@ import counters.minter.sdk.minter.utils.EventType
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.random.Random
-import kotlin.random.nextUInt
 
 class Utils(val network: Network) {
 
@@ -48,14 +47,22 @@ class Utils(val network: Network) {
     fun getExtremeDelegators(num: Int? = null, random: Boolean = false) = subject(SUBJECT.ExtremeDelegators, num, random)
     fun getNumismatistsAddresses(num: Int? = null, random: Boolean = false) = subject(SUBJECT.NumismatistsAddresses, num, random)
 
-    fun getEvents(eventType: EventType.Data? = null, num: Int? = null, random: Boolean = false) = subject(subject = SUBJECT.Events, num = num, random = random, eventType = eventType)
+    fun getEvents(eventType: EventType.Data? = null, num: Int? = null, random: Boolean = false) =
+        subject(subject = SUBJECT.Events, num = num, random = random, eventType = eventType)
 
 
-    private fun subject(subject: SUBJECT, num: Int? = null, random: Boolean = false, tag: String? = "hash", type: TransactionTypes? = null, eventType: EventType.Data? = null): List<String> {
+    private fun subject(
+        subject: SUBJECT,
+        num: Int? = null,
+        random: Boolean = false,
+        tag: String? = "hash",
+        type: TransactionTypes? = null,
+        eventType: EventType.Data? = null
+    ): List<String> {
         val json = getJSONArray(subject)
         val jsonArray = if (subject == SUBJECT.ExtremeDelegators || subject == SUBJECT.NumismatistsAddresses) json
-        else if ((subject == SUBJECT.TransactionsBlocks || subject == SUBJECT.FailedTransactionsBlocks) && tag!=null && type!=null ) getTransactionsBlocks(json, tag, type)
-        else if ((subject == SUBJECT.Events ) ) getEventsJson(json, eventType)
+        else if ((subject == SUBJECT.TransactionsBlocks || subject == SUBJECT.FailedTransactionsBlocks) && tag != null && type != null) getTransactionsBlocks(json, tag, type)
+        else if ((subject == SUBJECT.Events)) getEventsJson(json, eventType)
         else TODO()
         return prepareJson(jsonArray, num, random)
     }
@@ -69,7 +76,7 @@ class Utils(val network: Network) {
             jsonArray.count()
         }
         val until = jsonArray.count() - 1
-        if (random && until>0) {
+        if (random && until > 0) {
 //            if (until<0) return array
             repeat(_num) {
                 Random.nextInt(0, until).let {
@@ -92,9 +99,9 @@ class Utils(val network: Network) {
     }
 
     private fun randomTypeEvent(): EventType.Data {
-//        val list = TransactionTypes.values()
-//        val random = Random.nextInt(0, (list.count() - 1))
-        return EventType.Reward
+        val list = EventType.events
+        val random = Random.nextInt(0, (list.count() - 1))
+        return EventType.events[random]
     }
 
     private fun getTransactionsBlocks(jsonArray: JSONArray, tag: String, type: TransactionTypes? = null): JSONArray {
@@ -108,7 +115,7 @@ class Utils(val network: Network) {
         return JSONArray()
     }
 
-    private fun getEventsJson(jsonArray: JSONArray, eventType: EventType.Data? =null): JSONArray {
+    private fun getEventsJson(jsonArray: JSONArray, eventType: EventType.Data? = null): JSONArray {
         val _type = eventType ?: randomTypeEvent()
         jsonArray.forEach {
             it as JSONObject
@@ -128,7 +135,6 @@ class Utils(val network: Network) {
         return newJson
     }
 
-
     private fun getJSONArray(subject: SUBJECT) = getJSONArray("subjects/${network.str}/${subject.str}")
 
     private fun getJSONArray(filepatch: String): JSONArray {
@@ -142,7 +148,6 @@ class Utils(val network: Network) {
     private fun filter(text: String, quotes: Pair<String, String>): String {
         return text.substring(text.indexOf(quotes.first), text.lastIndexOf(quotes.second) + 1)
     }
-
 
 
 }
