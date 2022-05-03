@@ -46,9 +46,20 @@ enum class TransactionTypes (val int: Int) {
 
     fun toHex(): String {
         this.int.toString(16).let {
-            if (it.length==1) return "0$it"
+            if (it.length == 1) return "0$it"
             else return it
         }
     }
+
+    fun eq(int: Int): Boolean {
+        if (this.int == int) return true else return false
+
+    }
+
+/*    companion object {
+        fun eq(int: Int): Boolean {
+
+        }
+    }*/
 }
 

@@ -9,12 +9,12 @@ import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter.enum.QueryTags
 import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.enum.TransactionTypes
+import counters.minter.sdk.minter.help.Serializer
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.Commission
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter.utils.EventType
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -30,6 +30,8 @@ internal class MinterApiTest {
 
     private val minterHttpApi = MinterApi(null, Config.httpOptions)
     private val minterGrpcApi = MinterApi(Config.grpcOptions, null)
+
+    private val serializer = Serializer()
 
     @BeforeEach
     internal fun setUp() {
@@ -91,7 +93,7 @@ internal class MinterApiTest {
         }
     }
 
-    //    @Test
+    //        @Test
     fun getOneTypeTransaction() {
         val type = TransactionTypes.REMOVE_LIMIT_ORDER
         LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
@@ -166,9 +168,7 @@ internal class MinterApiTest {
                         if (type == TransactionTypes.VOTE_COMMISSION) {
                             assertVOTE_COMMISSION(it, actual.await())
                         } else if (expected.await()?.optData!=null && actual.await()?.optData!=null) {
-                            assertEquals(expected.await()!!.copy(optData = null), actual.await()!!.copy(optData = null))
-//                            assertEquals(expected.await()!!.copy(amount = null), actual.await()!!.copy(amount = null))
-//                        assertEquals(expected.await()?.amount!!, actual.await()?.amount!!, 0.0001)
+                            assertWithOptData(expected.await(), actual.await())
                         }  else {
                             assertEquals(it, actual.await())
                         }
@@ -215,31 +215,43 @@ internal class MinterApiTest {
     @Test
     fun getOneTypeTransactionCoroutines() {
         runBlocking {
-            val type = TransactionTypes.TypeCreateMultisig
-//            LibTransactionTypes.mapTypeTrs[type]?.count()?.let { count ->
-//                Utils(Config.network).getNumismatistsAddresses(10, true).forEach {
-//                val index = Random.nextInt(1, count - 1).dec()
+            val type = TransactionTypes.MOVE_STAKE
 //                "Mt1b1ba5298ce9771b58ec9bc252b9a18fc6eb301dfca585c64c44b8a63f7089f1".let {
-                Utils(Config.network).getTransactions(type, 10, true).forEach {
-//                    println(it)
-//                LibTransactionTypes.mapTypeTrs[type]?.getOrNull(index)?.let {
-                    val expected = async { minterHttpApi.getTransactionCoroutines(it) }
-                    val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
+            Utils(Config.network).getTransactions(type, 1, true).forEach {
+                println(it)
+                val expected = async { minterHttpApi.getTransactionCoroutines(it) }
+                val actual = async { minterGrpcApi.getTransactionCoroutines(it) }
 //                    val actualValue = actual.await()
-                    assertNotEquals(null, actual.await())
-                    if (type == TransactionTypes.VOTE_COMMISSION) {
-                        assertVOTE_COMMISSION(expected.await(), actual.await())
-                    } else if (expected.await()?.optData!=null && actual.await()?.optData!=null) {
-                        assertEquals(expected.await()!!.copy(optData = null), actual.await()!!.copy(optData = null))
-//                        assertEquals(expected.await()!!.copy(amount = null), actual.await()!!.copy(amount = null))
-//                        assertEquals(expected.await()?.amount!!, actual.await()?.amount!!, 0.0001)
-//                        assertEquals((expected.await()?.optData!! as Long),( actual.await()?.optData!! as Long))
-                    } else {
-                        assertEquals(expected.await(), actual.await())
-                    }
-                    return@runBlocking
+                assertNotEquals(null, actual.await())
+                if (type == TransactionTypes.VOTE_COMMISSION) {
+                    assertVOTE_COMMISSION(expected.await(), actual.await())
+                } else if (expected.await()?.optData != null && actual.await()?.optData != null) {
+//                        assertEquals(expected.await()?.optData, actual.await()?.optData)
+                    assertWithOptData(expected.await(), actual.await())
+//                        assertEquals(expected.await()!!.copy(optData = null), actual.await()!!.copy(optData = null))
+                } else {
+                    assertEquals(expected.await(), actual.await())
                 }
+                return@runBlocking
+            }
 //            }
+            assert(false)
+        }
+    }
+
+    private fun assertWithOptData(expected: TransactionRaw?, actual: TransactionRaw?) {
+        if (expected != null && actual != null) {
+            if (expected.optData != null && actual.optData != null) {
+//                val expectedOptData = expected.optData
+//                val actualOptData = actual.optData
+//            println("$expectedOptData ?== $actualOptData ")
+//            println("${expectedOptData!!::class.qualifiedName}")
+//            println("${actualOptData!!::class.qualifiedName}")
+                assertEquals(serializer.transaction(expected), serializer.transaction(actual))
+            } else {
+                assertEquals(expected, actual)
+            }
+        } else {
             assert(false)
         }
     }
