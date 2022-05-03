@@ -269,16 +269,7 @@ class ConvertTransaction : MinterMatch() {
                 optString = data.fromPubKey
                 coin = CoinObjClass.CoinObj(data.coin.id, data.coin.symbol)
                 stake = data.value
-                optList = tags["tx.unlock_block_id"]
-            /*    val amountStr = data.getString("value")
-                node = getNode(data.getString("to_pub_key"))
-                optString = data.getString("from_pub_key")
-                coin = CoinObjClass.fromJson(data.getJSONObject("coin"))
-                coin?.let { getCoin(it.id, it.symbol) }
-                stake = amountStr
-                amount = minterMatch.getAmount(amountStr)
-                val unlock_block_id = tags.getLong("tx.unlock_block_id")
-                getData?.invoke(unlock_block_id, type)*/
+                optList = tags["tx.unlock_block_id"]?.toLong()
             }
             TransactionTypes.MINT_TOKEN.int -> {
                 val data = transaction.data.unpack(MintTokenData::class.java)

@@ -570,7 +570,7 @@ class ParseTransaction() {
                     val unlock_block_id = tags.getLong("tx.unlock_block_id")
                     getData?.invoke(unlock_block_id, type)
                 } else if (type == TransactionTypes.LOCK.int) {
-                    val due_block = data.getString("due_block")
+                    val due_block = data.getLong("due_block")
                     val amountStr = data.getString("value")
                     coin = CoinObjClass.fromJson(data.getJSONObject("coin"))
                     coin?.let { getCoin(it.id, it.symbol) }
