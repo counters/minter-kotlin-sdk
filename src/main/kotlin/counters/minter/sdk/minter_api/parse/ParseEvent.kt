@@ -2,6 +2,7 @@ package counters.minter.sdk.minter_api.parse
 
 import counters.minter.sdk.minter.*
 import counters.minter.sdk.minter.enum.CommissionKey
+import counters.minter.sdk.minter.enum.EventTypes
 import counters.minter.sdk.minter.models.Commission
 import counters.minter.sdk.minter.utils.EventRole
 import counters.minter.sdk.minter.utils.EventType
@@ -177,6 +178,11 @@ class ParseEvent: MinterMatch() {
                     val walletRaw = value.getString("address")
                     wallet = getWallet(walletRaw)
                     coin = CoinObjClass.CoinObj(value.getLong("coin"), null)
+                } else if (type == EventTypes.Jail.toOldType()) {
+                    option = value.getLong("jailed_until")
+                } else if (type == EventTypes.OrderExpired.toOldType()) {
+//                    println(value)
+                    option = value.getLong("id")
                 }
 
                 val event = Minter.Event(

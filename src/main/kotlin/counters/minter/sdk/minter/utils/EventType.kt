@@ -1,5 +1,9 @@
 package counters.minter.sdk.minter.utils
 
+@Deprecated(
+    message = "", level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith("EventTypes", "counters.minter.sdk.minter.enum.EventTypes")
+)
 object EventType {
     data class Data(val name: String, val uid: Int, val raw: String)
 
