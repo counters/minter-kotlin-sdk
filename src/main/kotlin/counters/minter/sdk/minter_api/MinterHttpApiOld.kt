@@ -344,12 +344,13 @@ class MinterHttpApiOld(
         return null
     }
 
-    fun getCoinRaw(id: Long, height: Long = 0): MinterRaw.CoinRaw? {
+    fun getCoinRaw(id: Long, height: Long? = null): MinterRaw.CoinRaw? {
         return this.getCoinByIdRaw(id, height)
     }
 
-    fun getCoinByIdRaw(id: Long, height: Long = 0): MinterRaw.CoinRaw? {
-        val jsonObj = this.getJson(HttpMethod.COINID.patch + "/" + id, mapOf("height" to height.toString()))
+    fun getCoinByIdRaw(id: Long, height: Long? = null): MinterRaw.CoinRaw? {
+        val params = if (height != null) mapOf("height" to height.toString()) else null
+        val jsonObj = this.getJson(HttpMethod.COINID.patch + "/" + id, params)
 //                println("getNode($pub_key, $height)\n"+jsonObj)
         if (jsonObj != null) {
             var result: JSONObject? = null
@@ -361,8 +362,9 @@ class MinterHttpApiOld(
         return null
     }
 
-    fun getCoinRaw(symbol: String, height: Long = 0): MinterRaw.CoinRaw? {
-        val jsonObj = this.getJson(HttpMethod.COIN.patch + "/" + symbol, mapOf("height" to height.toString()))
+    fun getCoinRaw(symbol: String, height: Long? = null): MinterRaw.CoinRaw? {
+        val params = if (height != null) mapOf("height" to height.toString()) else null
+        val jsonObj = this.getJson(HttpMethod.COIN.patch + "/" + symbol, params)
 //                println("getNode($pub_key, $height)\n"+jsonObj)
         if (jsonObj != null) {
             var result: JSONObject? = null

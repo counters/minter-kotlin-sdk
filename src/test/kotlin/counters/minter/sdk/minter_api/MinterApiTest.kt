@@ -440,7 +440,7 @@ internal class MinterApiTest {
     fun getEvents() {
         EventTypes.values().forEach { type ->
 //            EventTypes.Unlock.let  { type ->
-            Utils(Config.network).getEvents(type.toOldType(), 10, true).forEach {
+            Utils(Config.network).getEvents(type.toOldType(), 3, true).forEach {
                 val height = it.toLong()
 //                println("$type: $it")
                 minterHttpApi.getEvent(height)?.let { events ->
@@ -899,6 +899,67 @@ internal class MinterApiTest {
             } ?: run {
                 assert(false)
             }
+        }
+    }
+
+    @Test
+    fun getCoinInfo() {
+        runBlocking {
+            var httpResponse: MinterRaw.CoinRaw? = null
+            var grpcResponse: MinterRaw.CoinRaw? = null
+            val coin: Long = if (Config.network == Utils.Network.Mainnet5) 1902 else 0
+//            val coin: Long = if (Config.network == Utils.Network.Mainnet5) 65 else 0
+            val height: Long? = null
+
+
+            val jobHttp = launch {
+                minterHttpApi.getCoinInfo(coin, height).let {
+                    httpResponse = it
+//                    println("HTTP: $it")
+                }
+            }
+            val jobGrpc = launch {
+                minterGrpcApi.getCoinInfo(coin, height).let {
+                    grpcResponse = it
+//                    println("gRPC: $it")
+                }
+            }
+            jobHttp.join()
+            jobGrpc.join()
+//            return@runBlocking
+            grpcResponse?.let {
+                assertEquals(httpResponse, grpcResponse)
+            } ?: run {
+                assert(false)
+            }
+        }
+    }
+
+    @Test
+    fun asyncCoinInfo() {
+        var httpResponse: MinterRaw.CoinRaw? = null
+        var grpcResponse: MinterRaw.CoinRaw? = null
+        val coin: Long = if (Config.network == Utils.Network.Mainnet5) 1902 else 0
+//            val coin: Long = if (Config.network == Utils.Network.Mainnet5) 65 else 0
+        val height: Long? = null
+        val semaphore = Semaphore(1)
+        semaphore.acquireUninterruptibly()
+        minterHttpApi.getCoinInfo(coin, height) {
+            println("HTTP: $it")
+            httpResponse = it
+            semaphore.release()
+        }
+        semaphore.acquireUninterruptibly()
+        minterGrpcApi.getCoinInfo(coin, height) {
+            println("gRPC: $it")
+            grpcResponse = it
+            semaphore.release()
+        }
+        semaphore.acquire()
+        if (httpResponse == null || grpcResponse == null) {
+            assert(false)
+        } else {
+            assertEquals(grpcResponse!!, httpResponse!!)
         }
     }
 

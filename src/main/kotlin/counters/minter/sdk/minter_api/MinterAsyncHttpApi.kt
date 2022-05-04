@@ -43,6 +43,7 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
 
     private val parseLimitOrder = ParseLimitOrder()
     private val parseSwapPool = ParseSwapPool()
+    private val parseCoin = ParseCoin()
 
 //    private val logger = KotlinLogging.logger {}
 
@@ -455,6 +456,57 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
         getSwapPoolJson(coin0, coin1, height, timeout) {
             if (it != null) {
                 result(parseSwapPool.get(it))
+            } else {
+                result(null)
+            }
+        }
+    }
+
+
+    fun getCoinJson(symbol: String, height: Long? = null, timeout: Long? = null, result: (result: JSONObject?) -> Unit) {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to it.toString()) }
+        this.asyncGet(HttpMethod.COIN.patch + "/" + symbol, params, timeout)
+        {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    result(it)
+                } else {
+                    result(null)
+                }
+            } ?: run { result(null) }
+        }
+    }
+
+    fun getCoinJson(coin: Long, height: Long? = null, timeout: Long? = null, result: (result: JSONObject?) -> Unit) {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to it.toString()) }
+        this.asyncGet(HttpMethod.COINID.patch + "/" + coin, params, timeout)
+        {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    result(it)
+                } else {
+                    result(null)
+                }
+            } ?: run { result(null) }
+        }
+    }
+
+    fun getCoin(symbol: String, height: Long? = null, timeout: Long? = null, result: (result: MinterRaw.CoinRaw?) -> Unit) {
+        getCoinJson(symbol, height, timeout) {
+            if (it != null) {
+                result(parseCoin.getRaw(it))
+            } else {
+                result(null)
+            }
+        }
+    }
+
+    fun getCoin(coin: Long, height: Long? = null, timeout: Long? = null, result: (result: MinterRaw.CoinRaw?) -> Unit) {
+        getCoinJson(coin, height, timeout) {
+            if (it != null) {
+                result(parseCoin.getRaw(it))
             } else {
                 result(null)
             }

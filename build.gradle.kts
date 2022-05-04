@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "counters"
-version = "2.4.1"
+version = "2.4.2"
 
 val grpcKotlinVersion = "1.2.1"
 val coroutinesVersion = "1.6.1"

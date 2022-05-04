@@ -13,7 +13,6 @@ import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import counters.minter.sdk.minter_api.http.HttpOptions
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 
@@ -514,6 +513,38 @@ class MinterApi(
             return it.getSwapPool(coin0, coin1, height, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getSwapPool(coin0, coin1, height, deadline)
+        }
+    }
+
+    fun getCoinInfo(coin: Long, height: Long? = null, deadline: Long? = null): MinterRaw.CoinRaw? {
+        return if (minterHttpApi != null) {
+            minterHttpApi!!.getCoinRaw(coin, height/*, deadline*/)
+        } else {
+            minterGrpcApi!!.getCoinInfo(coin, height, deadline)
+        }
+    }
+
+    fun getCoinInfo(coin: Long, height: Long? = null, deadline: Long? = null, result: (result: MinterRaw.CoinRaw?) -> Unit) {
+        minterAsyncHttpApi?.let {
+            it.getCoin(coin, height, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.getCoinInfo(coin, height, deadline, result)
+        }
+    }
+
+    fun getCoinInfo(symbol: String, height: Long? = null, deadline: Long? = null): MinterRaw.CoinRaw? {
+        return if (minterHttpApi != null) {
+            minterHttpApi!!.getCoinRaw(symbol, height/*, deadline*/)
+        } else {
+            minterGrpcApi!!.getCoinInfo(symbol, height, deadline)
+        }
+    }
+
+    fun getCoinInfo(symbol: String, height: Long? = null, deadline: Long? = null, result: (result: MinterRaw.CoinRaw?) -> Unit) {
+        minterAsyncHttpApi?.let {
+            it.getCoin(symbol, height, deadline, result)
+        } ?: run {
+            minterGrpcApi!!.getCoinInfo(symbol, height, deadline, result)
         }
     }
 
