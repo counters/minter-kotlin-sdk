@@ -6,6 +6,7 @@ import counters.minter.sdk.lib.LibTransactionTypes
 import counters.minter.sdk.minter.Coin
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw
+import counters.minter.sdk.minter.enum.EventTypes
 import counters.minter.sdk.minter.enum.QueryTags
 import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.enum.TransactionTypes
@@ -13,7 +14,6 @@ import counters.minter.sdk.minter.help.Serializer
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.Commission
 import counters.minter.sdk.minter.models.TransactionRaw
-import counters.minter.sdk.minter.utils.EventType
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -167,9 +167,9 @@ internal class MinterApiTest {
                     expected.await()?.let {
                         if (type == TransactionTypes.VOTE_COMMISSION) {
                             assertVOTE_COMMISSION(it, actual.await())
-                        } else if (expected.await()?.optData!=null && actual.await()?.optData!=null) {
+                        } else if (expected.await()?.optData != null && actual.await()?.optData != null) {
                             assertWithOptData(expected.await(), actual.await())
-                        }  else {
+                        } else {
                             assertEquals(it, actual.await())
                         }
                         /* if (type == TransactionTypes.VOTE_COMMISSION) {
@@ -196,11 +196,11 @@ internal class MinterApiTest {
                     expected.await()?.let {
                         if (type == TransactionTypes.VOTE_COMMISSION) {
                             assertVOTE_COMMISSION(it, actual.await())
-                        } else if (expected.await()?.optData!=null && actual.await()?.optData!=null) {
+                        } else if (expected.await()?.optData != null && actual.await()?.optData != null) {
                             assertEquals(expected.await()!!.copy(optData = null), actual.await()!!.copy(optData = null))
 //                            assertEquals(expected.await()!!.copy(amount = null), actual.await()!!.copy(amount = null))
 //                        assertEquals(expected.await()?.amount!!, actual.await()?.amount!!, 0.0001)
-                        }  else {
+                        } else {
                             assertEquals(it, actual.await())
                         }
                     } ?: run {
@@ -365,7 +365,7 @@ internal class MinterApiTest {
     fun getAddress() {
 //        "Mx170efb7414ba43bfbcd6aac831abc289de916635".let {
 //        transactionsByType(TransactionTypes.TypeDeclareCandidacy)?.first()?.from?.let {
-            Utils(Config.network).getNumismatistsAddresses(10, true).forEach {
+        Utils(Config.network).getNumismatistsAddresses(10, true).forEach {
 //            println(it)
             minterHttpApi.getAddress(address = it, height = null, delegated = true)?.let { address ->
 //                println(address)
@@ -409,21 +409,26 @@ internal class MinterApiTest {
         }
     }
 
+
     @Test
     fun getEventsCoroutines() {
         runBlocking {
-            EventType.events.forEach { type ->
-                Utils(Config.network).getEvents(type, 1, true).forEach {
+            EventTypes.values().forEach { type ->
+//            EventTypes.OrderExpired.let  { type ->
+                Utils(Config.network).getEvents(type.toOldType(), 10, true).forEach {
                     val height = it.toLong()
 //                    println("$type: $it")
                     minterHttpApi.getEventCoroutines(height)?.let { events ->
 //                    println(events.bip_value)
                         minterGrpcApi.getEventCoroutines(height)?.let {
-                            assertEquals(events.count(), it.count())
-                            return@forEach
+//                            assertEquals(events.count(), it.count())
+//                            return@forEach
+                            assertEvents(events, it)
                         } ?: run {
                             assert(false)
                         }
+                    } ?: run {
+                        assert(false)
                     }
                 }
 
@@ -433,21 +438,25 @@ internal class MinterApiTest {
 
     @Test
     fun getEvents() {
-        EventType.events.forEach { type ->
-            Utils(Config.network).getEvents(type, 1, true).forEach {
+        EventTypes.values().forEach { type ->
+//            EventTypes.Unlock.let  { type ->
+            Utils(Config.network).getEvents(type.toOldType(), 10, true).forEach {
                 val height = it.toLong()
 //                println("$type: $it")
-                minterHttpApi.getEvent(height).let { events ->
+                minterHttpApi.getEvent(height)?.let { events ->
 //                    println(events)
                     minterGrpcApi.getEvent(height)?.let {
                         /*  if (type == EventType.RemoveCandidate) {
                               println("$type: $events")
                           }*/
-                        assertEquals(events?.count(), it.count())
-                        return@forEach
+//                        assertEquals(events?.count(), it.count())
+//                        return@forEach
+                        assertEvents(events, it)
                     } ?: run {
                         assert(false)
                     }
+                } ?: run {
+                    assert(false)
                 }
             }
 
@@ -455,6 +464,17 @@ internal class MinterApiTest {
     }
 
     private fun assertEvents(expected: List<MinterRaw.EventRaw>, actual: List<MinterRaw.EventRaw>) {
+//        println(expected)
+        serializer.event(actual)?.let { json ->
+            /*     serializer.event(json.asJsonArray)?.forEachIndexed { index, eventRaw ->
+                     if (index > 5) return@forEachIndexed
+                     println(eventRaw)
+                 }*/
+//            println("count: ${actual.count()} ${json.asJsonArray.count()}")
+            assertEquals(expected, serializer.event(json))
+        } ?: run {
+            assert(false) { "Error serializer.event()" }
+        }
 /*        expected.forEach { expectedVal ->
             actual.firstOrNull { it.coin == expectedVal.coin }?.let { actualVal ->
                 assertEquals(expectedVal.value, actualVal.value, 0.000001, "$message: ${expectedVal.coin}!=${actualVal.coin}")
@@ -723,7 +743,7 @@ internal class MinterApiTest {
         }
     }
 
-    @Test
+    //    @Test
     fun streamSubscribeStatusCoroutines() {
         runBlocking {
             var httpResponse: Minter.Status? = null
