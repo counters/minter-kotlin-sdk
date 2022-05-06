@@ -52,7 +52,7 @@ class ConvertEvents : MinterMatch() {
                 node = structValue.getFieldsOrThrow("validator_pub_key").stringValue
             } else if (type == EventType.UpdateNetwork) {
                 val version = structValue.getFieldsOrThrow("version").stringValue
-//                println("version: $version")
+                option = version
             } else if (type == EventType.StakeKick) {
                 node = structValue.getFieldsOrThrow("validator_pub_key").stringValue
                 wallet = structValue.getFieldsOrThrow("address").stringValue

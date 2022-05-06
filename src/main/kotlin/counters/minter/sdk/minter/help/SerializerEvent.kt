@@ -30,8 +30,8 @@ class SerializerEvent {
             return data.copy(option = optDataElement.asString)
         } else if (EventTypes.UpdatedBlockReward.eq(type)) {
             return data.copy(option = optDataElement.asDouble)
-        } else if (EventTypes.UpdatedBlockReward.eq(type)) {
-            return data.copy(option = optDataElement.asDouble)
+        } else if (EventTypes.UpdateNetwork.eq(type)) {
+            return data.copy(option = optDataElement.asString)
         } else if (EventTypes.OrderExpired.eq(type)) {
             return data.copy(option = optDataElement.asLong)
         } else if (EventTypes.Jail.eq(type)) {

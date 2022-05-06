@@ -51,6 +51,8 @@ class SerializerTransaction {
             return data.copy(optData = optDataElement.asLong)
         } else if (TransactionTypes.LOCK.eq(type)) {
             return data.copy(optData = optDataElement.asLong)
+        } else if (TransactionTypes.TypeSetHaltBlock.eq(type)) {
+            return data.copy(optData = optDataElement.asLong)
         }
 
         return data

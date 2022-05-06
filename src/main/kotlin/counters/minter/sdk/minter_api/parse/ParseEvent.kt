@@ -109,7 +109,8 @@ class ParseEvent: MinterMatch() {
 
 
                 val event_type = eventJsonObject.getString("type")
-                val type = EventType.get(event_type)
+                val oldType = EventType.get(event_type)
+                val type = EventTypes.byRaw(event_type)
                 var role: Int? = null
                 if (!value.isNull("role")) {
                     val role_type = value.getString("role")
@@ -117,7 +118,7 @@ class ParseEvent: MinterMatch() {
                 }
                 var coin: CoinObjClass.CoinObj? = null
 //                println(value)
-                if (!value.isNull("coin") ) {
+                if (!value.isNull("coin")) {
                     val coinId = value.getLong("coin")
 //                    getCoin(coinId)
                     if (getCoinByIdRaw==null) {
@@ -146,7 +147,7 @@ class ParseEvent: MinterMatch() {
                     null
                 }
 
-                if (type == EventType.UpdateCommissions) {
+                if (oldType == EventType.UpdateCommissions) {
                     val array = arrayListOf<Commission>()
 //                    println(value)
                     value.keySet().forEach { key ->
@@ -167,10 +168,10 @@ class ParseEvent: MinterMatch() {
                         }
                     }
                     option = listOf(array)
-                } else if (type == EventType.UpdatedBlockReward) {
+                } else if (oldType == EventType.UpdatedBlockReward) {
                     amount = getAmount(value.getString("value"))
                     option = getAmount(value.getString("value_locked_stake_rewards"))
-                } else if (type == EventType.StakeMove) {
+                } else if (oldType == EventType.StakeMove) {
                     amount = getAmount(value.getString("amount"))
                     val nodeRaw = value.getString("to_candidate_pub_key")
                     node = getNode(nodeRaw)
@@ -178,11 +179,13 @@ class ParseEvent: MinterMatch() {
                     val walletRaw = value.getString("address")
                     wallet = getWallet(walletRaw)
                     coin = CoinObjClass.CoinObj(value.getLong("coin"), null)
-                } else if (type == EventTypes.Jail.toOldType()) {
+                } else if (type == EventTypes.Jail) {
                     option = value.getLong("jailed_until")
-                } else if (type == EventTypes.OrderExpired.toOldType()) {
-//                    println(value)
+                } else if (type == EventTypes.OrderExpired) {
                     option = value.getLong("id")
+                } else if (type == EventTypes.UpdateNetwork) {
+//                    println(value)
+                    option = value.getString("version")
                 }
 
                 val event = Minter.Event(
@@ -190,7 +193,7 @@ class ParseEvent: MinterMatch() {
                     node = node,
                     wallet = wallet,
                     coin = coin,
-                    type = type.uid,
+                    type = oldType.uid,
                     amount = amount,
                     option = option,
                     role = role
