@@ -332,22 +332,23 @@ class ConvertTransaction : MinterMatch() {
             }
             TransactionTypes.CREATE_SWAP_POOL.int -> {
                 val data = transaction.data.unpack(CreateSwapPoolData::class.java)
-                coin = CoinObjClass.CoinObj(data.coin0.id, data.coin0.symbol)
-                coin2 = CoinObjClass.CoinObj(data.coin1.id, data.coin1.symbol)
-                stake = data.volume0
-                amount = getAmount(stake)
-                optDouble = getAmount(data.volume1)
-                val token =  CoinObjClass.CoinObj(tags["tx.pool_token_id"]!!.toLong(), tags["tx.pool_token"])
-                optList = MinterRaw.PoolRaw(
-                    tags["tx.pool_id"]!!.toInt(),
-                    coin,
-                    coin2!!,
-                    amount,
-                    optDouble,
-                    getAmount(tags["tx.liquidity"]!!),
-                    token,
-                )
-
+                if (transaction.code==0L) {
+                    coin = CoinObjClass.CoinObj(data.coin0.id, data.coin0.symbol)
+                    coin2 = CoinObjClass.CoinObj(data.coin1.id, data.coin1.symbol)
+                    stake = data.volume0
+                    amount = getAmount(stake)
+                    optDouble = getAmount(data.volume1)
+                    val token = CoinObjClass.CoinObj(tags["tx.pool_token_id"]!!.toLong(), tags["tx.pool_token"])
+                    optList = MinterRaw.PoolRaw(
+                        tags["tx.pool_id"]!!.toInt(),
+                        coin,
+                        coin2!!,
+                        amount,
+                        optDouble,
+                        getAmount(tags["tx.liquidity"]!!),
+                        token,
+                    )
+                }
             }
             TransactionTypes.ADD_LIMIT_ORDER.int -> {
                 val data = transaction.data.unpack(AddLimitOrderData::class.java)
@@ -357,17 +358,20 @@ class ConvertTransaction : MinterMatch() {
                 amount = minterMatch.getAmount(stake)
                 optDouble = minterMatch.getAmount(data.valueToBuy)
 
-                optList = LimitOrderRaw(
-                    id = tags["tx.order_id"]!!.toLong(),
-                    coinSell = coin,
-                    wantSell = amount,
-                    coinBuy = coin2!!,
-                    wantBuy = optDouble,
-                    price = optDouble / amount,
-                    owner = from,
-                    height = transaction.height,
-                    pool_id = tags["tx.pool_id"]!!.toLong()
-                )
+//                println(transaction)
+                if (transaction.code==0L) {
+                    optList = LimitOrderRaw(
+                        id = tags["tx.order_id"]!!.toLong(),
+                        coinSell = coin,
+                        wantSell = amount,
+                        coinBuy = coin2!!,
+                        wantBuy = optDouble,
+                        price = optDouble / amount,
+                        owner = from,
+                        height = transaction.height,
+                        pool_id = tags["tx.pool_id"]?.toLong()
+                    )
+                }
             }
             TransactionTypes.REMOVE_LIMIT_ORDER.int -> {
                 val data = transaction.data.unpack(RemoveLimitOrderData::class.java)
@@ -385,7 +389,7 @@ class ConvertTransaction : MinterMatch() {
                 val data = transaction.data.unpack(LockStakeData::class.java)
 //                stake = data.value
 //                coin = CoinObjClass.CoinObj(data.coin.id, data.coin.symbol)
-                optList = tags["tx.unlock_block_id"]!!.toLong()
+                optList = tags["tx.unlock_block_id"]?.toLong()
             }
             else -> {
                 val messageError = "unknown transaction type: $type"

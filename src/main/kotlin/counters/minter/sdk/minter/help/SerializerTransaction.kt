@@ -45,7 +45,7 @@ class SerializerTransaction {
             return data.copy(optData = gson.fromJson(optDataElement, MinterRaw.PoolRaw::class.java))
         } else if (TransactionTypes.ADD_LIMIT_ORDER.eq(type)) {
             return data.copy(optData = gson.fromJson(optDataElement, LimitOrderRaw::class.java))
-        } else if (TransactionTypes.ADD_LIMIT_ORDER.eq(type) || TransactionTypes.REMOVE_LIMIT_ORDER.eq(type)) {
+        } else if (TransactionTypes.REMOVE_LIMIT_ORDER.eq(type)) {
             return data.copy(optData = optDataElement.asLong)
         } else if (TransactionTypes.LOCK_STAKE.eq(type)) {
             return data.copy(optData = optDataElement.asLong)

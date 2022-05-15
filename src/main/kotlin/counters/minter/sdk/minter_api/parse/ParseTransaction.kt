@@ -423,19 +423,20 @@ class ParseTransaction() {
                     amount = minterMatch.getAmount(stake)
                     optDouble = minterMatch.getAmount(data.getString("value_to_buy"))
 
-                    val limitOrderRaw = LimitOrderRaw(
-                        id = tags.getLong("tx.order_id"),
-                        coinSell = coin,
-                        wantSell = amount,
-                        coinBuy = coin2,
-                        wantBuy = optDouble,
-                        price = optDouble / amount,
-                        owner = fromStr,
-                        height = height,
-                        pool_id = tags.getLong("tx.pool_id")
-                    )
-                    getData?.invoke(limitOrderRaw, type)
-
+                    if (code==0) {
+                        val limitOrderRaw = LimitOrderRaw(
+                            id = tags.getLong("tx.order_id"),
+                            coinSell = coin,
+                            wantSell = amount,
+                            coinBuy = coin2,
+                            wantBuy = optDouble,
+                            price = optDouble / amount,
+                            owner = fromStr,
+                            height = height,
+                            pool_id = tags.getLong("tx.pool_id")
+                        )
+                        getData?.invoke(limitOrderRaw, type)
+                    }
                 } else if (type == TransactionTypes.TypeCreateMultisig.int) {
                     val created_multisig = "Mx"+tags.getString("tx.created_multisig")
                     val optList = convertMultisig.get2(
