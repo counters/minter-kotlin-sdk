@@ -11,9 +11,7 @@ import counters.minter.sdk.minter.enum.QueryTags
 import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.enum.TransactionTypes
 import counters.minter.sdk.minter.help.Serializer
-import counters.minter.sdk.minter.models.AddressRaw
-import counters.minter.sdk.minter.models.Commission
-import counters.minter.sdk.minter.models.TransactionRaw
+import counters.minter.sdk.minter.models.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -413,16 +411,15 @@ internal class MinterApiTest {
     @Test
     fun getEventsCoroutines() {
         runBlocking {
-            EventTypes.values().forEach { type ->
-//            EventTypes.OrderExpired.let  { type ->
-                Utils(Config.network).getEvents(type.toOldType(), 10, true).forEach {
+//            EventTypes.values().forEach { type ->
+            EventTypes.RemoveCandidate.let { type ->
+                Utils(Config.network).getEvents(type.toOldType(), 1, false).forEach {
                     val height = it.toLong()
-//                    println("$type: $it")
+                    println("$type: $it")
                     minterHttpApi.getEventCoroutines(height)?.let { events ->
-//                    println(events.bip_value)
+//                        println("HTTP: $events")
                         minterGrpcApi.getEventCoroutines(height)?.let {
-//                            assertEquals(events.count(), it.count())
-//                            return@forEach
+//                            println("gRPC: $it")
                             assertEvents(events, it)
                         } ?: run {
                             assert(false)
@@ -451,7 +448,7 @@ internal class MinterApiTest {
                           }*/
 //                        assertEquals(events?.count(), it.count())
 //                        return@forEach
-                        assertEvents(events, it)
+//                        assertEvents(events, it)
                     } ?: run {
                         assert(false)
                     }
@@ -1020,5 +1017,47 @@ internal class MinterApiTest {
             assert(false)
         }
         return null
+    }
+
+    @Test
+    fun getBestTradeCoroutines() {
+        runBlocking {
+            var httpResponse: BestTrade? = null
+            var grpcResponse: BestTrade? = null
+
+            if (Config.network == Utils.Network.Mainnet5) {
+                val sell_coin = 1902L
+                val buy_coin = 0L
+                val amount = 1.0
+//                val amount = 0.0000001
+                val type = BestTradeType.INPUT
+                val height: Long? = null
+                val max_depth: Int? = null
+
+                val jobHttp = launch {
+                    minterHttpApi.getBestTradeCoroutines(sell_coin, buy_coin, amount, type, max_depth, height).let {
+                        httpResponse = it
+//                    println("HTTP: $it")
+//                    this.cancel()
+                    }
+                }
+                val jobGrpc = launch {
+                    minterGrpcApi.getBestTradeCoroutines(sell_coin, buy_coin, amount, type, max_depth, height).let {
+                        grpcResponse = it
+//                    println("gRPC: $it")
+//                    this.cancel()
+                    }
+                }
+                jobHttp.join()
+                jobGrpc.join()
+                grpcResponse?.let {
+                    assertEquals(httpResponse, grpcResponse)
+                } ?: run {
+                    assert(false)
+                }
+            }
+
+
+        }
     }
 }

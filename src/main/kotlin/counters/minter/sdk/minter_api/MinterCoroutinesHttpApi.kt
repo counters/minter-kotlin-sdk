@@ -12,6 +12,8 @@ import counters.minter.sdk.minter.enum.BlockField
 import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
+import counters.minter.sdk.minter.models.BestTrade
+import counters.minter.sdk.minter.models.BestTradeType
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.http.FuelCoroutinesHttpApi
 import counters.minter.sdk.minter_api.http.HttpOptions
@@ -22,7 +24,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 import okhttp3.WebSocket
@@ -47,6 +48,7 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
     private val parseEvents = ParseEvent()
     private val parseTransaction = ParseTransaction()
     private val parseSwapPool = ParseSwapPool()
+    private val parseBestTrade = ParseBestTrade()
     private val parseSubscribe = ParseSubscribe()
 
     private val parseLimitOrder = ParseLimitOrder()
@@ -493,6 +495,40 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
         getSwapPoolJson(coin0, coin1, height, timeout).let {
             if (it != null) {
                 return parseSwapPool.get(it)
+            } else {
+                return null
+            }
+        }
+    }
+
+    //    /best_trade/{sell_coin}/{buy_coin}/{type}/{amount}
+    suspend fun getBestTradeJson(
+        sellCoin: Long,
+        buyCoin: Long,
+        amount: Double,
+        type: BestTradeType,
+        maxDepth: Int? = null,
+        height: Long? = null,
+        timeout: Long? = null
+    ): JSONObject? {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to it.toString()) }
+        maxDepth?.let { params.add("max_depth" to it.toString()) }
+        this.get(HttpMethod.BEST_TRADE.patch + "/" + sellCoin + "/" + buyCoin + "/" + type.str + "/" + minterMatch.getPip(amount), params, timeout).let {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    return it
+                } else {
+                    return null
+                }
+            } ?: run { return null }
+        }
+    }
+
+    suspend fun getBestTrade(sellCoin: Long, buyCoin: Long, amount: Double, type: BestTradeType, maxDepth: Int? = null, height: Long? = null, timeout: Long? = null): BestTrade? {
+        getBestTradeJson(sellCoin, buyCoin, amount, type, maxDepth, height, timeout).let {
+            if (it != null) {
+                return parseBestTrade.get(it)
             } else {
                 return null
             }

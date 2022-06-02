@@ -7,15 +7,17 @@ import counters.minter.sdk.minter.Coin
 import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
+import counters.minter.sdk.minter.models.BestTrade
+import counters.minter.sdk.minter.models.BestTradeType
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.convert.Convert
+import counters.minter.sdk.minter_api.convert.ConvertBestTradeType
 import counters.minter.sdk.minter_api.convert.ConvertSwapFrom
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.StatusException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import mu.KotlinLogging
@@ -32,6 +34,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     EstimateCoinBuyRequestInterface,
     SubscribeRequestInterface,
     SwapPoolRequestInterface,
+    BestTradeRequestInterface,
     SwapPoolProviderRequestInterface {
 
     //    private var callOptions: CallOptions = CallOptions.DEFAULT
@@ -54,8 +57,11 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     private val convertEstimateCoinBuy = convert.estimateCoinBuy
     private val convertSubscribe = convert.subscribe
     private val convertSwapPool = convert.convertSwapPool
+    private val convertBestTrade = convert.convertBestTrade
 
     override val convertSwapFrom = ConvertSwapFrom()
+
+    private val convertBestTradeType = ConvertBestTradeType()
 
     var exception: Boolean = true
         set(value) {
@@ -408,6 +414,28 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     suspend fun getSwapPool(coin0: Long, coin1: Long, height: Long? = null, deadline: Long? = null): MinterRaw.SwapPoolRaw? {
         getSwapPoolGrpc(coin0, coin1, height, deadline).let {
             it?.let { return convertSwapPool.get(it) } ?: run { return null }
+        }
+    }
+
+    suspend fun getBestTradeGrpc(request: BestTradeRequest, deadline: Long? = null): BestTradeResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.bestTrade(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun getBestTradeGrpc(sellCoin: Long, buyCoin: Long, amount: String, type: BestTradeRequest.Type, maxDepth: Int? = null, height: Long? = null, deadline: Long? = null) =
+        getBestTradeGrpc(getRequestBestTrade(sellCoin, buyCoin, amount, type, maxDepth, height), deadline)
+
+    suspend fun getBestTradeGrpc(sellCoin: Long, buyCoin: Long, amount: Double, type: BestTradeType, maxDepth: Int? = null, height: Long? = null, deadline: Long? = null) =
+        getBestTradeGrpc(getRequestBestTrade(sellCoin, buyCoin, minterMatch.getPip(amount), convertBestTradeType.convBestTradeType(type), maxDepth, height), deadline)
+
+    suspend fun getBestTrade(sellCoin: Long, buyCoin: Long, amount: Double, type: BestTradeType, maxDepth: Int? = null, height: Long? = null, deadline: Long? = null): BestTrade? {
+        getBestTradeGrpc(sellCoin, buyCoin, amount, type, maxDepth, height, deadline).let {
+            it?.let { return convertBestTrade.get(it) } ?: run { return null }
         }
     }
 

@@ -8,6 +8,8 @@ import counters.minter.sdk.minter.enum.QueryTags
 import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.enum.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
+import counters.minter.sdk.minter.models.BestTrade
+import counters.minter.sdk.minter.models.BestTradeType
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import counters.minter.sdk.minter_api.http.HttpOptions
@@ -545,6 +547,23 @@ class MinterApi(
             it.getCoin(symbol, height, deadline, result)
         } ?: run {
             minterGrpcApi!!.getCoinInfo(symbol, height, deadline, result)
+        }
+    }
+
+    suspend fun getBestTradeCoroutines(
+        sellCoin: Long,
+        buyCoin: Long,
+        amount: Double,
+        type: BestTradeType,
+        maxDepth: Int? = null,
+        height: Long? = null,
+        deadline: Long? = null
+    ): BestTrade? {
+        minterCoroutinesHttpApi?.let {
+            return it.getBestTrade(sellCoin, buyCoin, amount, type, maxDepth, height, deadline)
+            return null
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getBestTrade(sellCoin, buyCoin, amount, type, maxDepth, height, deadline)
         }
     }
 

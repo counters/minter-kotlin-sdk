@@ -1,12 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.20"
+    kotlin("jvm") version "1.6.21"
     application
 }
 
 group = "counters"
-version = "2.4.3"
+version = "2.4.4"
 
 val grpcKotlinVersion = "1.2.1"
 val coroutinesVersion = "1.6.1"
