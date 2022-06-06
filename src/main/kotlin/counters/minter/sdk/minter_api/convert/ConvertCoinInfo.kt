@@ -6,7 +6,7 @@ import counters.minter.sdk.minter.MinterRaw
 import kotlin.math.roundToLong
 
 class ConvertCoinInfo : MinterMatch() {
-    var exception: Boolean = true
+//    var exception: Boolean = true
 
     fun get(response: CoinInfoResponse): MinterRaw.CoinRaw {
         val id = response.id

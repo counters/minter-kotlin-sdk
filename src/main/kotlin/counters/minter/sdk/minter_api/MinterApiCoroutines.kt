@@ -35,6 +35,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     SubscribeRequestInterface,
     SwapPoolRequestInterface,
     BestTradeRequestInterface,
+    CoinInfoRequestInterface,
     SwapPoolProviderRequestInterface {
 
     //    private var callOptions: CallOptions = CallOptions.DEFAULT
@@ -58,6 +59,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     private val convertSubscribe = convert.subscribe
     private val convertSwapPool = convert.convertSwapPool
     private val convertBestTrade = convert.convertBestTrade
+    private val convertCoinInfo = convert.convertCoinInfo
 
     override val convertSwapFrom = ConvertSwapFrom()
 
@@ -436,6 +438,46 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     suspend fun getBestTrade(sellCoin: Long, buyCoin: Long, amount: Double, type: BestTradeType, maxDepth: Int? = null, height: Long? = null, deadline: Long? = null): BestTrade? {
         getBestTradeGrpc(sellCoin, buyCoin, amount, type, maxDepth, height, deadline).let {
             it?.let { return convertBestTrade.get(it) } ?: run { return null }
+        }
+    }
+
+    suspend fun getCoinInfoGrpc(request: CoinIdRequest, deadline: Long? = null): CoinInfoResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.coinInfoById(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun getCoinInfoGrpc(request: CoinInfoRequest, deadline: Long? = null): CoinInfoResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.coinInfo(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun getCoinInfoGrpc(coin: Long, height: Long? = null, deadline: Long? = null) =
+        getCoinInfoGrpc(getRequestCoinInfo(coin, height), deadline)
+
+    suspend fun getCoinInfoGrpc(coin: String, height: Long? = null, deadline: Long? = null) =
+        getCoinInfoGrpc(getRequestCoinInfo(coin, height), deadline)
+
+    suspend fun getCoinInfo(coin: Long, height: Long? = null, deadline: Long? = null): MinterRaw.CoinRaw? {
+        return getCoinInfoGrpc(coin, height, deadline)?.let {
+            convertCoinInfo.get(it)
+//            it?.let { return convertCoinInfo.get(it) } ?: run { return null }
+        }
+    }
+
+    suspend fun getCoinInfo(coin: String, height: Long? = null, deadline: Long? = null): MinterRaw.CoinRaw? {
+        return getCoinInfoGrpc(coin, height, deadline)?.let {
+            convertCoinInfo.get(it)
+//            it?.let { return convertCoinInfo.get(it) } ?: run { return null }
         }
     }
 

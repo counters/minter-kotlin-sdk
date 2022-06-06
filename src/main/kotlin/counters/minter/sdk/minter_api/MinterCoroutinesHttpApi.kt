@@ -49,7 +49,8 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
     private val parseTransaction = ParseTransaction()
     private val parseSwapPool = ParseSwapPool()
     private val parseBestTrade = ParseBestTrade()
-    private val parseSubscribe = ParseSubscribe()
+//    private val parseBestTrade = ParseCoin()
+private val parseSubscribe = ParseSubscribe()
 
     private val parseLimitOrder = ParseLimitOrder()
 
@@ -138,6 +139,18 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
         } catch (e: JSONException) {
             logger.error { "JSONException $e" }
             null
+        }
+    }
+
+    private fun returnJSONObject(strJson: String?): JSONObject? {
+        return strJson?.let {
+            getJSONObject(it)?.let {
+                if (it.isNull("error")) {
+                    it
+                } else {
+                    null
+                }
+            }
         }
     }
 
@@ -529,6 +542,38 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
         getBestTradeJson(sellCoin, buyCoin, amount, type, maxDepth, height, timeout).let {
             if (it != null) {
                 return parseBestTrade.get(it)
+            } else {
+                return null
+            }
+        }
+    }
+
+    suspend fun getCoinInfoJson(coin: Long, height: Long? = null, timeout: Long? = null): JSONObject? {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to it.toString()) }
+        return returnJSONObject(this.get(HttpMethod.COINID.patch + "/" + coin, params, timeout))
+    }
+
+    suspend fun getCoinInfoJson(coin: String, height: Long? = null, timeout: Long? = null): JSONObject? {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to it.toString()) }
+        return returnJSONObject(this.get(HttpMethod.COIN.patch + "/" + coin, params, timeout))
+    }
+
+    suspend fun getCoinInfo(coin: Long, height: Long?, timeout: Long?): MinterRaw.CoinRaw? {
+        getCoinInfoJson(coin, height, timeout).let {
+            if (it != null) {
+                return parseCoin.getRaw(it)
+            } else {
+                return null
+            }
+        }
+    }
+
+    suspend fun getCoinInfo(coin: String, height: Long?, timeout: Long?): MinterRaw.CoinRaw? {
+        getCoinInfoJson(coin, height, timeout).let {
+            if (it != null) {
+                return parseCoin.getRaw(it)
             } else {
                 return null
             }

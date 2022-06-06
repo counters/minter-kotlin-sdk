@@ -550,6 +550,24 @@ class MinterApi(
         }
     }
 
+    suspend fun getCoinInfoCoroutines(coin: Long, height: Long? = null, deadline: Long? = null): MinterRaw.CoinRaw? {
+        minterCoroutinesHttpApi?.let {
+            return it.getCoinInfo(coin, height, deadline)
+//            return null
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getCoinInfo(coin, height, deadline)
+        }
+    }
+
+    suspend fun getCoinInfoCoroutines(coin: String, height: Long? = null, deadline: Long? = null): MinterRaw.CoinRaw? {
+        minterCoroutinesHttpApi?.let {
+            return it.getCoinInfo(coin, height, deadline)
+//            return null
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getCoinInfo(coin, height, deadline)
+        }
+    }
+
     suspend fun getBestTradeCoroutines(
         sellCoin: Long,
         buyCoin: Long,
@@ -561,10 +579,10 @@ class MinterApi(
     ): BestTrade? {
         minterCoroutinesHttpApi?.let {
             return it.getBestTrade(sellCoin, buyCoin, amount, type, maxDepth, height, deadline)
-            return null
         } ?: run {
             return minterGrpcApiCoroutines!!.getBestTrade(sellCoin, buyCoin, amount, type, maxDepth, height, deadline)
         }
     }
+
 
 }

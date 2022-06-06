@@ -961,6 +961,78 @@ internal class MinterApiTest {
     }
 
     @Test
+    fun getCoinInfoByIdCoroutines() {
+        runBlocking {
+            var httpResponse: MinterRaw.CoinRaw? = null
+            var grpcResponse: MinterRaw.CoinRaw? = null
+            val coin: Long = if (Config.network == Utils.Network.Mainnet5) 1902 else 0
+//            val coin: Long = if (Config.network == Utils.Network.Mainnet5) 65 else 0
+            val height: Long? = null
+
+            if (Config.network == Utils.Network.Mainnet5) {
+
+                val jobHttp = launch {
+                    minterHttpApi.getCoinInfoCoroutines(coin, height).let {
+                        httpResponse = it
+                        println("HTTP: $it")
+//                    this.cancel()
+                    }
+                }
+                val jobGrpc = launch {
+                    minterGrpcApi.getCoinInfoCoroutines(coin, height).let {
+                        grpcResponse = it
+                        println("gRPC: $it")
+//                    this.cancel()
+                    }
+                }
+                jobHttp.join()
+                jobGrpc.join()
+                grpcResponse?.let {
+                    assertEquals(httpResponse, grpcResponse)
+                } ?: run {
+                    assert(false)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun getCoinInfoCoroutines() {
+        runBlocking {
+            var httpResponse: MinterRaw.CoinRaw? = null
+            var grpcResponse: MinterRaw.CoinRaw? = null
+            val coin = if (Config.network == Utils.Network.Mainnet5) "HUB" else "MNT"
+//            val coin: Long = if (Config.network == Utils.Network.Mainnet5) 65 else 0
+            val height: Long? = null
+
+            if (Config.network == Utils.Network.Mainnet5) {
+
+                val jobHttp = launch {
+                    minterHttpApi.getCoinInfoCoroutines(coin, height).let {
+                        httpResponse = it
+                        println("HTTP: $it")
+//                    this.cancel()
+                    }
+                }
+                val jobGrpc = launch {
+                    minterGrpcApi.getCoinInfoCoroutines(coin, height).let {
+                        grpcResponse = it
+                        println("gRPC: $it")
+//                    this.cancel()
+                    }
+                }
+                jobHttp.join()
+                jobGrpc.join()
+                grpcResponse?.let {
+                    assertEquals(httpResponse, grpcResponse)
+                } ?: run {
+                    assert(false)
+                }
+            }
+        }
+    }
+
+    @Test
     fun getSwapPoolProvider() {
     }
 
