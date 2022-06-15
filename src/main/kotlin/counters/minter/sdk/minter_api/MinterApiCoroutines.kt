@@ -36,6 +36,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     SwapPoolRequestInterface,
     BestTradeRequestInterface,
     CoinInfoRequestInterface,
+    CandidateRequestInterface,
     SwapPoolProviderRequestInterface {
 
     //    private var callOptions: CallOptions = CallOptions.DEFAULT
@@ -479,6 +480,23 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
             convertCoinInfo.get(it)
 //            it?.let { return convertCoinInfo.get(it) } ?: run { return null }
         }
+    }
+
+    suspend fun getCandidateGrpc(request: CandidateRequest, deadline: Long? = null): CandidateResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.candidate(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun getCandidateGrpc(public_key: String, not_show_stakes: Boolean? = null, height: Long? = null, deadline: Long? = null) =
+        getCandidateGrpc(getRequestCandidate(public_key, not_show_stakes, height), deadline)
+
+    suspend fun getCandidate(public_key: String, not_show_stakes: Boolean? = null, height: Long? = null, deadline: Long? = null) {
+        TODO("Not yet implemented")
     }
 
 }
