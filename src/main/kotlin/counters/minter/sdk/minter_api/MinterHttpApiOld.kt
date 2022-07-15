@@ -12,7 +12,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 class MinterHttpApiOld(
-    var nodeUrl: String = "http://localhost:8843/v2",
+    nodeUrl: String = "http://localhost:8843/v2",
     timeout: Double? = null,
     override var headers: Map<String, String>? = null
 ) :
