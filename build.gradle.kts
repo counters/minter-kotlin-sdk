@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.21"
+    kotlin("jvm") version "1.7.10"
     application
 }
 
@@ -48,8 +48,9 @@ dependencies {
     implementation("io.grpc:grpc-protobuf:1.46.0")
     implementation("io.grpc:grpc-stub:1.46.0")
 
-    implementation("com.google.protobuf:protobuf-java:3.20.1")
-    implementation("com.google.protobuf:protobuf-kotlin:3.20.1")
+    implementation("com.google.protobuf:protobuf-java:3.20.3")
+    implementation("com.google.protobuf:protobuf-kotlin:3.20.3")
+    implementation(kotlin("stdlib-jdk8"))
 
 }
 
@@ -66,3 +67,11 @@ application {
     mainClassName = "MainKt"
 }
 */
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "1.8"
+}
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+    jvmTarget = "1.8"
+}
