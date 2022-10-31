@@ -942,13 +942,13 @@ internal class MinterApiTest {
         val semaphore = Semaphore(1)
         semaphore.acquireUninterruptibly()
         minterHttpApi.getCoinInfo(coin, height) {
-            println("HTTP: $it")
+//            println("HTTP: $it")
             httpResponse = it
             semaphore.release()
         }
         semaphore.acquireUninterruptibly()
         minterGrpcApi.getCoinInfo(coin, height) {
-            println("gRPC: $it")
+//            println("gRPC: $it")
             grpcResponse = it
             semaphore.release()
         }
@@ -974,14 +974,14 @@ internal class MinterApiTest {
                 val jobHttp = launch {
                     minterHttpApi.getCoinInfoCoroutines(coin, height).let {
                         httpResponse = it
-                        println("HTTP: $it")
+//                        println("HTTP: $it")
 //                    this.cancel()
                     }
                 }
                 val jobGrpc = launch {
                     minterGrpcApi.getCoinInfoCoroutines(coin, height).let {
                         grpcResponse = it
-                        println("gRPC: $it")
+//                        println("gRPC: $it")
 //                    this.cancel()
                     }
                 }
@@ -1010,14 +1010,14 @@ internal class MinterApiTest {
                 val jobHttp = launch {
                     minterHttpApi.getCoinInfoCoroutines(coin, height).let {
                         httpResponse = it
-                        println("HTTP: $it")
+//                        println("HTTP: $it")
 //                    this.cancel()
                     }
                 }
                 val jobGrpc = launch {
                     minterGrpcApi.getCoinInfoCoroutines(coin, height).let {
                         grpcResponse = it
-                        println("gRPC: $it")
+//                        println("gRPC: $it")
 //                    this.cancel()
                     }
                 }
@@ -1031,6 +1031,42 @@ internal class MinterApiTest {
             }
         }
     }
+
+    @Test
+    fun getFrozenAllCoroutines() {
+        runBlocking {
+            var httpResponse: List<FrozenAllRaw>? = null
+            var grpcResponse:  List<FrozenAllRaw>? = null
+            var startHeight: Long? = null
+            var endHeight: Long = 99999999
+            var addresses: List<String>? = listOf()
+//            var addresses: List<String>? = listOf("Mxeee37fedf95e5ee65ce6e3ad1cbcfa9055932311")
+//            var coinIds: List<Long>? = null
+            var coinIds: List<Long>? = listOf(2361, 2024)
+            val height: Long? = null
+
+            val jobHttp = launch {
+                minterHttpApi.getFrozenAllCoroutines(startHeight, endHeight, addresses, coinIds, height).let {
+                    httpResponse = it
+                    println("HTTP: $it")
+                }
+            }
+            val jobGrpc = launch {
+                minterGrpcApi.getFrozenAllCoroutines(startHeight, endHeight, addresses, coinIds, height).let {
+                    grpcResponse = it
+                    println("gRPC: $it")
+                }
+            }
+            jobHttp.join()
+            jobGrpc.join()
+            grpcResponse?.let {
+                assertEquals(httpResponse, grpcResponse)
+            } ?: run {
+                assert(false)
+            }
+        }
+    }
+
 
     @Test
     fun getSwapPoolProvider() {
