@@ -18,4 +18,6 @@ enum class HttpMethod(val patch: String) {
     LIMIT_ORDERS("limit_orders"),
     SWAP_POOL("swap_pool"),
     BEST_TRADE("best_trade"),
+
+    FROZEN_ALL("frozen_all"),
 }

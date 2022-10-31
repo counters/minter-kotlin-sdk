@@ -6,10 +6,7 @@ import counters.minter.sdk.minter.*
 import counters.minter.sdk.minter.Coin
 import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.enum.SwapFromTypes
-import counters.minter.sdk.minter.models.AddressRaw
-import counters.minter.sdk.minter.models.BestTrade
-import counters.minter.sdk.minter.models.BestTradeType
-import counters.minter.sdk.minter.models.TransactionRaw
+import counters.minter.sdk.minter.models.*
 import counters.minter.sdk.minter_api.convert.Convert
 import counters.minter.sdk.minter_api.convert.ConvertBestTradeType
 import counters.minter.sdk.minter_api.convert.ConvertSwapFrom
@@ -37,6 +34,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     BestTradeRequestInterface,
     CoinInfoRequestInterface,
     CandidateRequestInterface,
+    FrozenAllRequestInterface,
     SwapPoolProviderRequestInterface {
 
     //    private var callOptions: CallOptions = CallOptions.DEFAULT
@@ -61,6 +59,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     private val convertSwapPool = convert.convertSwapPool
     private val convertBestTrade = convert.convertBestTrade
     private val convertCoinInfo = convert.convertCoinInfo
+    private val convertFrozenAll = convert.convertFrozenAll
 
     override val convertSwapFrom = ConvertSwapFrom()
 
@@ -497,6 +496,24 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
 
     suspend fun getCandidate(public_key: String, not_show_stakes: Boolean? = null, height: Long? = null, deadline: Long? = null) {
         TODO("Not yet implemented")
+    }
+
+    suspend fun getFrozenAllGrpc(request: FrozenAllRequest, deadline: Long? = null): FrozenResponse? {
+        val stub = if (deadline != null) this.stub.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else this.stub
+        return try {
+            stub.frozenAll(request)
+        } catch (e: StatusException) {
+            logger.warn { "StatusException: $e" }
+            null
+        }
+    }
+
+    suspend fun getFrozenAllGrpc(startHeight: Long? = null, endHeight: Long, addresses: List<String>? = null, coinIds: List<Long>? = null, height: Long? = null, deadline: Long? = null) =
+        getFrozenAllGrpc(getRequestFrozenAll(startHeight, endHeight, addresses, coinIds, height), deadline)
+    suspend fun getFrozenAll(startHeight: Long? = null, endHeight: Long, addresses: List<String>? = null, coinIds: List<Long>? = null, height: Long? = null, deadline: Long? = null): List<FrozenAllRaw>? {
+        getFrozenAllGrpc(startHeight, endHeight, addresses, coinIds, height, deadline).let {
+            it?.let { return convertFrozenAll.get(it) } ?: run { return null }
+        }
     }
 
 }

@@ -11,10 +11,7 @@ import counters.minter.sdk.minter.MinterRaw.EventRaw
 import counters.minter.sdk.minter.enum.BlockField
 import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.enum.SwapFromTypes
-import counters.minter.sdk.minter.models.AddressRaw
-import counters.minter.sdk.minter.models.BestTrade
-import counters.minter.sdk.minter.models.BestTradeType
-import counters.minter.sdk.minter.models.TransactionRaw
+import counters.minter.sdk.minter.models.*
 import counters.minter.sdk.minter_api.http.FuelCoroutinesHttpApi
 import counters.minter.sdk.minter_api.http.HttpOptions
 import counters.minter.sdk.minter_api.http.WebSocketOkHttp
@@ -49,8 +46,9 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
     private val parseTransaction = ParseTransaction()
     private val parseSwapPool = ParseSwapPool()
     private val parseBestTrade = ParseBestTrade()
-//    private val parseBestTrade = ParseCoin()
-private val parseSubscribe = ParseSubscribe()
+    private val parseFrozenAll = ParseFrozenAll()
+
+    private val parseSubscribe = ParseSubscribe()
 
     private val parseLimitOrder = ParseLimitOrder()
 
@@ -574,6 +572,46 @@ private val parseSubscribe = ParseSubscribe()
         getCoinInfoJson(coin, height, timeout).let {
             if (it != null) {
                 return parseCoin.getRaw(it)
+            } else {
+                return null
+            }
+        }
+    }
+
+/*    suspend fun getFrozenAllRaw(coin: Long, height: Long?, timeout: Long?): List<FrozenAllRaw>? {
+        getCoinInfoJson(coin, height, timeout).let {
+            if (it != null) {
+                return parseCoin.getRaw(it)
+            } else {
+                return null
+            }
+        }
+    }*/
+
+    suspend fun getFrozenAllJson(startHeight: Long? = null,
+                                 endHeight: Long,
+                                 addresses: List<String>? = null,
+                                 coinIds: List<Long>? = null,
+                                 height: Long? = null,
+                                 timeout: Long? = null): JSONObject? {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to it.toString()) }
+        startHeight?.let { params.add("start_height" to it.toString())  }
+        endHeight.let { params.add("end_height" to it.toString())  }
+        addresses?.forEach { params.add("addresses" to it) }
+        coinIds?.forEach { params.add("coin_ids" to it.toString()) }
+        return returnJSONObject(this.get(HttpMethod.FROZEN_ALL.patch, params, timeout))
+    }
+    suspend fun getFrozenAllRaw(startHeight: Long? = null,
+                                endHeight: Long,
+                                addresses: List<String>? = null,
+                                coinIds: List<Long>? = null,
+                                height: Long? = null, timeout: Long?): List<FrozenAllRaw>? {
+        getFrozenAllJson(startHeight, endHeight, addresses, coinIds, height, timeout).let {
+            if (it != null) {
+//                println(it)
+//                TODO()
+                return parseFrozenAll.getRaw(it)
             } else {
                 return null
             }

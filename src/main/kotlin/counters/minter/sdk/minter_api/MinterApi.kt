@@ -7,10 +7,7 @@ import counters.minter.sdk.minter.MinterRaw.EventRaw
 import counters.minter.sdk.minter.enum.QueryTags
 import counters.minter.sdk.minter.enum.Subscribe
 import counters.minter.sdk.minter.enum.SwapFromTypes
-import counters.minter.sdk.minter.models.AddressRaw
-import counters.minter.sdk.minter.models.BestTrade
-import counters.minter.sdk.minter.models.BestTradeType
-import counters.minter.sdk.minter.models.TransactionRaw
+import counters.minter.sdk.minter.models.*
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import counters.minter.sdk.minter_api.http.HttpOptions
 import io.grpc.ManagedChannelBuilder
@@ -581,6 +578,21 @@ class MinterApi(
             return it.getBestTrade(sellCoin, buyCoin, amount, type, maxDepth, height, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getBestTrade(sellCoin, buyCoin, amount, type, maxDepth, height, deadline)
+        }
+    }
+
+    suspend fun getFrozenAllCoroutines(
+        startHeight: Long? = null,
+        endHeight: Long,
+        addresses: List<String>? = null,
+        coinIds: List<Long>? = null,
+        height: Long? = null,
+        deadline: Long? = null
+    ): List<FrozenAllRaw>? {
+        minterCoroutinesHttpApi?.let {
+            return it.getFrozenAllRaw(startHeight, endHeight, addresses, coinIds, height, deadline)
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getFrozenAll(startHeight, endHeight, addresses, coinIds, height, deadline)
         }
     }
 
