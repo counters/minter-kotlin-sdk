@@ -1,11 +1,16 @@
 package counters.minter.sdk.minter_api.parse
 
+import counters.minter.sdk.minter.CoinObjClass
+import counters.minter.sdk.minter.enums.CandidateStatus
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterMatch
+import counters.minter.sdk.minter.models.Candidate
+import counters.minter.sdk.minter.models.Stake
 import org.json.JSONObject
 
-class ParseNode {
+class ParseNode: MinterMatch() {
     var minterMatch = MinterMatch()
+    @Deprecated("")
     fun get(
         result: JSONObject,
         reward_address: ((address: String) -> Long)? = null,
@@ -40,5 +45,44 @@ class ParseNode {
 //        println (node)
         return node
 //        return Block.Block(height,)
+    }
+
+    fun getCandidate(result: JSONObject): Candidate? {
+
+        val reward = result.getString("reward_address")
+
+        val owner = result.getString("owner_address")
+
+        val control = result.getString("control_address")
+
+        if (reward == null || owner == null || control == null) return null
+        val pub_key = result.getString("public_key")
+        val total_stake = getAmount(result.getString("total_stake"))
+
+        val commission = result.getInt("commission")
+        val used_slots = result.getInt("used_slots")
+        val uniq_users = result.getInt("uniq_users")
+        val min_stake = getAmount(result.getString("min_stake"))
+
+        val validator = result.getBoolean("validator")
+        val jailedUntil = result.getLong("jailed_until")
+        val status = CandidateStatus.byRaw(result.getInt("status"))
+
+        val stakes = arrayListOf<Stake>()
+        result.getJSONArray("stakes").forEach { stake->
+            stake as JSONObject
+            CoinObjClass.fromJson(stake.getJSONObject("coin"))?.let { coin ->
+
+            stakes.add( Stake(
+                owner = stake.getString("owner"),
+                coin = coin,
+                value = getAmount(stake.getString("value")),
+                bipValue = getAmount(stake.getString("bip_value")),
+            ))
+        }
+        }
+        if (status!=null)
+        return Candidate(reward, owner, control,total_stake, pub_key, commission, used_slots, uniq_users, min_stake, stakes, status, validator, jailedUntil)
+        return null
     }
 }

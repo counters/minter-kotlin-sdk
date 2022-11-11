@@ -1,6 +1,6 @@
 package counters.minter.sdk.minter.models
 
-import counters.minter.sdk.minter.enum.CommissionKey
+import counters.minter.sdk.minter.enums.CommissionKey
 
 data class Commission(
     val key: CommissionKey,

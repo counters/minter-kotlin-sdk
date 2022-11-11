@@ -8,9 +8,9 @@ import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter.MinterRaw.BlockRaw
 import counters.minter.sdk.minter.MinterRaw.EventRaw
-import counters.minter.sdk.minter.enum.BlockField
-import counters.minter.sdk.minter.enum.Subscribe
-import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter.enums.BlockField
+import counters.minter.sdk.minter.enums.Subscribe
+import counters.minter.sdk.minter.enums.SwapFromTypes
 import counters.minter.sdk.minter.models.*
 import counters.minter.sdk.minter_api.http.FuelCoroutinesHttpApi
 import counters.minter.sdk.minter_api.http.HttpOptions
@@ -612,6 +612,28 @@ class MinterCoroutinesHttpApi(httpOptions: HttpOptions) :
 //                println(it)
 //                TODO()
                 return parseFrozenAll.getRaw(it)
+            } else {
+                return null
+            }
+        }
+    }
+
+    suspend fun getCandidateJson(publicKey: String,
+                                 notShowStakes: Boolean? = null,
+                                 height: Long? = null,
+                                 timeout: Long? = null): JSONObject? {
+        val params = arrayListOf<Pair<String, String>>()
+        height?.let { params.add("height" to it.toString()) }
+        notShowStakes?.let {
+            val str = if (it) "true" else "false"
+            params.add("not_show_stakes" to str)
+        }
+        return returnJSONObject(this.get(HttpMethod.CANDIDATE.patch+"/"+publicKey, params, timeout))
+    }
+    suspend fun getCandidate(publicKey: String, notShowStakes: Boolean? = null, height: Long? = null, timeout: Long? = null): Candidate? {
+        getCandidateJson(publicKey, notShowStakes, height, timeout).let {
+            if (it != null) {
+                return parseNode.getCandidate(it)
             } else {
                 return null
             }

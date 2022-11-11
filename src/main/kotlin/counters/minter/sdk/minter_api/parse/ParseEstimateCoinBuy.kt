@@ -2,7 +2,7 @@ package counters.minter.sdk.minter_api.parse
 
 import counters.minter.sdk.minter.Coin
 import counters.minter.sdk.minter.MinterMatch
-import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter.enums.SwapFromTypes
 import org.json.JSONObject
 
 class ParseEstimateCoinBuy {

@@ -15,4 +15,6 @@ class Convert {
     val convertCoinInfo = ConvertCoinInfo()
     val convertBestTrade = ConvertBestTrade()
     val convertFrozenAll = ConvertFrozenAll()
+    val convertCandidate = ConvertCandidate()
+
 }

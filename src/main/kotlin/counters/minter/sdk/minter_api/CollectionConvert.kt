@@ -1,6 +1,6 @@
 package counters.minter.sdk.minter_api
 
-import counters.minter.sdk.minter.enum.BlockField
+import counters.minter.sdk.minter.enums.BlockField
 
 interface CollectionConvert {
 

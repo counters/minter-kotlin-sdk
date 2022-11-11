@@ -8,8 +8,8 @@ import com.google.gson.reflect.TypeToken
 import counters.minter.sdk.minter.DataMultisig
 import counters.minter.sdk.minter.LimitOrderRaw
 import counters.minter.sdk.minter.MinterRaw
-import counters.minter.sdk.minter.enum.TransactionTypes
-import counters.minter.sdk.minter.enum.TxPool
+import counters.minter.sdk.minter.enums.TransactionTypes
+import counters.minter.sdk.minter.enums.TxPool
 import counters.minter.sdk.minter.models.DataEditCandidate
 import counters.minter.sdk.minter.models.TransactionRaw
 

@@ -1,6 +1,6 @@
 package counters.minter.sdk.minter
 
-import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter.enums.SwapFromTypes
 import org.joda.time.DateTime
 
 class Coin {

@@ -1,8 +1,8 @@
 package counters.minter.sdk.minter_api
 
 import counters.minter.sdk.minter.*
-import counters.minter.sdk.minter.enum.QueryTags
-import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter.enums.QueryTags
+import counters.minter.sdk.minter.enums.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.http.FuelHttpApi

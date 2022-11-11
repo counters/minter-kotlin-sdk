@@ -7,8 +7,8 @@ import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
 import counters.minter.sdk.minter.MinterRaw.BlockRaw
 import counters.minter.sdk.minter.MinterRaw.EventRaw
-import counters.minter.sdk.minter.enum.Subscribe
-import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter.enums.Subscribe
+import counters.minter.sdk.minter.enums.SwapFromTypes
 import counters.minter.sdk.minter.models.AddressRaw
 import counters.minter.sdk.minter.models.TransactionRaw
 import counters.minter.sdk.minter_api.http.HttpOptions
@@ -26,7 +26,7 @@ class MinterAsyncHttpApi(httpOptions: HttpOptions) :
 
     private val parseBlock = ParseBlock()
 
-    //    private val parseNode = ParseNode()
+    private val parseNode = ParseNode()
     private val parseWallet = ParseWallet()
 
     //    private val parseCoin = ParseCoin()

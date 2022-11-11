@@ -4,7 +4,7 @@ import counters.minter.grpc.client.EventsResponse
 import counters.minter.sdk.minter.CoinObjClass
 import counters.minter.sdk.minter.MinterMatch
 import counters.minter.sdk.minter.MinterRaw
-import counters.minter.sdk.minter.enum.CommissionKey
+import counters.minter.sdk.minter.enums.CommissionKey
 import counters.minter.sdk.minter.models.Commission
 import counters.minter.sdk.minter.utils.EventRole
 import counters.minter.sdk.minter.utils.EventType

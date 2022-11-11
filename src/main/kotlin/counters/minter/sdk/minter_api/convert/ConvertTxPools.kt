@@ -5,7 +5,7 @@ import counters.minter.grpc.client.SellAllSwapPoolData
 import counters.minter.grpc.client.SellSwapPoolData
 import counters.minter.sdk.minter.CoinObjClass
 import counters.minter.sdk.minter.MinterMatch
-import counters.minter.sdk.minter.enum.TxPool
+import counters.minter.sdk.minter.enums.TxPool
 import counters.minter.sdk.minter.models.OrderRaw
 import org.json.JSONArray
 import org.json.JSONObject

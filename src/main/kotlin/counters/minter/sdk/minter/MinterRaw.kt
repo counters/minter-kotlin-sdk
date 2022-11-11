@@ -6,6 +6,7 @@ import counters.minter.sdk.minter.models.TransactionRaw
 
 class MinterRaw {
 
+    @Deprecated("use Candidate()")
     data class NodeRaw(
         val reward: String,
         val owner: String,

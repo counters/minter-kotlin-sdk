@@ -1,7 +1,7 @@
 package counters.minter.sdk
 
 import com.google.common.io.Resources.getResource
-import counters.minter.sdk.minter.enum.TransactionTypes
+import counters.minter.sdk.minter.enums.TransactionTypes
 import counters.minter.sdk.minter.utils.EventType
 import org.json.JSONArray
 import org.json.JSONObject

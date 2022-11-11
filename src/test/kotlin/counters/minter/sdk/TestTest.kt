@@ -1,7 +1,7 @@
 package counters.minter.sdk
 
 import Config
-import counters.minter.sdk.minter.enum.TransactionTypes
+import counters.minter.sdk.minter.enums.TransactionTypes
 import counters.minter.sdk.minter.utils.EventType
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test

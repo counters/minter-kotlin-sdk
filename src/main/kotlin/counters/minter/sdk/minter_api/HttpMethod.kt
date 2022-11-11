@@ -2,7 +2,9 @@ package counters.minter.sdk.minter_api
 
 enum class HttpMethod(val patch: String) {
     BLOCK("block"),
+    @Deprecated("use CANDIDATE")
     NODE("candidate"),
+    CANDIDATE("candidate"),
     ADDRESS("address"),
     COIN("coin_info"),
     COINID("coin_info_by_id"),

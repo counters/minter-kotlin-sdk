@@ -4,8 +4,8 @@ import com.google.protobuf.Empty
 import counters.minter.grpc.client.*
 import counters.minter.sdk.minter.*
 import counters.minter.sdk.minter.Coin
-import counters.minter.sdk.minter.enum.Subscribe
-import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter.enums.Subscribe
+import counters.minter.sdk.minter.enums.SwapFromTypes
 import counters.minter.sdk.minter.models.*
 import counters.minter.sdk.minter_api.convert.Convert
 import counters.minter.sdk.minter_api.convert.ConvertBestTradeType
@@ -60,6 +60,7 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     private val convertBestTrade = convert.convertBestTrade
     private val convertCoinInfo = convert.convertCoinInfo
     private val convertFrozenAll = convert.convertFrozenAll
+    private val convertCandidate = convert.convertCandidate
 
     override val convertSwapFrom = ConvertSwapFrom()
 
@@ -494,8 +495,10 @@ class MinterApiCoroutines(grpcOptions: GrpcOptions? = null) :
     suspend fun getCandidateGrpc(public_key: String, not_show_stakes: Boolean? = null, height: Long? = null, deadline: Long? = null) =
         getCandidateGrpc(getRequestCandidate(public_key, not_show_stakes, height), deadline)
 
-    suspend fun getCandidate(public_key: String, not_show_stakes: Boolean? = null, height: Long? = null, deadline: Long? = null) {
-        TODO("Not yet implemented")
+    suspend fun getCandidate(public_key: String, not_show_stakes: Boolean? = null, height: Long? = null, deadline: Long? = null): Candidate? {
+        getCandidateGrpc(public_key, not_show_stakes, height, deadline).let {
+            it?.let { return convertCandidate.get(it) } ?: run { return null }
+        }
     }
 
     suspend fun getFrozenAllGrpc(request: FrozenAllRequest, deadline: Long? = null): FrozenResponse? {

@@ -1,4 +1,4 @@
-package counters.minter.sdk.minter.enum
+package counters.minter.sdk.minter.enums
 
 /**
  * https://github.com/MinterTeam/minter-go-node/blob/master/coreV2/transaction/transaction.go

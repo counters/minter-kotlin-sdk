@@ -1,4 +1,4 @@
-package counters.minter.sdk.minter.enum
+package counters.minter.sdk.minter.enums
 
 import counters.minter.sdk.minter.models.EventData
 import counters.minter.sdk.minter.utils.EventType

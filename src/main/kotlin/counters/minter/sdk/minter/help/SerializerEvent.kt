@@ -3,7 +3,7 @@ package counters.minter.sdk.minter.help
 import com.google.gson.*
 import com.google.gson.reflect.TypeToken
 import counters.minter.sdk.minter.MinterRaw.EventRaw
-import counters.minter.sdk.minter.enum.EventTypes
+import counters.minter.sdk.minter.enums.EventTypes
 import counters.minter.sdk.minter.models.Commission
 
 class SerializerEvent {

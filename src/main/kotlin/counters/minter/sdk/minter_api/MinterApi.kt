@@ -4,9 +4,9 @@ import counters.minter.grpc.client.BlockField
 import counters.minter.sdk.minter.*
 import counters.minter.sdk.minter.MinterRaw.BlockRaw
 import counters.minter.sdk.minter.MinterRaw.EventRaw
-import counters.minter.sdk.minter.enum.QueryTags
-import counters.minter.sdk.minter.enum.Subscribe
-import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter.enums.QueryTags
+import counters.minter.sdk.minter.enums.Subscribe
+import counters.minter.sdk.minter.enums.SwapFromTypes
 import counters.minter.sdk.minter.models.*
 import counters.minter.sdk.minter_api.grpc.GrpcOptions
 import counters.minter.sdk.minter_api.http.HttpOptions
@@ -593,6 +593,16 @@ class MinterApi(
             return it.getFrozenAllRaw(startHeight, endHeight, addresses, coinIds, height, deadline)
         } ?: run {
             return minterGrpcApiCoroutines!!.getFrozenAll(startHeight, endHeight, addresses, coinIds, height, deadline)
+        }
+    }
+
+    suspend fun getCandidateCoroutines(
+        publicKey: String, notShowStakes: Boolean? = null, height: Long? = null, deadline: Long? = null
+    ): Candidate? {
+        minterCoroutinesHttpApi?.let {
+            return it.getCandidate(publicKey, notShowStakes, height, deadline)
+        } ?: run {
+            return minterGrpcApiCoroutines!!.getCandidate(publicKey, notShowStakes, height, deadline)
         }
     }
 

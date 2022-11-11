@@ -1,8 +1,8 @@
 package counters.minter.sdk.minter_api.parse
 
 import counters.minter.sdk.minter.*
-import counters.minter.sdk.minter.enum.CommissionKey
-import counters.minter.sdk.minter.enum.TransactionTypes
+import counters.minter.sdk.minter.enums.CommissionKey
+import counters.minter.sdk.minter.enums.TransactionTypes
 import counters.minter.sdk.minter.models.Commission
 import counters.minter.sdk.minter.models.DataEditCandidate
 import counters.minter.sdk.minter.models.TransactionRaw

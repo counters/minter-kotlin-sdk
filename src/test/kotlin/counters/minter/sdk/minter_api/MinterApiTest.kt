@@ -6,10 +6,10 @@ import counters.minter.sdk.lib.LibTransactionTypes
 import counters.minter.sdk.minter.Coin
 import counters.minter.sdk.minter.Minter
 import counters.minter.sdk.minter.MinterRaw
-import counters.minter.sdk.minter.enum.EventTypes
-import counters.minter.sdk.minter.enum.QueryTags
-import counters.minter.sdk.minter.enum.SwapFromTypes
-import counters.minter.sdk.minter.enum.TransactionTypes
+import counters.minter.sdk.minter.enums.EventTypes
+import counters.minter.sdk.minter.enums.QueryTags
+import counters.minter.sdk.minter.enums.SwapFromTypes
+import counters.minter.sdk.minter.enums.TransactionTypes
 import counters.minter.sdk.minter.help.Serializer
 import counters.minter.sdk.minter.models.*
 import kotlinx.coroutines.async
@@ -1055,6 +1055,39 @@ internal class MinterApiTest {
                 minterGrpcApi.getFrozenAllCoroutines(startHeight, endHeight, addresses, coinIds, height).let {
                     grpcResponse = it
                     println("gRPC: $it")
+                }
+            }
+            jobHttp.join()
+            jobGrpc.join()
+            grpcResponse?.let {
+                assertEquals(httpResponse, grpcResponse)
+            } ?: run {
+                assert(false)
+            }
+        }
+    }
+
+    @Test
+    fun getCandidateCoroutines() {
+        runBlocking {
+            var httpResponse: Candidate? = null
+            var grpcResponse:  Candidate? = null
+            var publicKey
+//            ="Mp12345bf7d1c833701ea490c2e77430486922a9fbef713b933cc3b32700f27777"
+             ="Mp629b5528f09d1c74a83d18414f2e4263e14850c47a3fac3f855f200111111111"
+            var notShowStakes: Boolean? = true
+            val height: Long? = null
+
+            val jobHttp = launch {
+                minterHttpApi.getCandidateCoroutines(publicKey, notShowStakes, height).let {
+                    httpResponse = it
+//                    println("HTTP: $it")
+                }
+            }
+            val jobGrpc = launch {
+                minterGrpcApi.getCandidateCoroutines(publicKey, notShowStakes, height).let {
+                    grpcResponse = it
+//                    println("gRPC: $it")
                 }
             }
             jobHttp.join()

@@ -2,8 +2,8 @@ package counters.minter.sdk.minter.help
 
 import Config
 import counters.minter.sdk.Utils
-import counters.minter.sdk.minter.enum.EventTypes
-import counters.minter.sdk.minter.enum.TransactionTypes
+import counters.minter.sdk.minter.enums.EventTypes
+import counters.minter.sdk.minter.enums.TransactionTypes
 import counters.minter.sdk.minter_api.MinterApi
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
@@ -31,7 +31,8 @@ internal class SerializerTest {
         val serializer = Serializer()
         runBlocking {
             TransactionTypes.values().forEach { type ->
-                Utils(Config.network).getTransactions(type, 10, true).forEach {
+//            TransactionTypes.ADD_LIMIT_ORDER.let { type ->
+                Utils(Config.network).getTransactions(type, 1, true).forEach {
 //                "Mt7a39b747c7b9df1600d70312d265dfc5f148df2373465ca113a08419628a4535".let {
 //                        println("$type: $it")
                     minterApi.getTransactionCoroutines(it)?.let { transaction ->
@@ -57,11 +58,11 @@ internal class SerializerTest {
     fun event() {
         val serializer = Serializer()
         runBlocking {
-//            EventTypes.values().forEach { type ->
-            EventTypes.OrderExpired.let { type ->
+            EventTypes.values().forEach { type ->
+//            EventTypes.OrderExpired.let { type ->
                 Utils(Config.network).getEvents(type.toOldType(), 1, true).forEach { height ->
 //                "12345".let {
-//                    println("$type: height: $height")
+                    println("$type: height: $height")
 //                    minterApi.getEventCoroutines(height.toLong())?.forEachIndexed {  index, eventRaw ->
                     minterApi.getEventCoroutines(height.toLong())?.let { eventsRaw ->
                         val jsonArray = serializer.event(eventsRaw)

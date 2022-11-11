@@ -4,7 +4,7 @@ import counters.minter.grpc.client.ApiServiceGrpc
 import counters.minter.grpc.client.EstimateCoinSellRequest
 import counters.minter.grpc.client.EstimateCoinSellResponse
 import counters.minter.sdk.minter.Coin
-import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter.enums.SwapFromTypes
 import counters.minter.sdk.minter_api.convert.ConvertEstimateCoinSell
 import io.grpc.StatusRuntimeException
 import mu.KLogger

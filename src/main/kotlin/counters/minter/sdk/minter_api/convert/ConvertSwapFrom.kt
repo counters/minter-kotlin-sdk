@@ -1,7 +1,7 @@
 package counters.minter.sdk.minter_api.convert
 
 import counters.minter.grpc.client.SwapFrom
-import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter.enums.SwapFromTypes
 
 class ConvertSwapFrom {
     fun convSwapFrom(swap_from: SwapFromTypes): SwapFrom {

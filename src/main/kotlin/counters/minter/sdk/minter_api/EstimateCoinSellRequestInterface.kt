@@ -1,7 +1,7 @@
 package counters.minter.sdk.minter_api
 
 import counters.minter.grpc.client.EstimateCoinSellRequest
-import counters.minter.sdk.minter.enum.SwapFromTypes
+import counters.minter.sdk.minter.enums.SwapFromTypes
 import counters.minter.sdk.minter_api.convert.ConvertSwapFrom
 
 interface EstimateCoinSellRequestInterface {

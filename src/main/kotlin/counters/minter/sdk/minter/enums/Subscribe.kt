@@ -1,4 +1,4 @@
-package counters.minter.sdk.minter.enum
+package counters.minter.sdk.minter.enums
 
 enum class Subscribe(val str: String) {
     TmEventNewBlock("tm.event = 'NewBlock'"),
