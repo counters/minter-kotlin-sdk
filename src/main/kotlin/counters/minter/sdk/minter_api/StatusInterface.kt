@@ -22,14 +22,17 @@ sealed interface StatusInterface {
         val blockingClient = if (deadline != null) blockingClient.withDeadlineAfter(deadline, TimeUnit.MILLISECONDS) else blockingClient
         try {
             blockingClient.status(null)?.let {
+//                logger.warn { "blockingClient.status(null): ${it}" }
                 return it
             } ?: run {
+//                logger.warn { "blockingClient.status(null): null" }
                 return null
             }
         } catch (e: StatusRuntimeException) {
             logger.warn { e }
             return null
         } catch (e: Exception) {
+            logger.error { "blockingClient.status(null): ${e.message}" }
             e.printStackTrace()
             return null
         }
