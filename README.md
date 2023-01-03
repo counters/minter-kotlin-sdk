@@ -32,6 +32,7 @@ Minter Blockchain Kotlin SDK [Minter.network](https://minter.network).
 ```kotlin
 dependencies {
     implementation("counters:minter-kotlin-sdk")
+//    implementation("counters:minter-kotlin-sdk:1.5.1")
     // options
     implementation("io.grpc:grpc-netty-shaded:1.50.2")
 }
