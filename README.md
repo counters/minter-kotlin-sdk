@@ -23,7 +23,7 @@ Minter Blockchain Kotlin SDK [Minter.network](https://minter.network).
 <dependency>
   <groupId>counters</groupId>
   <artifactId>minter-kotlin-sdk</artifactId>
-  <version>2.5.0</version>
+  <version>2.5.1</version>
 </dependency> 
 ```
 
@@ -32,7 +32,7 @@ Minter Blockchain Kotlin SDK [Minter.network](https://minter.network).
 ```kotlin
 dependencies {
     implementation("counters:minter-kotlin-sdk")
-//    implementation("counters:minter-kotlin-sdk:1.5.1")
+//    implementation("counters:minter-kotlin-sdk:2.5.1")
     // options
     implementation("io.grpc:grpc-netty-shaded:1.50.2")
 }
