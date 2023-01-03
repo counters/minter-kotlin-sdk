@@ -14,6 +14,43 @@ Minter Blockchain Kotlin SDK [Minter.network](https://minter.network).
 | JSON in output | :heavy_check_mark: | :heavy_check_mark: | :heavy_multiplication_x: |
 | gRPC class in output         | :heavy_multiplication_x: | :heavy_multiplication_x: | :heavy_check_mark: |
 
+## Using a published package
+[Instruction](https://docs.github.com/ru/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package)
+
+## pom
+
+```xml
+<dependency>
+  <groupId>counters</groupId>
+  <artifactId>minter-kotlin-sdk</artifactId>
+  <version>2.5.0</version>
+</dependency> 
+```
+
+## Kotlin DSL
+
+```kotlin
+dependencies {
+    implementation("counters:minter-kotlin-sdk")
+    // options
+    implementation("io.grpc:grpc-netty-shaded:1.50.2")
+}
+```
+
+## Gradle Groovy
+
+```groovy
+dependencies {
+    implementation 'counters:minter-kotlin-sdk'
+}
+```
+
+```shell
+./gradlew installDist
+# or
+mvn install
+```
+
 #### Initializing the HTTP Api
 ```kotlin
 val minterApi = MinterApi(HttpOptions(raw = "http://localhost:8843/v2"))
