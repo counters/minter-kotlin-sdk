@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "counters"
-version = "2.5.1"
+version = "2.5.2"
 
 repositories {
     mavenCentral()
