@@ -62,9 +62,11 @@ class ParseBlock {
 
         val total_txs = if (result.isNull("total_txs")) 0 else result.getInt("total_txs")
         val size = result.getLong("size")
-        val block_reward = result.getString("block_reward")
-        val reward = minterMatch.getAmount(block_reward)
 
+
+//        val block_reward = result.getString("block_reward")
+//        val reward = minterMatch.getAmount(block_reward)
+        val reward = if (result.isNull("block_reward")) null else minterMatch.getAmount(result.getString("block_reward"))
 
         return MinterRaw.BlockRaw(
             height, time, num_txs, /*total_txs,*/ reward, size, proposer,
